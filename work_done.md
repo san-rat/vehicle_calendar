@@ -25,3 +25,37 @@ Timestamp: 2026-02-03 15:15:37 +0530
 - Created `dev` branch.
 - Added `.gitignore` for Node/Next.js artifacts and env/log files.
 - Updated `README.md` with FleetTime name, description, tech stack, setup commands, and env placeholders.
+
+## Update
+Timestamp: 2026-02-03 15:35:15 +0530
+
+- Installed Node.js and npm via apt-get (Node v18.19.1, npm 9.2.0) after create-next-app required Node.
+- create-next-app (latest) requires Node >=20.9.0 (engine warning shown).
+- Generated a Next.js + Tailwind + App Router + src-dir template in a temporary folder to avoid non-empty repo root restriction, then copied the scaffold into the repo root.
+- Updated `.gitignore` to include Next.js defaults plus required Node/Next entries.
+- Attempted `npm install` twice; both failed with `ERR_SOCKET_TIMEOUT` despite npm registry reachable via `npm ping`.
+- Dev server not started because dependencies could not be installed.
+
+## Files Added From Scaffold (root)
+- `eslint.config.mjs`
+- `next-env.d.ts`
+- `next.config.ts`
+- `package.json`
+- `postcss.config.mjs`
+- `tsconfig.json`
+- `public/`
+- `src/`
+
+## Update
+Timestamp: 2026-02-03 15:37:54 +0530
+
+- Added NodeSource repo for Node.js 20.x.
+- Upgraded Node to v20.20.0 and npm to 10.8.2.
+
+## Update
+Timestamp: 2026-02-03 15:54:45 +0530
+
+- Removed `node_modules` and `package-lock.json` after ENOTEMPTY error.
+- `npm install` completed successfully (357 packages, 0 vulnerabilities).
+- Ran `npm run dev`; Next.js started successfully on http://localhost:3000 and was ready in 9.8s.
+- Stopped the dev server after confirming it started.
