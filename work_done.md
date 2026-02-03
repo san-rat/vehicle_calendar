@@ -59,3 +59,10 @@ Timestamp: 2026-02-03 15:54:45 +0530
 - `npm install` completed successfully (357 packages, 0 vulnerabilities).
 - Ran `npm run dev`; Next.js started successfully on http://localhost:3000 and was ready in 9.8s.
 - Stopped the dev server after confirming it started.
+
+## Update
+Timestamp: 2026-02-03 16:22:27 +0530
+
+- Swapped default fonts to Inter (body) and Montserrat (headings/buttons) via `next/font/google`.
+- Added design tokens in `globals.css` and applied global background/text colors.
+- Added reusable `.app-container` class for max-width and horizontal padding.
