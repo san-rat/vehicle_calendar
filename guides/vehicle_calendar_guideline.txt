@@ -1,0 +1,252 @@
+
+CAR SCHEDULING SYSTEM – FULL DEVELOPMENT GUIDELINE
+(Phases ▸ Sub‑Phases ▸ Tasks ▸ Design System)
+
+--------------------------------------------------------------------
+0️⃣ PHASE 0 – FOUNDATION, PLANNING, ENVIRONMENT
+--------------------------------------------------------------------
+
+0.1 Concept Finalization
+- Complete functional feature list.
+- Confirm only two roles (Member & Super Admin).
+- Privilege settings apply globally.
+- Soft delete for users & vehicles.
+- Logs older than 30 days will be hard-deleted via scheduled cleanup.
+
+0.2 Tech Stack Finalization
+- Frontend & API: Next.js (React) on Vercel.
+- Backend / Database / Auth: Supabase (PostgreSQL).
+- CSS/UI Framework: TailwindCSS.
+- Optional library: Calendar or custom.
+
+0.3 Repository Setup
+- Create Git repo.
+- Create branches: main, dev.
+- Add README.
+- Add .gitignore.
+- Initialize Next.js project.
+- Install TailwindCSS.
+
+0.4 Environment Setup
+- Create Supabase project.
+- Retrieve Supabase URL & Key.
+- Create .env.local in Next.js.
+- Connect Vercel to GitHub.
+- Add environment variables.
+
+--------------------------------------------------------------------
+1️⃣ PHASE 1 – DATABASE, SCHEMA & MODELS
+--------------------------------------------------------------------
+
+1.1 Database Tables
+User
+  id, name, password_hash, role, color_hex, is_active, deleted_at, timestamps
+
+Vehicle
+  id, name, type, is_active, deleted_at, timestamps
+
+PrivilegeConfig (global config)
+  id, time_limit_minutes, allow_booking_freedom, max_days_in_future, require_reason, timestamps
+
+Booking
+  id, user_id, vehicle_id, date, start_time, end_time, is_all_day, reason, status,
+  created_by, updated_by, timestamps
+
+LogEntry
+  id, timestamp, actor_user_id, action_type, description,
+  booking_id(nullable), target_user_id(nullable), target_vehicle_id(nullable), created_at
+
+1.2 Indexes
+- Index bookings(vehicle_id, date)
+- Index logs(created_at)
+- Index users(name)
+
+1.3 Default Seed Entries
+- One super admin.
+- Default privilege configuration.
+- Optionally example vehicles.
+
+--------------------------------------------------------------------
+2️⃣ PHASE 2 – AUTHENTICATION & SESSION
+--------------------------------------------------------------------
+
+2.1 Login System
+- Login using: name + password.
+- Validate with password_hash.
+- Block if user.is_active = false.
+
+2.2 Session
+- JWT or HTTP‑only cookie.
+- Protected routes redirect to /login.
+
+2.3 Logout
+- Clear session cookie.
+
+--------------------------------------------------------------------
+3️⃣ PHASE 3 – ADMIN SETTINGS (Vehicles, Members, Privileges)
+--------------------------------------------------------------------
+
+3.1 Vehicle Management (SUPER ADMIN)
+- GET vehicles
+- POST add vehicle
+- PATCH edit
+- DELETE soft delete (set is_active=false, deleted_at timestamp)
+
+3.2 Member Management (SUPER ADMIN)
+- GET members
+- POST add (name + password + role)
+- PATCH edit name or role (promote/demote)
+- Reset password
+- DELETE soft delete
+
+3.3 Privilege Settings
+- Time limit (minutes or null)
+- Allow booking freedom (ON/OFF)
+- Max future booking window (integer days)
+- Require reason (bool)
+
+--------------------------------------------------------------------
+4️⃣ PHASE 4 – VEHICLE SELECTION, CALENDAR & BOOKING
+--------------------------------------------------------------------
+
+4.1 Choose Vehicle Page
+- Show active vehicles.
+- Icon per type (Car, Van, Jeep, Bike, SUV).
+- Super admin also sees “Settings”.
+
+4.2 Calendar Page
+- Month view.
+- Disable past days.
+- Disable days beyond max_days_in_future.
+- Clicking valid day → Booking UI.
+
+4.3 Booking UI
+Left Panel - Time Scale
+- 00:00–23:59 in 30-min blocks.
+- Show CONFIRMED blocks with user color.
+
+Right Panel - Form
+- Inputs: start, end, reason, all‑day toggle.
+- All‑day disabled when time limit exists.
+- Primary button =
+  - “Book Trip” if booking freedom ON
+  - “Request Booking” if OFF
+
+4.4 Booking API
+- If freedom ON:
+  - Validate → Confirm → Log
+- If freedom OFF:
+  - status = REQUESTED → Log
+- Pending does NOT block time.
+
+--------------------------------------------------------------------
+5️⃣ PHASE 5 – REQUEST LIST & APPROVAL (SUPER ADMIN)
+--------------------------------------------------------------------
+
+5.1 Request List Screen
+- Shows all bookings where status = REQUESTED.
+- Fields: member, vehicle, date, time, reason.
+
+5.2 Approve Flow
+- Check conflicting CONFIRMED bookings.
+- Ask: override or reject.
+- Approve → status = CONFIRMED → Log.
+
+5.3 Reject Flow
+- status = REJECTED.
+- Optional reason.
+- Log entry.
+
+--------------------------------------------------------------------
+6️⃣ PHASE 6 – LOG PAGE & AUTOMATED CLEANUP
+--------------------------------------------------------------------
+
+6.1 Log Page (Visible to all users)
+- Global chronology of system actions.
+- Click to expand details.
+
+6.2 Log Creation Rules
+Logs triggered by:
+- Booking request / confirm / reject / override.
+- Adding / deleting vehicle.
+- Adding / deleting / promoting / demoting member.
+- Privilege changes.
+
+6.3 Auto Log Cleanup (After 30 days)
+- Supabase scheduled cron job:
+  DELETE FROM LogEntry WHERE created_at < NOW() - INTERVAL '30 days';
+
+--------------------------------------------------------------------
+7️⃣ PHASE 7 – UI/UX POLISH, THEME, DESIGN SYSTEM
+--------------------------------------------------------------------
+
+7.1 UI Style Goals
+- Minimalistic.
+- Modern.
+- Clean typography.
+- Soft backgrounds.
+- Subtle accents.
+
+7.2 Fonts
+Headings & Buttons → Montserrat (500/600/700)
+Body Text → Inter or Roboto (400/500)
+
+7.3 Color Palette
+Background base: #F5F5F7
+Card: #FFFFFF
+Text primary: #111827
+Text secondary: #6B7280
+Primary accent: #2563EB or #6366F1
+Border: #E5E7EB
+Success: #22C55E
+Danger: #EF4444
+Warning: #F59E0B
+Info: #0EA5E9
+
+User block colors (soft palette):
+- #3B82F6
+- #10B981
+- #6366F1
+- #F97316
+- #EC4899
+- #14B8A6
+
+7.4 Layout Rules
+- Use 8px spacing system.
+- Border-radius: 12px–16px.
+- Subtle shadows.
+- Large tap-friendly buttons.
+
+7.5 Minimalist Component Guidelines
+- Top bar clean, flat, no heavy borders.
+- Cards on soft background.
+- Clean calendar grid.
+- Slide-up sheet or modal for details.
+- Booking blocks: light background + colored border.
+
+--------------------------------------------------------------------
+8️⃣ PHASE 8 – TESTING, QA & DEPLOYMENT
+--------------------------------------------------------------------
+
+8.1 Manual Test Scenarios
+- Member booking (freedom on/off).
+- Admin approve/reject.
+- Override.
+- Delete member/vehicle.
+- Log cleanup after scheduled run.
+- Privilege change impacts UI.
+
+8.2 Final Deployment
+- Push to main.
+- Configure Vercel domains.
+- Export env settings.
+- Basic analytics.
+
+8.3 Future Enhancements (Optional)
+- Admin export logs as CSV.
+- Notification system.
+- Dark mode toggle.
+
+--------------------------------------------------------------------
+END OF GUIDELINE
+--------------------------------------------------------------------

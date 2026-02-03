@@ -1,0 +1,215 @@
+
+CAR SCHEDULING SYSTEM - BLUEPRINT V2 (GLOBAL PRIVILEGE SETTINGS)
+
+----------------------------------------------------
+1. SYSTEM PURPOSE
+----------------------------------------------------
+A web-based vehicle scheduling platform (mobile-first, desktop compatible) that allows registered users to book vehicles for specific time slots. Includes logging, approval workflows, privilege settings, and administrative tools.
+
+----------------------------------------------------
+2. USER ROLES
+----------------------------------------------------
+A) MEMBER
+- Can log in using name + password
+- Can select vehicle and request/confirm booking (depending on settings)
+- Can cancel own bookings
+- Can view global log
+
+B) SUPER ADMIN
+- Can do everything a Member can
+- Can approve/reject member requests
+- Can override conflicting bookings
+- Can access Settings (Vehicles, Members, Privileges)
+- Can delete vehicles
+- Can delete/remove members
+- Can promote/demote members to/from Super Admin
+
+----------------------------------------------------
+3. GLOBAL PRIVILEGE SETTINGS (One rule for all)
+----------------------------------------------------
+- Time Limit (minutes) – optional
+- Allow Booking Freedom (ON = auto-confirm, OFF = requires approval)
+- Future Booking Window (integer days)
+- Optional: Require reason for booking
+
+Effects:
+- If Time Limit exists → All-day disabled
+- If Freedom OFF → Members' bookings become Request → require admin approval
+- Admin-approved bookings become confirmed
+
+----------------------------------------------------
+4. BOOKING BEHAVIOR RULES
+----------------------------------------------------
+→ Before user clicks Book/Request, time is NOT allocated.
+→ Pending bookings DO NOT block time.
+→ Only confirmed bookings block availability.
+
+A) Member booking when freedom = ON
+- Validated → Confirmed → Logged
+
+B) Member booking when freedom = OFF
+- Created as REQUEST → Goes to Request List → Visible only to Super Admins
+
+C) Super Admin approves
+- Booking becomes CONFIRMED → Logged
+
+D) Super Admin rejects (optional reason)
+- Booking becomes REJECTED → Logged
+
+E) Admin overriding a conflict
+- System warns → If admin proceeds → overrides member booking
+- Overridden booking status = OVERRIDDEN → Logged
+
+----------------------------------------------------
+5. LOGIN SYSTEM
+----------------------------------------------------
+Login Fields:
+- Name (unique)
+- Password
+
+No email or username required
+Admin sets:
+- Name
+- Password
+- Role (Member/Super Admin)
+- Active/Inactive
+
+----------------------------------------------------
+6. UI / UX STRUCTURE
+----------------------------------------------------
+
+--- OPENING PAGE ---
+- Name input
+- Password input
+- Login button
+
+--- CHOOSE VEHICLE ---
+- Shows cards for each vehicle
+- Icons based on type (Car/Van/Bike/SUV/Jeep/Other)
+- Super Admin sees Settings icon
+- Logout icon + Log button
+
+--- CALENDAR PAGE ---
+- Month grid
+- Disabled: past dates + beyond future window
+- Tap valid date → Booking UI
+
+--- BOOKING UI ---
+Left:
+- Vertical timeline from 00:00–23:59 in 30-minute slots
+- Confirmed bookings show as colored blocks (color assigned per user)
+
+Right:
+- Start time
+- End time
+- All-day option (disabled if time limit)
+- Reason field (optional/required)
+- Submit button (Book Trip / Request Booking)
+
+--- LOG PAGE ---
+- Global visible log of all system actions
+- Clicking expands for details
+
+----------------------------------------------------
+7. SUPER ADMIN SETTINGS PAGES
+----------------------------------------------------
+
+--- VEHICLES ---
+- Add vehicle (name + type)
+- Delete vehicle permanently
+- Edit vehicle
+- Active/Inactive toggle optional
+
+--- MEMBERS ---
+- Add member (name + password + role)
+- Delete member permanently
+- Promote to Super Admin
+- Demote to Member
+- Reset password
+- Edit name
+
+--- PRIVILEGES ---
+- Global settings applied to ALL users
+- Time limit
+- Booking freedom ON/OFF
+- Future window (integer days)
+- Require reason ON/OFF
+
+----------------------------------------------------
+8. DATA MODEL
+----------------------------------------------------
+
+User
+- id
+- name (unique)
+- password_hash
+- role (MEMBER/SUPER_ADMIN)
+- color_hex
+- is_active
+
+Vehicle
+- id
+- name
+- type (Car/Van/Bike/SUV/Jeep/Other)
+- is_active
+
+PrivilegeConfig
+- id
+- time_limit_minutes
+- allow_booking_freedom
+- max_days_in_future
+- require_reason
+
+Booking
+- id
+- user_id
+- vehicle_id
+- date
+- start_time
+- end_time
+- is_all_day
+- reason
+- status (REQUESTED/CONFIRMED/REJECTED/CANCELLED/OVERRIDDEN)
+- created_by
+- updated_by
+
+LogEntry
+- id
+- timestamp
+- actor_user_id
+- action_type
+- description
+- booking_id (nullable)
+- target_user_id (nullable)
+- target_vehicle_id (nullable)
+
+----------------------------------------------------
+9. REQUEST LIST (SUPER ADMIN)
+----------------------------------------------------
+Displays:
+- Requesting member
+- Vehicle
+- Date + Time
+- Approve button
+- Reject button
+- Optional rejection reason
+
+Upon approve:
+→ Status = CONFIRMED
+→ Time blocked
+→ Logged
+
+Upon reject:
+→ Status = REJECTED
+→ Logged
+
+----------------------------------------------------
+10. COLOR VISUAL IDENTIFICATION
+----------------------------------------------------
+- Each user assigned a color hex code
+- Shown on timeline booking blocks
+- Shown next to user name in logs
+
+----------------------------------------------------
+END OF BLUEPRINT
+----------------------------------------------------
