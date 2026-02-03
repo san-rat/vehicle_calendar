@@ -1,0 +1,15 @@
+# Node / Next.js
+node_modules/
+.next/
+out/
+dist/
+
+# Env files
+.env
+.env.*
+
+# Vercel
+.vercel/
+
+# Logs
+*.log

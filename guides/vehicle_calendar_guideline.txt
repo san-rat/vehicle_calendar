@@ -10,7 +10,7 @@ CAR SCHEDULING SYSTEM – FULL DEVELOPMENT GUIDELINE
 - Complete functional feature list.
 - Confirm only two roles (Member & Super Admin).
 - Privilege settings apply globally.
-- Soft delete for users & vehicles.
+- Hard delete for users & vehicles.
 - Logs older than 30 days will be hard-deleted via scheduled cleanup.
 
 0.2 Tech Stack Finalization
@@ -90,14 +90,14 @@ LogEntry
 - GET vehicles
 - POST add vehicle
 - PATCH edit
-- DELETE soft delete (set is_active=false, deleted_at timestamp)
+- DELETE delete (set is_active=false, deleted_at timestamp)
 
 3.2 Member Management (SUPER ADMIN)
 - GET members
 - POST add (name + password + role)
 - PATCH edit name or role (promote/demote)
 - Reset password
-- DELETE soft delete
+- DELETE hard delete
 
 3.3 Privilege Settings
 - Time limit (minutes or null)
