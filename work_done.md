@@ -74,3 +74,11 @@ Timestamp: 2026-02-03 16:32:02 +0530
 - Introduced `TopBar` and `FloatingLogButton` components.
 - Added member/admin layouts to reuse the top bar and apply consistent page structure.
 - Added floating Log button on vehicles, calendar, and booking pages.
+
+## Update
+Timestamp: 2026-02-03 16:41:22 +0530
+
+- Added `.env.example` with Supabase public placeholders.
+- Ensured `.env.local` is gitignored.
+- Added `src/lib/env.ts` helper to read env vars and throw only when accessed.
+- Updated README with env setup steps.
