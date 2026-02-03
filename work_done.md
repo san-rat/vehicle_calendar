@@ -66,3 +66,11 @@ Timestamp: 2026-02-03 16:22:27 +0530
 - Swapped default fonts to Inter (body) and Montserrat (headings/buttons) via `next/font/google`.
 - Added design tokens in `globals.css` and applied global background/text colors.
 - Added reusable `.app-container` class for max-width and horizontal padding.
+
+## Update
+Timestamp: 2026-02-03 16:32:02 +0530
+
+- Added App Router route skeletons for login, vehicles, booking calendar/date, log, and admin sections.
+- Introduced `TopBar` and `FloatingLogButton` components.
+- Added member/admin layouts to reuse the top bar and apply consistent page structure.
+- Added floating Log button on vehicles, calendar, and booking pages.
