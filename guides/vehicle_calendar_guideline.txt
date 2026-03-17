@@ -40,10 +40,10 @@ CAR SCHEDULING SYSTEM – FULL DEVELOPMENT GUIDELINE
 
 1.1 Database Tables
 User
-  id, name, password_hash, role, color_hex, is_active, deleted_at, timestamps
+  id (references auth.users.id), name, role, color_hex, is_active, timestamps
 
 Vehicle
-  id, name, type, is_active, deleted_at, timestamps
+  id, name, type, is_active, timestamps
 
 PrivilegeConfig (global config)
   id, time_limit_minutes, allow_booking_freedom, max_days_in_future, require_reason, timestamps
@@ -53,8 +53,9 @@ Booking
   created_by, updated_by, timestamps
 
 LogEntry
-  id, timestamp, actor_user_id, action_type, description,
+  id, action_at, actor_user_id(nullable), action_type, description, snapshot(jsonb),
   booking_id(nullable), target_user_id(nullable), target_vehicle_id(nullable), created_at
+  Note: nullable foreign keys preserve audit history after hard deletes.
 
 1.2 Indexes
 - Index bookings(vehicle_id, date)
@@ -62,7 +63,7 @@ LogEntry
 - Index users(name)
 
 1.3 Default Seed Entries
-- One super admin.
+- One super admin (Supabase Auth user + linked User row).
 - Default privilege configuration.
 - Optionally example vehicles.
 
@@ -71,8 +72,11 @@ LogEntry
 --------------------------------------------------------------------
 
 2.1 Login System
-- Login using: name + password.
-- Validate with password_hash.
+- User-facing login uses unique name + password.
+- Authentication handled by Supabase Auth.
+- Supabase Auth may store an internal email for the account behind the scenes.
+- User profile data stored in public User table linked 1:1 with auth.users.
+- Do not store password_hash in application tables.
 - Block if user.is_active = false.
 
 2.2 Session
@@ -90,13 +94,13 @@ LogEntry
 - GET vehicles
 - POST add vehicle
 - PATCH edit
-- DELETE delete (set is_active=false, deleted_at timestamp)
+- DELETE hard delete vehicle
 
 3.2 Member Management (SUPER ADMIN)
 - GET members
-- POST add (name + password + role)
+- POST add (create Supabase Auth user + linked User row with unique name + role)
 - PATCH edit name or role (promote/demote)
-- Reset password
+- Reset password through Supabase Auth
 - DELETE hard delete
 
 3.3 Privilege Settings

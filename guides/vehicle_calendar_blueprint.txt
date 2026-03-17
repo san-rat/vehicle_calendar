@@ -10,7 +10,7 @@ A web-based vehicle scheduling platform (mobile-first, desktop compatible) that 
 2. USER ROLES
 ----------------------------------------------------
 A) MEMBER
-- Can log in using name + password
+- Can log in using unique name + password
 - Can select vehicle and request/confirm booking (depending on settings)
 - Can cancel own bookings
 - Can view global log
@@ -64,10 +64,10 @@ E) Admin overriding a conflict
 5. LOGIN SYSTEM
 ----------------------------------------------------
 Login Fields:
-- Name (unique)
+- Name (unique, user-facing login identifier)
 - Password
 
-No email or username required
+No email required in the UI; Supabase Auth may still store an internal email for the account
 Admin sets:
 - Name
 - Password
@@ -140,12 +140,13 @@ Right:
 ----------------------------------------------------
 
 User
-- id
+- id (references auth.users.id)
 - name (unique)
-- password_hash
 - role (MEMBER/SUPER_ADMIN)
 - color_hex
 - is_active
+
+Credentials are managed by Supabase Auth, not stored as `password_hash` in the application schema.
 
 Vehicle
 - id

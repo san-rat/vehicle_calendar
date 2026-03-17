@@ -10,10 +10,13 @@ Date: 2026-02-03
 
 ## Notes / Decisions (User Clarifications)
 - Log retention is **30 days** (not 3). SRS had an error; user will correct.
-- **Permanent deletion** for members and vehicles (not soft delete). User will adjust guideline and SRS.
+- **Permanent deletion** for members and vehicles (not soft delete). Schema/docs should not use `deleted_at` for these records.
 - **Override notifications are in scope** and must be sent when a booking is overridden.
 - Members **cannot cancel** once a booking has started; cancellation allowed only **before** start time.
 - **All-day bookings** must be available.
+- **Supabase Auth** is the source of truth for credentials. Application user data lives in `public.users`; keep member `name` unique as the user-facing login identifier, and do not store `password_hash` in the app schema.
+- Keep booking time fields as **`date + start_time + end_time`**.
+- For hard delete safety, logs should keep **nullable foreign keys** and **snapshot data** so audit entries survive deleted users, vehicles, or bookings.
 
 ## Limitations Encountered
 - `document/ui_wireframes/ui_wireframe_handsketch.pdf` could not be read due to missing PDF rendering tools; file appears to be image-only.
@@ -91,3 +94,18 @@ Timestamp: 2026-03-17 15:55:02 +0530
 - Replaced the aggregate missing-env check with explicit guards for `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` so the return type narrows to plain `string`.
 - Verified the fix locally with `./node_modules/.bin/tsc --noEmit` (passed).
 - Confirmed `.env.local` already contains non-placeholder Supabase public values locally; these still need to be configured in Vercel environment variables for deployment.
+
+## Update
+Timestamp: 2026-03-17 17:44:01 +0530
+
+- Aligned the Phase 1 guideline with the clarified architecture: Supabase Auth-backed users, hard delete for members/vehicles, and no `password_hash` or `deleted_at` in application tables.
+- Added the initial Supabase schema migration at `supabase/migrations/0001_init_schema.sql`.
+- Added the initial seed file at `supabase/seed.sql`.
+- Chose the safer audit approach for logs: nullable foreign keys plus `snapshot` JSON so logs remain useful after hard deletes.
+
+## Update
+Timestamp: 2026-03-17 18:02:50 +0530
+
+- Kept `public.users.name` as the unique, user-facing login identifier for the project.
+- Decided not to add a separate `display_name` field because it would duplicate the same value for now.
+- Clarified in project docs that Supabase Auth may still use an internal email behind the scenes while the UI continues to use name + password.
