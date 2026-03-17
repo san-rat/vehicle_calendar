@@ -2,6 +2,12 @@
 
 Date: 2026-02-03
 
+## Current Status (as of 2026-03-17)
+- **Frontend scaffold**: Next.js (App Router) + Tailwind set up; base styling + fonts; route skeletons exist for login, vehicles, booking/calendar, log, admin.
+- **Env handling**: `src/lib/env.ts` fixed to avoid TS narrowing issues in deploy builds; `.env.example` added; `.env.local` kept gitignored (Vercel env vars still need to be set).
+- **Product decisions captured**: Supabase Auth as credential source of truth; hard delete for members/vehicles; no `password_hash` / no `deleted_at`; bookings support all-day; cancellation rules; override notifications in scope; logs retain 30 days.
+- **Database**: Initial Supabase migration and seed added (`supabase/migrations/0001_init_schema.sql`, `supabase/seed.sql`) with audit-safe logging (nullable FKs + snapshot JSON).
+
 ## Resources Read
 - `README.md`
 - `guides/vehicle_calendar_blueprint.txt`
@@ -109,3 +115,9 @@ Timestamp: 2026-03-17 18:02:50 +0530
 - Kept `public.users.name` as the unique, user-facing login identifier for the project.
 - Decided not to add a separate `display_name` field because it would duplicate the same value for now.
 - Clarified in project docs that Supabase Auth may still use an internal email behind the scenes while the UI continues to use name + password.
+
+## Update
+Timestamp: 2026-03-17 21:31:42 +0530
+
+- Added a top-level "Current Status (as of 2026-03-17)" summary to make the overall project state easy to scan.
+- Moved `work_done.md` into `document/work_done.md` so project documentation stays consolidated in one place.
