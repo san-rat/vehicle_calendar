@@ -82,3 +82,12 @@ Timestamp: 2026-02-03 16:41:22 +0530
 - Ensured `.env.local` is gitignored.
 - Added `src/lib/env.ts` helper to read env vars and throw only when accessed.
 - Updated README with env setup steps.
+
+## Update
+Timestamp: 2026-03-17 15:55:02 +0530
+
+- Reviewed the repository end to end to separate the intended product scope from the current implementation state.
+- Diagnosed the Vercel deployment failure in `src/lib/env.ts` as a TypeScript narrowing issue, not a missing-Supabase-project issue.
+- Replaced the aggregate missing-env check with explicit guards for `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` so the return type narrows to plain `string`.
+- Verified the fix locally with `./node_modules/.bin/tsc --noEmit` (passed).
+- Confirmed `.env.local` already contains non-placeholder Supabase public values locally; these still need to be configured in Vercel environment variables for deployment.
