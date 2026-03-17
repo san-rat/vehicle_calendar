@@ -121,3 +121,11 @@ Timestamp: 2026-03-17 21:31:42 +0530
 
 - Added a top-level "Current Status (as of 2026-03-17)" summary to make the overall project state easy to scan.
 - Moved `work_done.md` into `document/work_done.md` so project documentation stays consolidated in one place.
+
+## Update
+Timestamp: 2026-03-17 22:42:00 +0530
+
+- Created comprehensive `document/UI/UI_Guideline.md` defining typography, color palette, adaptive components, and booking status indicators.
+- Created `document/UI/UI_Anti_Patterns.md` outlining strict directives for AI/devs (no heavy external libraries, no inline styles, no desktop-only paradigms on mobile).
+- Created `document/UX/UX_Guideline.md` defining interactions (hamburger menu, 2-minute polling for live data, frictionless single-click booking, bulk admin Request List).
+- Created `document/UX/UX_Anti_Patterns.md` forbidding confusing navigation traps, complex state management, heavy confirmation modals, and persistent blocking banners.
