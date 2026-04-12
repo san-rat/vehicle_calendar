@@ -301,6 +301,10 @@ describe("booking helpers", () => {
       value: "Not available",
     });
     expect(validateRejectionReason(" ")).toEqual({ ok: true, value: null });
+    expect(validateRejectionReason("A".repeat(501))).toEqual({
+      error: "Rejection reason must be 500 characters or fewer.",
+      ok: false,
+    });
     expect(validateOverrideNote("A".repeat(500))).toEqual({
       ok: true,
       value: "A".repeat(500),

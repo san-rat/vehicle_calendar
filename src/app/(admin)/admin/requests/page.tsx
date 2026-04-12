@@ -13,6 +13,11 @@ import {
 } from "@/lib/booking/bookings";
 import { getBusinessToday, parseIsoDate } from "@/lib/booking/dates";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { rejectBookingRequest } from "./actions";
+
+type AdminRequestsPageProps = {
+  searchParams?: Promise<{ error?: string; success?: string }>;
+};
 
 type JoinedUser = {
   color_hex: string;
@@ -198,8 +203,14 @@ async function getRequestReviewData() {
   return requestsWithReviewState;
 }
 
-export default async function AdminRequestsPage() {
+export default async function AdminRequestsPage({
+  searchParams,
+}: AdminRequestsPageProps) {
   const requests = await getRequestReviewData();
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const statusMessage =
+    resolvedSearchParams.success ?? resolvedSearchParams.error ?? null;
+  const statusTone = resolvedSearchParams.error ? "error" : "success";
 
   return (
     <div className="space-y-8">
@@ -211,6 +222,18 @@ export default async function AdminRequestsPage() {
           requests visible for a decision.
         </p>
       </header>
+
+      {statusMessage ? (
+        <p
+          className={`rounded-md border px-4 py-3 text-sm ${
+            statusTone === "error"
+              ? "border-[var(--danger)]/30 bg-[var(--danger)]/10 text-[var(--danger)]"
+              : "border-[var(--success)]/30 bg-[var(--success)]/10 text-green-700"
+          }`}
+        >
+          {statusMessage}
+        </p>
+      ) : null}
 
       <section>
         <div className="flex items-center justify-between gap-4">
@@ -364,6 +387,30 @@ export default async function AdminRequestsPage() {
                       Open booking day
                     </Link>
                   </div>
+
+                  <form
+                    action={rejectBookingRequest}
+                    className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[1fr_auto] md:items-end"
+                  >
+                    <input name="id" type="hidden" value={request.id} />
+                    <label className="space-y-2">
+                      <span className="text-xs font-semibold uppercase text-[var(--muted)]">
+                        Optional rejection reason
+                      </span>
+                      <textarea
+                        className="min-h-20 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)]"
+                        maxLength={500}
+                        name="rejection_reason"
+                        placeholder="Reason shown in audit log only"
+                      />
+                    </label>
+                    <button
+                      className="rounded-md border border-[var(--danger)] px-4 py-2 text-sm font-semibold text-[var(--danger)] transition hover:bg-[var(--danger)] hover:text-white"
+                      type="submit"
+                    >
+                      Reject
+                    </button>
+                  </form>
                 </article>
               );
             })}

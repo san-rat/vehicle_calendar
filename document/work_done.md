@@ -299,3 +299,17 @@ Timestamp: 2026-04-12 16:06:06 +0530
 - Kept approve/reject/override mutations out of this checkpoint; those remain for the next checkpoints.
 - Verified the checkpoint with focused booking helper tests, `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` requested booking + confirmed conflict query smoke with cleanup, and unauthenticated redirect checks for `/admin/requests` and `/admin/settings`.
 - Stopped after this checkpoint for manual review before starting the Reject Flow checkpoint.
+
+## Update
+Timestamp: 2026-04-12 16:17:33 +0530
+
+### Phase 5 Request List & Approval - 5B Reject Flow
+
+- Added the `rejectBookingRequest` server action for `/admin/requests`.
+- The reject action requires a super-admin session, creates the Supabase service-role client only after the auth guard, validates an optional rejection reason at 500 characters, requires the booking to still be `requested`, and updates the booking to `rejected` with `updated_by` set to the acting admin.
+- Added a per-request reject form with an optional rejection reason field. Rejection remains available for requests that are inactive, conflicting, past, or already started.
+- Added `booking_rejected` audit logging with `before`/`after` snapshots and the rejection reason stored only in the log snapshot.
+- Revalidated `/admin/requests`, the affected booking day, and the affected vehicle calendar after rejection.
+- Added explicit Vitest coverage for over-limit rejection reasons.
+- Verified the checkpoint with focused booking helper tests, `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` requested booking rejection + audit log check with cleanup, and an unauthenticated redirect check for `/admin/requests`.
+- Stopped after this checkpoint for manual review before starting the Normal Approve Flow checkpoint.
