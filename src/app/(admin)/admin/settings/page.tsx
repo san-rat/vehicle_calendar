@@ -2,6 +2,11 @@ import Link from "next/link";
 
 const settingsLinks = [
   {
+    description: "Review requested bookings and identify conflicts.",
+    href: "/admin/requests",
+    title: "Requests",
+  },
+  {
     description: "Add, edit, deactivate, or safely delete fleet vehicles.",
     href: "/admin/vehicles",
     title: "Vehicles",
@@ -28,7 +33,7 @@ export default function AdminSettingsPage() {
         </p>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {settingsLinks.map((item) => (
           <Link
             className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-5 transition hover:border-[var(--primary)]"

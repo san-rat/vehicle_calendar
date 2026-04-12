@@ -285,3 +285,17 @@ Timestamp: 2026-04-12 15:21:25 +0530
 - Added Vitest coverage for time slots, time parsing, all-day parsing, booking freedom status selection, business time, valid booking input, off-grid times, date windows, past starts, reason validation, all-day rules, duration limits, confirmed conflicts, adjacent bookings, and requested bookings not blocking.
 - Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` vehicle/user/confirmed booking/requested booking/audit log/conflict-source check with cleanup and privilege restoration, and an unauthenticated redirect check for the booking route.
 - Stopped after this checkpoint for manual review before moving to any optional follow-up phase.
+
+## Update
+Timestamp: 2026-04-12 16:06:06 +0530
+
+### Phase 5 Request List & Approval - 5A Read-Only Request List + Helpers
+
+- Expanded booking status typing to include `rejected`, `cancelled`, and `overridden`.
+- Added pure booking request review helpers for confirmed conflict collection, override confirmation validation, rejection/override note length validation, and approval timing blocks for past or already-started requests.
+- Replaced the `/admin/requests` placeholder with a super-admin-protected read-only request list loaded from Supabase.
+- The request list now shows requested bookings with member, vehicle, date, time/all-day, booking reason, requested-at metadata, inactive member/vehicle indicators, past/already-started approval warnings, and confirmed conflict warnings.
+- Added a Requests entry to `/admin/settings`.
+- Kept approve/reject/override mutations out of this checkpoint; those remain for the next checkpoints.
+- Verified the checkpoint with focused booking helper tests, `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` requested booking + confirmed conflict query smoke with cleanup, and unauthenticated redirect checks for `/admin/requests` and `/admin/settings`.
+- Stopped after this checkpoint for manual review before starting the Reject Flow checkpoint.

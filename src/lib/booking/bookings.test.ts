@@ -2,14 +2,19 @@ import { describe, expect, it } from "vitest";
 import {
   ALL_DAY_END_TIME,
   ALL_DAY_START_TIME,
+  getApprovalTimingProblem,
   getBookingStatusForFreedom,
   getBusinessTimeMinutes,
+  getConfirmedBookingConflicts,
   getThirtyMinuteTimeOptions,
   hasConfirmedBookingConflict,
   normalizeDbTime,
   parseAllDayValue,
   parseTimeToMinutes,
   validateBookingInput,
+  validateOverrideConfirmation,
+  validateOverrideNote,
+  validateRejectionReason,
 } from "./bookings";
 
 const baseInput = {
@@ -204,9 +209,16 @@ describe("booking helpers", () => {
   it("allows adjacent confirmed bookings and rejects overlaps", () => {
     const confirmedBookings = [
       {
+        id: "booking-1",
         end_time: "10:00:00",
         is_all_day: false,
         start_time: "09:00:00",
+      },
+      {
+        id: "booking-2",
+        end_time: "12:00:00",
+        is_all_day: false,
+        start_time: "11:00:00",
       },
     ];
 
@@ -222,6 +234,17 @@ describe("booking helpers", () => {
     ).toBe(false);
 
     expect(
+      getConfirmedBookingConflicts(
+        {
+          end_time: "11:30",
+          is_all_day: false,
+          start_time: "09:30",
+        },
+        confirmedBookings
+      ).map((booking) => booking.id)
+    ).toEqual(["booking-1", "booking-2"]);
+
+    expect(
       hasConfirmedBookingConflict(
         {
           end_time: "10:30",
@@ -233,6 +256,26 @@ describe("booking helpers", () => {
     ).toBe(true);
   });
 
+  it("treats all-day bookings as conflicts with any overlapping confirmed time", () => {
+    expect(
+      getConfirmedBookingConflicts(
+        {
+          end_time: ALL_DAY_END_TIME,
+          is_all_day: true,
+          start_time: ALL_DAY_START_TIME,
+        },
+        [
+          {
+            id: "morning",
+            end_time: "09:30:00",
+            is_all_day: false,
+            start_time: "09:00:00",
+          },
+        ]
+      ).map((booking) => booking.id)
+    ).toEqual(["morning"]);
+  });
+
   it("does not treat requested bookings as blockers when they are not passed in", () => {
     expect(
       validateBookingInput({
@@ -240,5 +283,60 @@ describe("booking helpers", () => {
         confirmedBookings: [],
       })
     ).toMatchObject({ ok: true });
+  });
+
+  it("validates override confirmation explicitly", () => {
+    expect(validateOverrideConfirmation("on")).toEqual({ ok: true });
+    expect(validateOverrideConfirmation("true")).toEqual({ ok: true });
+    expect(validateOverrideConfirmation("override")).toEqual({ ok: true });
+    expect(validateOverrideConfirmation(null)).toEqual({
+      error: "Confirm the override before approving this conflicting request.",
+      ok: false,
+    });
+  });
+
+  it("validates rejection reasons and override notes", () => {
+    expect(validateRejectionReason("  Not available  ")).toEqual({
+      ok: true,
+      value: "Not available",
+    });
+    expect(validateRejectionReason(" ")).toEqual({ ok: true, value: null });
+    expect(validateOverrideNote("A".repeat(500))).toEqual({
+      ok: true,
+      value: "A".repeat(500),
+    });
+    expect(validateOverrideNote("A".repeat(501))).toEqual({
+      error: "Override note must be 500 characters or fewer.",
+      ok: false,
+    });
+  });
+
+  it("blocks approvals for past and already-started requests", () => {
+    expect(
+      getApprovalTimingProblem({
+        currentTimeMinutes: 8 * 60,
+        date: "2026-04-11",
+        startTime: "09:00",
+        today: "2026-04-12",
+      })
+    ).toBe("This request date has already passed.");
+
+    expect(
+      getApprovalTimingProblem({
+        currentTimeMinutes: 10 * 60,
+        date: "2026-04-12",
+        startTime: "09:30:00",
+        today: "2026-04-12",
+      })
+    ).toBe("This request has already started.");
+
+    expect(
+      getApprovalTimingProblem({
+        currentTimeMinutes: 10 * 60,
+        date: "2026-04-12",
+        startTime: "10:00",
+        today: "2026-04-12",
+      })
+    ).toBeNull();
   });
 });

@@ -4,7 +4,12 @@ export const ALL_DAY_START_TIME = "00:00";
 export const ALL_DAY_END_TIME = "23:59";
 export const BOOKING_REASON_MAX_LENGTH = 500;
 
-export type BookingStatus = "confirmed" | "requested";
+export type BookingStatus =
+  | "cancelled"
+  | "confirmed"
+  | "overridden"
+  | "rejected"
+  | "requested";
 
 export type BookingTimeWindow = {
   end_time: string;
@@ -22,6 +27,10 @@ export type ValidBookingInput = {
 
 export type BookingValidationResult =
   | { ok: true; value: ValidBookingInput }
+  | { error: string; ok: false };
+
+export type BookingDecisionNoteValidationResult =
+  | { ok: true; value: string | null }
   | { error: string; ok: false };
 
 function pad2(value: number) {
@@ -106,14 +115,21 @@ export function hasConfirmedBookingConflict(
   proposed: BookingTimeWindow,
   confirmedBookings: BookingTimeWindow[]
 ) {
+  return getConfirmedBookingConflicts(proposed, confirmedBookings).length > 0;
+}
+
+export function getConfirmedBookingConflicts<T extends BookingTimeWindow>(
+  proposed: BookingTimeWindow,
+  confirmedBookings: T[]
+) {
   const proposedStart = parseTimeToMinutes(normalizeDbTime(proposed.start_time));
   const proposedEnd = parseTimeToMinutes(normalizeDbTime(proposed.end_time));
 
   if (proposedStart === null || proposedEnd === null) {
-    return true;
+    return confirmedBookings;
   }
 
-  return confirmedBookings.some((booking) => {
+  return confirmedBookings.filter((booking) => {
     const bookingStart = parseTimeToMinutes(normalizeDbTime(booking.start_time));
     const bookingEnd = parseTimeToMinutes(normalizeDbTime(booking.end_time));
 
@@ -123,6 +139,71 @@ export function hasConfirmedBookingConflict(
 
     return proposedStart < bookingEnd && proposedEnd > bookingStart;
   });
+}
+
+function validateBookingDecisionNote(
+  note: string,
+  label: string
+): BookingDecisionNoteValidationResult {
+  const trimmedNote = note.trim();
+
+  if (trimmedNote.length > BOOKING_REASON_MAX_LENGTH) {
+    return {
+      error: `${label} must be ${BOOKING_REASON_MAX_LENGTH} characters or fewer.`,
+      ok: false,
+    };
+  }
+
+  return {
+    ok: true,
+    value: trimmedNote || null,
+  };
+}
+
+export function validateRejectionReason(reason: string) {
+  return validateBookingDecisionNote(reason, "Rejection reason");
+}
+
+export function validateOverrideNote(note: string) {
+  return validateBookingDecisionNote(note, "Override note");
+}
+
+export function validateOverrideConfirmation(value: string | null) {
+  if (value === "on" || value === "true" || value === "override") {
+    return { ok: true } as const;
+  }
+
+  return {
+    error: "Confirm the override before approving this conflicting request.",
+    ok: false,
+  } as const;
+}
+
+export function getApprovalTimingProblem(input: {
+  currentTimeMinutes: number;
+  date: string;
+  startTime: string;
+  today: string;
+}) {
+  if (!parseIsoDate(input.date) || !parseIsoDate(input.today)) {
+    return "This request has an invalid date.";
+  }
+
+  if (input.date < input.today) {
+    return "This request date has already passed.";
+  }
+
+  const startMinutes = parseTimeToMinutes(normalizeDbTime(input.startTime));
+
+  if (startMinutes === null) {
+    return "This request has an invalid start time.";
+  }
+
+  if (input.date === input.today && startMinutes < input.currentTimeMinutes) {
+    return "This request has already started.";
+  }
+
+  return null;
 }
 
 export function validateBookingInput(input: {

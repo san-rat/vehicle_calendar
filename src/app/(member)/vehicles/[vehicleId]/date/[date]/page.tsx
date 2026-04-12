@@ -14,7 +14,6 @@ import { requireCurrentAppUser, type AppUser } from "@/lib/auth/user";
 import {
   getBookingStatusForFreedom,
   getThirtyMinuteTimeOptions,
-  type BookingStatus,
 } from "@/lib/booking/bookings";
 import {
   getBusinessToday,
@@ -54,7 +53,7 @@ type BookingRecord = {
   is_all_day: boolean;
   reason: string | null;
   start_time: string;
-  status: BookingStatus;
+  status: "confirmed" | "requested";
   user_id: string;
 };
 
