@@ -339,3 +339,16 @@ Timestamp: 2026-04-12 16:58:54 +0530
 - Added focused Vitest assertions for invalid override confirmation and empty override-note validation.
 - Verified the checkpoint with focused booking helper tests, `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` override smoke with cleanup, and an unauthenticated redirect check for `/admin/requests`.
 - Stopped after this checkpoint for manual review.
+
+## Update
+Timestamp: 2026-04-12 22:45:32 +0530
+
+### Phase 5 Request List & Approval - Wrap-Up Checkpoint
+
+- Completed the Phase 5 wrap-up verification for the `/admin/requests` request approval workflow.
+- Confirmed `/admin/requests` supports requested booking review, rejection, normal approval, conflict blocking, explicit override approval, and audit logging for `booking_rejected`, `booking_confirmed`, and `booking_overridden`.
+- Confirmed the calendar and booking day views continue to query only `confirmed` and `requested` bookings, so `rejected` and `overridden` bookings are excluded from normal availability/timeline surfaces.
+- Confirmed `/log` remains a placeholder route; detailed audit log browsing is still outside the completed Phase 5 request workflow.
+- Verified the wrap-up with `npm test`, `npm run lint`, `npm run build`, and a live Supabase `FT_TMP_` lifecycle smoke covering request-list joins, rejection, normal approval, override approval, calendar/date query exclusions, audit log counts, and cleanup.
+- Verified unauthenticated redirects to `/login` for `/admin/requests`, `/admin/settings`, `/vehicles`, `/vehicles/[vehicleId]/calendar`, `/vehicles/[vehicleId]/date/[date]`, and `/log`.
+- Phase 5 is functionally complete. Remaining caveat: approval/override actions use server-side rechecks and status-guarded updates, but not a database-level transaction or RPC; full concurrency hardening should be handled in a later data-integrity/security task.
