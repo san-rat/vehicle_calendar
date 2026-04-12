@@ -20,8 +20,13 @@ function isAppUserRole(value: string): value is AppUserRole {
   return value === "member" || value === "super_admin";
 }
 
-export function getPostLoginPath(_role: AppUserRole) {
-  return "/vehicles";
+const postLoginPaths: Record<AppUserRole, string> = {
+  member: "/vehicles",
+  super_admin: "/vehicles",
+};
+
+export function getPostLoginPath(role: AppUserRole) {
+  return postLoginPaths[role];
 }
 
 export function getLoginErrorMessage(error?: string) {

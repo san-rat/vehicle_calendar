@@ -2,11 +2,13 @@
 
 Date: 2026-02-03
 
-## Current Status (as of 2026-03-17)
+## Current Status (as of 2026-04-12)
 - **Frontend scaffold**: Next.js (App Router) + Tailwind set up; base styling + fonts; route skeletons exist for login, vehicles, booking/calendar, log, admin.
-- **Env handling**: `src/lib/env.ts` fixed to avoid TS narrowing issues in deploy builds; `.env.example` added; `.env.local` kept gitignored (Vercel env vars still need to be set).
-- **Product decisions captured**: Supabase Auth as credential source of truth; hard delete for members/vehicles; no `password_hash` / no `deleted_at`; bookings support all-day; cancellation rules; override notifications in scope; logs retain 30 days.
+- **Env handling**: `src/lib/env.ts` reads Supabase public env vars and the server-only service role key; `.env.example` is tracked with placeholders; `.env.local` remains gitignored.
+- **Product decisions captured**: Supabase Auth as credential source of truth; hard delete for members/vehicles only when safe; no `password_hash` / no `deleted_at`; bookings support all-day; cancellation rules; override notifications in scope; logs retain 30 days.
 - **Database**: Initial Supabase migration and seed added (`supabase/migrations/0001_init_schema.sql`, `supabase/seed.sql`) with audit-safe logging (nullable FKs + snapshot JSON).
+- **Authentication**: Phase 2 is complete. Users log in with name + password; the server looks up the linked Supabase Auth email through `public.users` and the Admin API, verifies active profiles, protects member/admin layouts, refreshes sessions in middleware, and supports real logout.
+- **Next implementation phase**: Phase 3 Admin Settings is planned in checkpoints: preflight cleanup, Vehicles, Privileges, then Members. Each checkpoint should stop for manual review after lint/build/tests pass.
 
 ## Resources Read
 - `README.md`
