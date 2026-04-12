@@ -325,3 +325,17 @@ Timestamp: 2026-04-12 16:32:11 +0530
 - Updated the request list with an Approve action for eligible requests and inline block text for inactive, past/already-started, or conflicting requests. Conflicting approvals remain deferred to the override checkpoint.
 - Verified the checkpoint with focused booking helper tests, `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` normal approval + `booking_confirmed` audit log + conflict recheck smoke with cleanup, and an unauthenticated redirect check for `/admin/requests`.
 - Stopped after this checkpoint for manual review before starting the Override Flow checkpoint.
+
+## Update
+Timestamp: 2026-04-12 16:58:54 +0530
+
+### Phase 5 Request List & Approval - 5D Override Flow
+
+- Added inline override approval controls for conflicted booking requests, including an explicit confirmation checkbox and optional 500-character override note stored only in audit snapshots.
+- Extended `approveBookingRequest` so normal approval remains blocked when confirmed conflicts exist unless explicit override confirmation is submitted.
+- Override approval now requires the same super-admin/auth guard, requested-status guard, active member/vehicle checks, and Asia/Colombo past/already-started checks as normal approval.
+- When override approval succeeds, overlapping confirmed bookings are status-guarded to `overridden` with `updated_by` set to the acting admin, the requested booking is set to `confirmed`, one `booking_overridden` log is written per overridden booking, and a `booking_confirmed` log is written for the approved request.
+- Override audit snapshots include `before`/`after`, the approved request id on override logs, the overridden booking ids on the confirmation log, and the optional override note.
+- Added focused Vitest assertions for invalid override confirmation and empty override-note validation.
+- Verified the checkpoint with focused booking helper tests, `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` override smoke with cleanup, and an unauthenticated redirect check for `/admin/requests`.
+- Stopped after this checkpoint for manual review.

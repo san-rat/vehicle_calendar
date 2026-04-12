@@ -7,9 +7,10 @@ import {
   getApprovalTimingProblem,
   getBusinessTimeMinutes,
   getConfirmedBookingConflicts,
+  validateOverrideConfirmation,
+  validateOverrideNote,
   validateRejectionReason,
   type BookingStatus,
-  type BookingTimeWindow,
 } from "@/lib/booking/bookings";
 import { getBusinessToday } from "@/lib/booking/dates";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -43,8 +44,16 @@ type BookingRequestRecord = BookingRecord & {
   booking_vehicle: JoinedEntity | JoinedEntity[] | null;
 };
 
-type ConfirmedBookingRecord = BookingTimeWindow & {
-  id: string;
+type ConfirmedBookingRecord = BookingRecord;
+
+type AuditLogEntry = {
+  action_type: "booking_confirmed" | "booking_overridden" | "booking_rejected";
+  actor_user_id: string;
+  booking_id: string;
+  description: string;
+  snapshot: Record<string, unknown>;
+  target_user_id: string;
+  target_vehicle_id: string;
 };
 
 function getFormString(formData: FormData, key: string) {
@@ -88,9 +97,17 @@ function getBookingSnapshot(booking: BookingRecord): BookingRecord {
 export async function approveBookingRequest(formData: FormData) {
   const currentUser = await requireAdminAppUser();
   const id = getFormString(formData, "id");
+  const overrideConfirmation = getFormString(formData, "override_confirmation");
+  const overrideNoteValidation = validateOverrideNote(
+    getFormString(formData, "override_note")
+  );
 
   if (!id) {
     redirectWithMessage("error", "Missing booking request id.");
+  }
+
+  if (!overrideNoteValidation.ok) {
+    redirectWithMessage("error", overrideNoteValidation.error);
   }
 
   const supabase = createSupabaseAdminClient();
@@ -142,7 +159,7 @@ export async function approveBookingRequest(formData: FormData) {
 
   const { data: confirmedBookings, error: confirmedError } = await supabase
     .from("bookings")
-    .select("id, start_time, end_time, is_all_day")
+    .select(BOOKING_SELECT)
     .eq("vehicle_id", before.vehicle_id)
     .eq("date", before.date)
     .eq("status", "confirmed");
@@ -156,11 +173,46 @@ export async function approveBookingRequest(formData: FormData) {
     (confirmedBookings ?? []) as ConfirmedBookingRecord[]
   );
 
+  let overriddenBookings: BookingRecord[] = [];
+  const isOverrideApproval = conflicts.length > 0;
+  const conflictBeforeSnapshots = new Map(
+    conflicts.map((conflict) => [conflict.id, getBookingSnapshot(conflict)])
+  );
+
   if (conflicts.length > 0) {
-    redirectWithMessage(
-      "error",
-      "This request conflicts with confirmed bookings. Override review is required."
+    const overrideConfirmationValidation = validateOverrideConfirmation(
+      overrideConfirmation || null
     );
+
+    if (!overrideConfirmationValidation.ok) {
+      redirectWithMessage("error", overrideConfirmationValidation.error);
+    }
+
+    const { data: overrideRows, error: overrideError } = await supabase
+      .from("bookings")
+      .update({
+        status: "overridden",
+        updated_by: currentUser.id,
+      })
+      .in(
+        "id",
+        conflicts.map((conflict) => conflict.id)
+      )
+      .eq("status", "confirmed")
+      .select(BOOKING_SELECT);
+
+    if (
+      overrideError ||
+      !overrideRows ||
+      overrideRows.length !== conflicts.length
+    ) {
+      redirectWithMessage(
+        "error",
+        "Conflicting bookings changed before override approval completed. Refresh and try again."
+      );
+    }
+
+    overriddenBookings = overrideRows as BookingRecord[];
   }
 
   const beforeSnapshot = getBookingSnapshot(before);
@@ -179,18 +231,39 @@ export async function approveBookingRequest(formData: FormData) {
     redirectWithMessage("error", "Booking request could not be approved.");
   }
 
-  const { error: logError } = await supabase.from("log_entries").insert({
+  const logEntries: AuditLogEntry[] = overriddenBookings.map((booking) => ({
+    action_type: "booking_overridden",
+    actor_user_id: currentUser.id,
+    booking_id: booking.id,
+    description: `Booking overridden by approved request for ${booking.date}.`,
+    snapshot: {
+      after: booking,
+      approved_request_id: updated.id,
+      before: conflictBeforeSnapshots.get(booking.id) ?? booking,
+      override_note: overrideNoteValidation.value,
+    },
+    target_user_id: booking.user_id,
+    target_vehicle_id: booking.vehicle_id,
+  }));
+
+  logEntries.push({
     action_type: "booking_confirmed",
     actor_user_id: currentUser.id,
     booking_id: updated.id,
-    description: `Booking request approved for ${updated.date}.`,
+    description: isOverrideApproval
+      ? `Booking request approved with override for ${updated.date}.`
+      : `Booking request approved for ${updated.date}.`,
     snapshot: {
       after: updated,
       before: beforeSnapshot,
+      override_note: isOverrideApproval ? overrideNoteValidation.value : null,
+      overridden_booking_ids: overriddenBookings.map((booking) => booking.id),
     },
     target_user_id: updated.user_id,
     target_vehicle_id: updated.vehicle_id,
   });
+
+  const { error: logError } = await supabase.from("log_entries").insert(logEntries);
 
   if (logError) {
     redirectWithMessage(

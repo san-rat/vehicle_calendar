@@ -289,6 +289,10 @@ describe("booking helpers", () => {
     expect(validateOverrideConfirmation("on")).toEqual({ ok: true });
     expect(validateOverrideConfirmation("true")).toEqual({ ok: true });
     expect(validateOverrideConfirmation("override")).toEqual({ ok: true });
+    expect(validateOverrideConfirmation("yes")).toEqual({
+      error: "Confirm the override before approving this conflicting request.",
+      ok: false,
+    });
     expect(validateOverrideConfirmation(null)).toEqual({
       error: "Confirm the override before approving this conflicting request.",
       ok: false,
@@ -309,6 +313,7 @@ describe("booking helpers", () => {
       ok: true,
       value: "A".repeat(500),
     });
+    expect(validateOverrideNote(" ")).toEqual({ ok: true, value: null });
     expect(validateOverrideNote("A".repeat(501))).toEqual({
       error: "Override note must be 500 characters or fewer.",
       ok: false,

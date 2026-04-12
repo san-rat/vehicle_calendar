@@ -270,6 +270,11 @@ export default async function AdminRequestsPage({
                         ? "Approval needs override review because this request conflicts with confirmed bookings."
                         : null;
               const canApprove = approveBlockReason === null;
+              const canOverride =
+                !isMemberInactive &&
+                !isVehicleInactive &&
+                !request.approvalProblem &&
+                request.conflicts.length > 0;
 
               return (
                 <article
@@ -387,6 +392,49 @@ export default async function AdminRequestsPage({
                           );
                         })}
                       </div>
+                      {canOverride ? (
+                        <form
+                          action={approveBookingRequest}
+                          className="mt-4 space-y-3 border-t border-[#F59E0B]/40 pt-4"
+                        >
+                          <input name="id" type="hidden" value={request.id} />
+                          <label className="flex gap-3 text-sm text-[#92400E]">
+                            <input
+                              className="mt-1 h-4 w-4 rounded border-[#F59E0B]"
+                              name="override_confirmation"
+                              required
+                              type="checkbox"
+                              value="override"
+                            />
+                            <span>
+                              Approve this request and mark every overlapping
+                              confirmed booking as overridden.
+                            </span>
+                          </label>
+                          <label className="block space-y-2">
+                            <span className="text-xs font-semibold uppercase text-[#92400E]">
+                              Optional override note
+                            </span>
+                            <textarea
+                              className="min-h-20 w-full rounded-md border border-[#F59E0B]/50 bg-white px-3 py-2 text-sm text-[var(--text)] outline-none transition focus:border-[#F59E0B]"
+                              maxLength={500}
+                              name="override_note"
+                              placeholder="Note stored in audit log only"
+                            />
+                          </label>
+                          <button
+                            className="rounded-md bg-[#92400E] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#78350F]"
+                            type="submit"
+                          >
+                            Approve with override
+                          </button>
+                        </form>
+                      ) : (
+                        <p className="mt-4 border-t border-[#F59E0B]/40 pt-4 text-sm text-[#92400E]">
+                          Override approval is unavailable until the request is
+                          active and has not already started.
+                        </p>
+                      )}
                     </div>
                   ) : null}
 
