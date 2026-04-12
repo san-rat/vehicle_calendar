@@ -32,6 +32,17 @@ type LogTargetSummaryInput = {
   targetVehicleId?: string | null;
 };
 
+type LogBookingDayHrefInput = {
+  actionType: string;
+  snapshot?: unknown;
+  targetVehicleId?: string | null;
+};
+
+type SnapshotHighlight = {
+  label: string;
+  value: string;
+};
+
 const actionLabels: Record<LogActionType, string> = {
   booking_cancelled: "Booking cancelled",
   booking_confirmed: "Booking confirmed",
@@ -58,6 +69,22 @@ const logColorDotClasses: Record<string, string> = {
   "#EC4899": "bg-[#EC4899]",
   "#F97316": "bg-[#F97316]",
 };
+const snapshotFields = [
+  ["name", "Name"],
+  ["role", "Role"],
+  ["is_active", "Active"],
+  ["type", "Type"],
+  ["status", "Status"],
+  ["date", "Date"],
+  ["start_time", "Start"],
+  ["end_time", "End"],
+  ["is_all_day", "All day"],
+  ["reason", "Reason"],
+  ["time_limit_minutes", "Time limit"],
+  ["allow_booking_freedom", "Booking freedom"],
+  ["max_days_in_future", "Future window"],
+  ["require_reason", "Reason required"],
+] as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -93,6 +120,67 @@ function getSnapshotEntityName(snapshot: unknown) {
 
 function formatShortId(id: string) {
   return id.slice(0, 8);
+}
+
+function getSnapshotRecord(snapshot: unknown, key: string) {
+  if (!isRecord(snapshot)) {
+    return null;
+  }
+
+  const value = snapshot[key];
+
+  return isRecord(value) ? value : null;
+}
+
+function getStringField(record: Record<string, unknown> | null, key: string) {
+  const value = record?.[key];
+
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function hasValue(value: unknown) {
+  return value !== undefined && value !== null && value !== "";
+}
+
+function formatSnapshotValue(value: unknown) {
+  if (value === null || value === undefined || value === "") {
+    return "None";
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) =>
+        typeof item === "string" && item.length > 8 ? formatShortId(item) : String(item)
+      )
+      .join(", ");
+  }
+
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+
+  return String(value);
+}
+
+function addRecordHighlights(
+  highlights: SnapshotHighlight[],
+  prefix: string,
+  record: Record<string, unknown>
+) {
+  snapshotFields.forEach(([key, label]) => {
+    const value = record[key];
+
+    if (hasValue(value)) {
+      highlights.push({
+        label: `${prefix} ${label}`,
+        value: formatSnapshotValue(value),
+      });
+    }
+  });
 }
 
 export function getLogActionLabel(actionType: string) {
@@ -223,4 +311,99 @@ export function getLogTargetSummary(input: LogTargetSummaryInput) {
   }
 
   return parts.length > 0 ? parts.join(" | ") : "System action";
+}
+
+export function getLogSnapshotHighlights(snapshot: unknown) {
+  if (!isRecord(snapshot)) {
+    return [];
+  }
+
+  const highlights: SnapshotHighlight[] = [];
+  const before = getSnapshotRecord(snapshot, "before");
+  const after = getSnapshotRecord(snapshot, "after");
+  const target = getSnapshotRecord(snapshot, "target");
+
+  if (before && after) {
+    snapshotFields.forEach(([key, label]) => {
+      if (before[key] !== after[key]) {
+        highlights.push({
+          label,
+          value: `${formatSnapshotValue(before[key])} -> ${formatSnapshotValue(
+            after[key]
+          )}`,
+        });
+      }
+    });
+  } else if (after) {
+    addRecordHighlights(highlights, "After", after);
+  } else if (before) {
+    addRecordHighlights(highlights, "Before", before);
+  } else if (target) {
+    addRecordHighlights(highlights, "Target", target);
+  }
+
+  const rejectionReason = snapshot.rejection_reason;
+
+  if (typeof rejectionReason === "string" && rejectionReason.trim()) {
+    highlights.push({
+      label: "Rejection reason",
+      value: rejectionReason.trim(),
+    });
+  }
+
+  const overrideNote = snapshot.override_note;
+
+  if (typeof overrideNote === "string" && overrideNote.trim()) {
+    highlights.push({
+      label: "Override note",
+      value: overrideNote.trim(),
+    });
+  }
+
+  const approvedRequestId = snapshot.approved_request_id;
+
+  if (typeof approvedRequestId === "string" && approvedRequestId.trim()) {
+    highlights.push({
+      label: "Approved request",
+      value: formatShortId(approvedRequestId.trim()),
+    });
+  }
+
+  const overriddenBookingIds = snapshot.overridden_booking_ids;
+
+  if (Array.isArray(overriddenBookingIds) && overriddenBookingIds.length > 0) {
+    highlights.push({
+      label: "Overridden bookings",
+      value: formatSnapshotValue(overriddenBookingIds),
+    });
+  }
+
+  return highlights;
+}
+
+export function formatLogSnapshotJson(snapshot: unknown) {
+  return JSON.stringify(snapshot ?? {}, null, 2) ?? "{}";
+}
+
+export function getLogBookingDayHref(input: LogBookingDayHrefInput) {
+  if (!input.actionType.startsWith("booking_")) {
+    return null;
+  }
+
+  const after = getSnapshotRecord(input.snapshot, "after");
+  const before = getSnapshotRecord(input.snapshot, "before");
+  const vehicleId =
+    input.targetVehicleId ??
+    getStringField(after, "vehicle_id") ??
+    getStringField(before, "vehicle_id");
+  const date =
+    getStringField(after, "date") ?? getStringField(before, "date");
+
+  if (!vehicleId || !date) {
+    return null;
+  }
+
+  return `/vehicles/${encodeURIComponent(vehicleId)}/date/${encodeURIComponent(
+    date
+  )}`;
 }

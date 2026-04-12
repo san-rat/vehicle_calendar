@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   formatLogActionTime,
+  formatLogSnapshotJson,
   getLogActionLabel,
+  getLogBookingDayHref,
   getLogColorDotClass,
   getLogPageNumber,
   getLogPaginationWindow,
   getLogRetentionCutoffIso,
+  getLogSnapshotHighlights,
   getLogTargetSummary,
   getSafeLogColor,
 } from "./log-page";
@@ -71,5 +74,78 @@ describe("log page helpers", () => {
     expect(getLogTargetSummary({ actionType: "privilege_updated" })).toBe(
       "Booking privileges"
     );
+  });
+
+  it("builds readable snapshot highlights from before and after data", () => {
+    expect(
+      getLogSnapshotHighlights({
+        after: {
+          date: "2026-04-12",
+          status: "confirmed",
+        },
+        before: {
+          date: "2026-04-12",
+          status: "requested",
+        },
+        overridden_booking_ids: ["12345678-1111-2222-3333-444444444444"],
+        override_note: "Urgent trip",
+      })
+    ).toEqual([
+      {
+        label: "Status",
+        value: "requested -> confirmed",
+      },
+      {
+        label: "Override note",
+        value: "Urgent trip",
+      },
+      {
+        label: "Overridden bookings",
+        value: "12345678",
+      },
+    ]);
+  });
+
+  it("formats raw snapshot JSON", () => {
+    expect(formatLogSnapshotJson({ after: { status: "confirmed" } })).toBe(
+      '{\n  "after": {\n    "status": "confirmed"\n  }\n}'
+    );
+  });
+
+  it("builds booking day links only for booking logs with date and vehicle", () => {
+    expect(
+      getLogBookingDayHref({
+        actionType: "booking_confirmed",
+        snapshot: {
+          after: {
+            date: "2026-04-12",
+            vehicle_id: "vehicle-1",
+          },
+        },
+      })
+    ).toBe("/vehicles/vehicle-1/date/2026-04-12");
+
+    expect(
+      getLogBookingDayHref({
+        actionType: "vehicle_updated",
+        snapshot: {
+          after: {
+            date: "2026-04-12",
+            vehicle_id: "vehicle-1",
+          },
+        },
+      })
+    ).toBeNull();
+
+    expect(
+      getLogBookingDayHref({
+        actionType: "booking_confirmed",
+        snapshot: {
+          after: {
+            status: "confirmed",
+          },
+        },
+      })
+    ).toBeNull();
   });
 });

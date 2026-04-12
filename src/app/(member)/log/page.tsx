@@ -2,11 +2,14 @@ import Link from "next/link";
 import { requireCurrentAppUser } from "@/lib/auth/user";
 import {
   formatLogActionTime,
+  formatLogSnapshotJson,
   getLogActionLabel,
+  getLogBookingDayHref,
   getLogColorDotClass,
   getLogPageNumber,
   getLogPaginationWindow,
   getLogRetentionCutoffIso,
+  getLogSnapshotHighlights,
   getLogTargetSummary,
   LOG_PAGE_SIZE,
   LOG_RETENTION_DAYS,
@@ -139,6 +142,13 @@ export default async function LogPage({ searchParams }: LogPageProps) {
             const targetUser = getJoinedOne(entry.target_user);
             const targetVehicle = getJoinedOne(entry.target_vehicle);
             const actorColorClass = getLogColorDotClass(actor?.color_hex);
+            const bookingDayHref = getLogBookingDayHref({
+              actionType: entry.action_type,
+              snapshot: entry.snapshot,
+              targetVehicleId: entry.target_vehicle_id,
+            });
+            const snapshotHighlights = getLogSnapshotHighlights(entry.snapshot);
+            const snapshotJson = formatLogSnapshotJson(entry.snapshot);
 
             return (
               <article
@@ -191,6 +201,16 @@ export default async function LogPage({ searchParams }: LogPageProps) {
                         targetVehicleId: entry.target_vehicle_id,
                       })}
                     </dd>
+                    {bookingDayHref ? (
+                      <dd className="mt-2">
+                        <Link
+                          className="text-sm font-semibold text-[var(--primary)]"
+                          href={bookingDayHref}
+                        >
+                          Open booking day
+                        </Link>
+                      </dd>
+                    ) : null}
                   </div>
                   <div>
                     <dt className="text-xs font-semibold uppercase text-[var(--muted)]">
@@ -201,6 +221,49 @@ export default async function LogPage({ searchParams }: LogPageProps) {
                     </dd>
                   </div>
                 </dl>
+
+                <details className="mt-5 border-t border-[var(--border)] pt-4">
+                  <summary className="cursor-pointer text-sm font-semibold text-[var(--primary)]">
+                    View details
+                  </summary>
+                  <div className="mt-4 space-y-4">
+                    <section>
+                      <h3 className="text-sm font-semibold text-[var(--text)]">
+                        Readable snapshot
+                      </h3>
+                      {snapshotHighlights.length === 0 ? (
+                        <p className="mt-2 text-sm text-[var(--muted)]">
+                          No readable snapshot highlights are available.
+                        </p>
+                      ) : (
+                        <dl className="mt-3 grid gap-3 md:grid-cols-2">
+                          {snapshotHighlights.map((highlight) => (
+                            <div
+                              className="rounded-md border border-[var(--border)] p-3"
+                              key={`${entry.id}-${highlight.label}`}
+                            >
+                              <dt className="text-xs font-semibold uppercase text-[var(--muted)]">
+                                {highlight.label}
+                              </dt>
+                              <dd className="mt-1 text-sm font-medium text-[var(--text)]">
+                                {highlight.value}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                      )}
+                    </section>
+
+                    <section>
+                      <h3 className="text-sm font-semibold text-[var(--text)]">
+                        Snapshot JSON
+                      </h3>
+                      <pre className="mt-3 max-h-96 overflow-auto rounded-md border border-[var(--border)] bg-[#F9FAFB] p-4 text-xs leading-5 text-[var(--text)]">
+                        <code>{snapshotJson}</code>
+                      </pre>
+                    </section>
+                  </div>
+                </details>
               </article>
             );
           })}

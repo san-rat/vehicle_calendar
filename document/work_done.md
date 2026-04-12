@@ -364,3 +364,15 @@ Timestamp: 2026-04-12 23:10:29 +0530
 - Added a global TopBar `Log` link for signed-in users and removed the old floating log button from the vehicle, calendar, and booking day pages.
 - Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` log-retention and pagination smoke with cleanup, and an unauthenticated `/log` redirect check returning `307` to `/login`.
 - Stopped after this checkpoint for manual review before starting 6B Expanded Details & Links.
+
+## Update
+Timestamp: 2026-04-12 23:22:05 +0530
+
+### Phase 6 Log Page & Automated Cleanup - 6B Expanded Details & Links
+
+- Added inline expandable details to each `/log` row using native `<details>`, with readable snapshot highlights and formatted raw JSON for audit completeness.
+- Added helper logic to summarize snapshot before/after changes, override notes, rejection reasons, approved request ids, and overridden booking ids without linking to admin-only pages.
+- Added booking-day links only for booking audit rows where a vehicle id and date can be resolved from the log target or snapshot.
+- Added focused Vitest coverage for readable snapshot highlights, formatted snapshot JSON, and booking-day link resolution/fallbacks.
+- Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` log-retention/detail-snapshot/pagination smoke with cleanup, and an unauthenticated `/log` redirect check returning `307` to `/login`.
+- Stopped after this checkpoint for manual review before starting 6C Cleanup Documentation & Final Phase Check.
