@@ -253,3 +253,18 @@ Timestamp: 2026-04-12 11:36:56 +0530
 - Kept vehicle icons deferred for later polish; this checkpoint uses simple type/status badges.
 - Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` active/inactive vehicle query check with cleanup, and an unauthenticated redirect check for `/vehicles`.
 - Stopped after this checkpoint for manual review before starting the Calendar checkpoint.
+
+## Update
+Timestamp: 2026-04-12 11:49:09 +0530
+
+### Phase 4 Calendar Checkpoint
+
+- Replaced the `/vehicles/[vehicleId]/calendar` placeholder with an authenticated month calendar for active vehicles.
+- Added shared booking date helpers for the Asia/Colombo business date, strict `YYYY-MM` month parsing, month ranges, previous/next month values, and inclusive future booking windows.
+- The calendar route now defaults to the current business month when `?month=` is missing, returns 404 for invalid month values or missing/inactive vehicles, and uses `privilege_config.max_days_in_future` to disable past/out-of-window dates.
+- The month grid shows confirmed booking indicators as compact user-color dots, while requested bookings remain non-blocking and are not shown as calendar indicators.
+- Added a lightweight 2-minute auto-refresh component for the calendar route.
+- Fixed the calendar booking query to explicitly join the booking owner via `bookings_user_id_fkey`, avoiding ambiguity with the `created_by` and `updated_by` user relationships.
+- Added Vitest coverage for business date resolution, strict date/month parsing, month ranges, leap years, month defaults, date addition, and inclusive future-window rules.
+- Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` vehicle/user/confirmed booking/requested booking query check with cleanup, and an unauthenticated redirect check for the calendar route.
+- Stopped after this checkpoint for manual review before starting the Booking UI/API checkpoint.
