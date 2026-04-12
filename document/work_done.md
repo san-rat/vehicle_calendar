@@ -268,3 +268,20 @@ Timestamp: 2026-04-12 11:49:09 +0530
 - Added Vitest coverage for business date resolution, strict date/month parsing, month ranges, leap years, month defaults, date addition, and inclusive future-window rules.
 - Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` vehicle/user/confirmed booking/requested booking query check with cleanup, and an unauthenticated redirect check for the calendar route.
 - Stopped after this checkpoint for manual review before starting the Booking UI/API checkpoint.
+
+## Update
+Timestamp: 2026-04-12 15:21:25 +0530
+
+### Phase 4 Booking UI/API Checkpoint
+
+- Replaced the `/vehicles/[vehicleId]/date/[date]` placeholder with an authenticated booking screen for active vehicles and valid dates.
+- Added pure booking helpers for 30-minute time slots, all-day normalization (`00:00` to `23:59`), reason limits, Asia/Colombo current-time checks, booking freedom status selection, time-limit duration checks, and confirmed-booking conflict detection with adjacent bookings allowed.
+- Added a mobile Timeline/Form tab layout with a desktop side-by-side layout, timeline rows for 30-minute slots, confirmed booking blocks, and requested booking blocks that do not block time.
+- The booking page now shows confirmed bookings for all users and requested bookings only for the current member; super admins can see all requested bookings.
+- Added the `createBooking` server action guarded by `requireCurrentAppUser()`, using the server-only Supabase admin client after the auth guard.
+- Booking submission now creates `confirmed` bookings when booking freedom is on and `requested` bookings when it is off, for all roles including super admins.
+- Server validation rejects invalid dates, dates outside the inclusive future booking window, past same-day starts, off-grid times, invalid all-day values, missing required reasons, reasons over 500 characters, over-limit durations, and overlaps with confirmed bookings.
+- Booking creation writes `booking_confirmed` or `booking_requested` audit logs with snapshots and redirects back to the same date page with an inline status banner.
+- Added Vitest coverage for time slots, time parsing, all-day parsing, booking freedom status selection, business time, valid booking input, off-grid times, date windows, past starts, reason validation, all-day rules, duration limits, confirmed conflicts, adjacent bookings, and requested bookings not blocking.
+- Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` vehicle/user/confirmed booking/requested booking/audit log/conflict-source check with cleanup and privilege restoration, and an unauthenticated redirect check for the booking route.
+- Stopped after this checkpoint for manual review before moving to any optional follow-up phase.
