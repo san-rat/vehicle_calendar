@@ -313,3 +313,15 @@ Timestamp: 2026-04-12 16:17:33 +0530
 - Added explicit Vitest coverage for over-limit rejection reasons.
 - Verified the checkpoint with focused booking helper tests, `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` requested booking rejection + audit log check with cleanup, and an unauthenticated redirect check for `/admin/requests`.
 - Stopped after this checkpoint for manual review before starting the Normal Approve Flow checkpoint.
+
+## Update
+Timestamp: 2026-04-12 16:32:11 +0530
+
+### Phase 5 Request List & Approval - 5C Normal Approve Flow
+
+- Added the `approveBookingRequest` server action for normal, non-conflicting request approvals.
+- The approve action requires a super-admin session, creates the Supabase service-role client only after the auth guard, requires the booking to still be `requested`, blocks inactive members/vehicles, blocks past or already-started requests using Asia/Colombo business time, and rechecks confirmed conflicts at submit time.
+- Normal approval updates the requested booking to `confirmed`, sets `updated_by` to the acting admin, writes a `booking_confirmed` audit log with `before`/`after` snapshots, and revalidates `/admin/requests`, the affected booking day, and the affected vehicle calendar.
+- Updated the request list with an Approve action for eligible requests and inline block text for inactive, past/already-started, or conflicting requests. Conflicting approvals remain deferred to the override checkpoint.
+- Verified the checkpoint with focused booking helper tests, `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` normal approval + `booking_confirmed` audit log + conflict recheck smoke with cleanup, and an unauthenticated redirect check for `/admin/requests`.
+- Stopped after this checkpoint for manual review before starting the Override Flow checkpoint.

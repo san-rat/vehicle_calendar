@@ -13,7 +13,7 @@ import {
 } from "@/lib/booking/bookings";
 import { getBusinessToday, parseIsoDate } from "@/lib/booking/dates";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { rejectBookingRequest } from "./actions";
+import { approveBookingRequest, rejectBookingRequest } from "./actions";
 
 type AdminRequestsPageProps = {
   searchParams?: Promise<{ error?: string; success?: string }>;
@@ -259,6 +259,17 @@ export default async function AdminRequestsPage({
               const vehicle = getJoinedOne(request.booking_vehicle);
               const isMemberInactive = member?.is_active === false;
               const isVehicleInactive = vehicle?.is_active === false;
+              const approveBlockReason =
+                isMemberInactive
+                  ? "Approval is blocked because this member is inactive."
+                  : isVehicleInactive
+                    ? "Approval is blocked because this vehicle is inactive."
+                    : request.approvalProblem
+                      ? request.approvalProblem
+                      : request.conflicts.length > 0
+                        ? "Approval needs override review because this request conflicts with confirmed bookings."
+                        : null;
+              const canApprove = approveBlockReason === null;
 
               return (
                 <article
@@ -386,6 +397,23 @@ export default async function AdminRequestsPage({
                     >
                       Open booking day
                     </Link>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[auto_1fr] md:items-center">
+                    <form action={approveBookingRequest}>
+                      <input name="id" type="hidden" value={request.id} />
+                      <button
+                        className="rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                        disabled={!canApprove}
+                        type="submit"
+                      >
+                        Approve
+                      </button>
+                    </form>
+                    <p className="text-sm text-[var(--muted)]">
+                      {approveBlockReason ??
+                        "No conflicts found. This request can be approved."}
+                    </p>
                   </div>
 
                   <form
