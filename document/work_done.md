@@ -213,3 +213,20 @@ Timestamp: 2026-04-12 10:46:23 +0530
 - Added `privilege_updated` audit logging with both `before` and `after` snapshots.
 - Added pure privilege validation helpers and Vitest coverage for boolean parsing, nullable time limit, bounds, and whole-number requirements.
 - Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase privilege update/log/restore check, and an unauthenticated redirect check for `/admin/privileges`.
+
+## Update
+Timestamp: 2026-04-12 11:00:31 +0530
+
+### Phase 3 Admin Settings - Members Checkpoint
+
+- Implemented `/admin/members` as an admin-protected inline management page for creating members, editing name/role/active state, resetting passwords, and safely hard-deleting accounts.
+- Added server actions for member create/update/password-reset/delete. Each action requires a super admin session, uses the server-only Supabase admin client, validates input, revalidates the members page, and redirects with a status message.
+- Member creation keeps email hidden from the UI. The app generates an internal `@auth.fleettime.local` email, creates the Supabase Auth user, and upserts the linked `public.users` profile.
+- Added auto color assignment from the project user palette.
+- Added member validation for name length/characters, role, active state, and password confirmation.
+- Added self-lockout protection so the current admin cannot self-delete, self-deactivate, or self-demote.
+- Added safe hard-delete behavior for members: admins must type the exact member name, and deletion is blocked when the member owns any booking.
+- Member deletion removes the Supabase Auth account; the linked profile row is deleted by the existing auth FK cascade.
+- Added audit logging for member create/update/role-change/password-reset/delete. Update logs store `before` and `after` snapshots, and password reset logs never store the password.
+- Added pure member helper tests for validation, hidden email generation, auto color assignment, active-state parsing, and self-lockout guards.
+- Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase temporary member create/update/password-reset/log/delete cleanup check, and an unauthenticated redirect check for `/admin/members`.
