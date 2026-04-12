@@ -416,3 +416,19 @@ Timestamp: 2026-04-12 23:46:00 +0530
 - Verified unauthenticated redirects for `/vehicles`, `/admin/settings`, and `/log` return `307` to `/login`; verified `/login` returns `200`.
 - Live Supabase `FT_TMP_` mutation checks were not run for this checkpoint because 7A changed presentation-only UI code and did not alter data queries or actions.
 - Stopped after this checkpoint for manual review before starting 7B Member Booking Surfaces.
+
+## Update
+Timestamp: 2026-04-12 23:58:59 +0530
+
+### Phase 7 UI/UX Polish - 7B Member Booking Surfaces
+
+- Polished `/vehicles` with the shared page header, vehicle cards, active/type badges, inline FleetTime vehicle icon, and a guided empty state.
+- Polished `/vehicles/[vehicleId]/calendar` with shared back/action buttons, page header, booking-window badge, soft panel styling, smaller mobile calendar gaps, and consistent disabled/bookable day cells.
+- Polished `/vehicles/[vehicleId]/date/[date]` with shared back action, page header, booking-status badge, and consistent success/error notice styling.
+- Updated the booking workspace with shared panels, form fields, button, badges, notices, timeline/empty-state icons, improved mobile tab tap targets, and consistent timeline/form spacing.
+- Kept all data loading, Supabase queries, server actions, validation, conflict checks, and auto-refresh behavior unchanged.
+- Verified the checkpoint with `npm test`, `npm run lint`, and `npm run build`.
+- Reused the local review server at `http://127.0.0.1:3000` for manual review.
+- Verified unauthenticated redirects for `/vehicles`, `/vehicles/00000000-0000-0000-0000-000000000000/calendar`, and `/vehicles/00000000-0000-0000-0000-000000000000/date/2026-04-13` return `307` to `/login`.
+- Live Supabase `FT_TMP_` mutation checks were not run for this checkpoint because 7B changed presentation-only UI code and did not alter data queries or actions.
+- Stopped after this checkpoint for manual review before starting 7C Admin Settings Surfaces.

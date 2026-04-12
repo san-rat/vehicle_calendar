@@ -1,10 +1,11 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import {
   BookingWorkspace,
   type TimelineBooking,
 } from "@/components/BookingWorkspace";
+import { Badge, ButtonLink, Notice, PageHeader } from "@/components/ui";
+import { CalendarIcon } from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -190,35 +191,38 @@ export default async function BookingPage({
     <>
       <AutoRefresh />
       <div className="space-y-6">
-        <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <Link
-              className="text-sm font-semibold text-[var(--primary)]"
-              href={`/vehicles/${vehicle.id}/calendar?month=${date.slice(0, 7)}`}
-            >
-              Calendar
-            </Link>
-            <h1 className="mt-2 text-2xl font-semibold">Booking</h1>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              {vehicle.name} · {getVehicleTypeLabel(vehicle.type)} ·{" "}
-              {getDateLabel(date)}
-            </p>
-          </div>
-          <span className="w-fit rounded-md border border-[var(--border)] px-3 py-1 text-sm text-[var(--muted)]">
-            {bookingStatus === "confirmed" ? "Auto-confirm" : "Requires approval"}
-          </span>
-        </header>
+        <div className="space-y-3">
+          <ButtonLink
+            className="w-fit"
+            href={`/vehicles/${vehicle.id}/calendar?month=${date.slice(0, 7)}`}
+            size="sm"
+            tone="neutral"
+          >
+            <CalendarIcon className="h-4 w-4" />
+            Calendar
+          </ButtonLink>
+          <PageHeader
+            action={
+              <Badge
+                className="w-fit"
+                tone={bookingStatus === "confirmed" ? "success" : "warning"}
+              >
+                {bookingStatus === "confirmed"
+                  ? "Auto-confirm"
+                  : "Requires approval"}
+              </Badge>
+            }
+            description={`${vehicle.name} · ${getVehicleTypeLabel(
+              vehicle.type
+            )} · ${getDateLabel(date)}`}
+            title="Booking"
+          />
+        </div>
 
         {statusMessage ? (
-          <p
-            className={`rounded-md border px-4 py-3 text-sm ${
-              statusTone === "error"
-                ? "border-[var(--danger)]/30 bg-[var(--danger)]/10 text-[var(--danger)]"
-                : "border-[var(--success)]/30 bg-[var(--success)]/10 text-green-700"
-            }`}
-          >
+          <Notice tone={statusTone === "error" ? "danger" : "success"}>
             {statusMessage}
-          </p>
+          </Notice>
         ) : null}
 
         <BookingWorkspace

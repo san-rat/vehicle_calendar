@@ -84,3 +84,28 @@ export function EmptyStateIcon(props: IconProps) {
     </IconBase>
   );
 }
+
+export function CalendarIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M6.5 4.5v3" />
+      <path d="M17.5 4.5v3" />
+      <path d="M4.5 8.5h15" />
+      <path d="M6.5 6h11a2 2 0 0 1 2 2v9.5a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" />
+      <path d="M8 12h2" />
+      <path d="M12 12h2" />
+      <path d="M16 12h.5" />
+      <path d="M8 15.5h2" />
+      <path d="M12 15.5h2" />
+    </IconBase>
+  );
+}
+
+export function ClockIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" />
+      <path d="M12 7.5V12l3 2" />
+    </IconBase>
+  );
+}

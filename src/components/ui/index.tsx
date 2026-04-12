@@ -41,7 +41,7 @@ type FieldProps = {
 type PageHeaderProps = {
   action?: ReactNode;
   description?: ReactNode;
-  eyebrow?: string;
+  eyebrow?: ReactNode;
   title: string;
 };
 
@@ -229,11 +229,16 @@ export function PageHeader({
     <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
         {eyebrow ? (
-          <p className="text-sm font-semibold text-[var(--primary)]">
+          <div className="text-sm font-semibold text-[var(--primary)]">
             {eyebrow}
-          </p>
+          </div>
         ) : null}
-        <h1 className={joinClasses("text-2xl font-semibold", eyebrow && "mt-1")}>
+        <h1
+          className={joinClasses(
+            "text-2xl font-semibold",
+            eyebrow ? "mt-1" : undefined
+          )}
+        >
           {title}
         </h1>
         {description ? (

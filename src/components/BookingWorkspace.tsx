@@ -1,6 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import {
+  Badge,
+  Button,
+  EmptyState,
+  Field,
+  Notice,
+  Panel,
+  inputClassName,
+} from "@/components/ui";
+import { ClockIcon, EmptyStateIcon } from "@/components/ui/icons";
 
 export type TimelineBooking = {
   colorHex: string;
@@ -60,21 +70,28 @@ function TimelinePanel({
   timeOptions: string[];
 }) {
   return (
-    <section className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5">
+    <Panel>
       <div className="mb-4">
-        <h2 className="text-lg font-semibold">Timeline</h2>
+        <div className="flex items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
+            <ClockIcon className="h-5 w-5" />
+          </span>
+          <h2 className="text-lg font-semibold">Timeline</h2>
+        </div>
         <p className="mt-1 text-sm text-[var(--muted)]">
           Confirmed bookings block time. Requested bookings do not block time.
         </p>
       </div>
 
       {bookings.length === 0 ? (
-        <div className="rounded-md border border-dashed border-[var(--border)] bg-white p-4 text-sm text-[var(--muted)]">
-          No trips are scheduled for this date.
-        </div>
+        <EmptyState
+          description="This day is open. Switch to the form when you are ready to book."
+          icon={<EmptyStateIcon className="h-6 w-6" />}
+          title="No trips scheduled"
+        />
       ) : null}
 
-      <div className="max-h-[680px] space-y-1 overflow-y-auto pr-1">
+      <div className="mt-4 max-h-[680px] space-y-1 overflow-y-auto pr-1">
         {timeOptions.map((slot) => {
           const slotBookings = getBookingsForSlot(bookings, slot);
 
@@ -89,7 +106,7 @@ function TimelinePanel({
               <div className="space-y-2">
                 {slotBookings.map((booking) => (
                   <div
-                    className={`rounded-md border-l-4 px-3 py-2 text-sm ${getBookingClass(
+                    className={`rounded-md border-l-4 px-3 py-3 text-sm shadow-sm ${getBookingClass(
                       booking
                     )}`}
                     key={booking.id}
@@ -98,9 +115,11 @@ function TimelinePanel({
                       <span className="font-semibold">
                         {booking.userName}
                       </span>
-                      <span className="text-xs font-semibold uppercase">
+                      <Badge
+                        tone={booking.status === "confirmed" ? "success" : "info"}
+                      >
                         {booking.status}
-                      </span>
+                      </Badge>
                     </div>
                     <p className="mt-1 text-xs">
                       {booking.isAllDay
@@ -119,7 +138,7 @@ function TimelinePanel({
           );
         })}
       </div>
-    </section>
+    </Panel>
   );
 }
 
@@ -137,9 +156,14 @@ function BookingFormPanel({
   const isTimeDisabled = isFormDisabled || isAllDay;
 
   return (
-    <section className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5">
+    <Panel>
       <div className="mb-4">
-        <h2 className="text-lg font-semibold">New Booking</h2>
+        <div className="flex items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
+            <ClockIcon className="h-5 w-5" />
+          </span>
+          <h2 className="text-lg font-semibold">New Booking</h2>
+        </div>
         <p className="mt-1 text-sm text-[var(--muted)]">
           {timeLimitMinutes === null
             ? "All-day bookings are available."
@@ -148,9 +172,9 @@ function BookingFormPanel({
       </div>
 
       {formDisabledMessage ? (
-        <p className="mb-4 rounded-md border border-[var(--danger)]/30 bg-[var(--danger)]/10 px-4 py-3 text-sm text-[var(--danger)]">
+        <Notice className="mb-4" tone="danger">
           {formDisabledMessage}
-        </p>
+        </Notice>
       ) : null}
 
       <form action={formAction} className="space-y-4">
@@ -175,13 +199,11 @@ function BookingFormPanel({
         </label>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-[var(--muted)]">
-              Start Time
-            </span>
+          <Field htmlFor="booking-start-time" label="Start time">
             <select
-              className="w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] disabled:opacity-60"
+              className={inputClassName()}
               disabled={isTimeDisabled}
+              id="booking-start-time"
               name="start_time"
               required={!isAllDay}
             >
@@ -192,15 +214,13 @@ function BookingFormPanel({
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
 
-          <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-[var(--muted)]">
-              End Time
-            </span>
+          <Field htmlFor="booking-end-time" label="End time">
             <select
-              className="w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] disabled:opacity-60"
+              className={inputClassName()}
               disabled={isTimeDisabled}
+              id="booking-end-time"
               name="end_time"
               required={!isAllDay}
             >
@@ -211,31 +231,33 @@ function BookingFormPanel({
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
         </div>
 
-        <label className="space-y-2">
-          <span className="text-xs font-semibold uppercase text-[var(--muted)]">
-            Reason {reasonRequired ? "" : "Optional"}
-          </span>
+        <Field
+          htmlFor="booking-reason"
+          label={`Reason${reasonRequired ? "" : " (optional)"}`}
+        >
           <textarea
-            className="min-h-28 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)] disabled:opacity-60"
+            className={inputClassName("min-h-28")}
             disabled={isFormDisabled}
+            id="booking-reason"
             maxLength={500}
             name="reason"
             required={reasonRequired}
           />
-        </label>
+        </Field>
 
-        <button
-          className="w-full rounded-md bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+        <Button
+          className="w-full"
           disabled={isFormDisabled}
+          tone="primary"
           type="submit"
         >
           {submitLabel}
-        </button>
+        </Button>
       </form>
-    </section>
+    </Panel>
   );
 }
 
@@ -257,10 +279,10 @@ export function BookingWorkspace({
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] p-1 md:hidden">
         <button
-          className={`rounded-md px-4 py-2 text-sm font-semibold ${
+          className={`min-h-11 rounded-md px-4 py-2 text-sm font-semibold transition ${
             activePanel === "timeline"
               ? "bg-[var(--primary)] text-white"
-              : "text-[var(--muted)]"
+              : "text-[var(--muted)] hover:text-[var(--text)]"
           }`}
           onClick={() => setActivePanel("timeline")}
           type="button"
@@ -268,10 +290,10 @@ export function BookingWorkspace({
           Timeline
         </button>
         <button
-          className={`rounded-md px-4 py-2 text-sm font-semibold ${
+          className={`min-h-11 rounded-md px-4 py-2 text-sm font-semibold transition ${
             activePanel === "form"
               ? "bg-[var(--primary)] text-white"
-              : "text-[var(--muted)]"
+              : "text-[var(--muted)] hover:text-[var(--text)]"
           }`}
           onClick={() => setActivePanel("form")}
           type="button"

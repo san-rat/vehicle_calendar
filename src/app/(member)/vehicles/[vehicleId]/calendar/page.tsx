@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AutoRefresh } from "@/components/AutoRefresh";
+import { Badge, ButtonLink, PageHeader, Panel } from "@/components/ui";
+import { CalendarIcon } from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -155,48 +157,49 @@ export default async function VehicleCalendarPage({
     <>
       <AutoRefresh />
       <div className="space-y-6">
-        <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <Link
-              className="text-sm font-semibold text-[var(--primary)]"
-              href="/vehicles"
-            >
-              Vehicles
-            </Link>
-            <h1 className="mt-2 text-2xl font-semibold">{vehicle.name}</h1>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              {getVehicleTypeLabel(vehicle.type)} calendar. Confirmed bookings
-              appear as colored dots.
-            </p>
-          </div>
-          <span className="w-fit rounded-md border border-[var(--border)] px-3 py-1 text-sm text-[var(--muted)]">
-            Booking window: {config.max_days_in_future} days
-          </span>
-        </header>
+        <div className="space-y-3">
+          <ButtonLink className="w-fit" href="/vehicles" size="sm" tone="neutral">
+            <CalendarIcon className="h-4 w-4" />
+            Vehicles
+          </ButtonLink>
+          <PageHeader
+            action={
+              <Badge className="w-fit" tone="neutral">
+                Booking window: {config.max_days_in_future} days
+              </Badge>
+            }
+            description={`${getVehicleTypeLabel(
+              vehicle.type
+            )} calendar. Confirmed bookings appear as colored dots.`}
+            title={vehicle.name}
+          />
+        </div>
 
-        <section className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5">
+        <Panel>
           <div className="mb-5 flex items-center justify-between gap-3">
-            <Link
-              className="rounded-md border border-[var(--border)] px-3 py-2 text-sm font-semibold text-[var(--text)] transition hover:border-[var(--primary)]"
+            <ButtonLink
               href={`/vehicles/${vehicle.id}/calendar?month=${month.prevMonth}`}
+              size="sm"
+              tone="secondary"
             >
               Previous
-            </Link>
+            </ButtonLink>
             <div className="text-center">
               <h2 className="text-lg font-semibold">{month.label}</h2>
               <p className="text-xs text-[var(--muted)]">
                 Requested trips do not block availability.
               </p>
             </div>
-            <Link
-              className="rounded-md border border-[var(--border)] px-3 py-2 text-sm font-semibold text-[var(--text)] transition hover:border-[var(--primary)]"
+            <ButtonLink
               href={`/vehicles/${vehicle.id}/calendar?month=${month.nextMonth}`}
+              size="sm"
+              tone="secondary"
             >
               Next
-            </Link>
+            </ButtonLink>
           </div>
 
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2">
             {weekdayLabels.map((label) => (
               <div
                 className="py-2 text-center text-xs font-semibold uppercase text-[var(--muted)]"
@@ -221,16 +224,16 @@ export default async function VehicleCalendarPage({
               const visibleIndicators = indicators.slice(0, 4);
               const hiddenIndicatorCount =
                 indicators.length - visibleIndicators.length;
-              const cellClass = `min-h-24 rounded-md border p-2 text-left transition ${
+              const cellClass = `flex min-h-16 flex-col rounded-md border p-2 text-left transition sm:min-h-24 ${
                 isBookable
-                  ? "border-[var(--border)] bg-white hover:border-[var(--primary)]"
-                  : "border-[var(--border)] bg-[var(--bg)] text-[var(--muted)] opacity-60"
+                  ? "border-[var(--border)] bg-white hover:border-[var(--primary)] hover:shadow-sm"
+                  : "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted)] opacity-60"
               }`;
               const cellContent = (
                 <>
                   <span className="text-sm font-semibold">{dayNumber}</span>
                   {visibleIndicators.length > 0 ? (
-                    <div className="mt-8 flex flex-wrap gap-1">
+                    <div className="mt-auto flex flex-wrap gap-1 pt-4">
                       {visibleIndicators.map((indicator) => (
                         <span
                           aria-label={`Confirmed booking for ${indicator.userName}`}
@@ -261,17 +264,13 @@ export default async function VehicleCalendarPage({
                   {cellContent}
                 </Link>
               ) : (
-                <div
-                  aria-disabled="true"
-                  className={cellClass}
-                  key={date}
-                >
+                <div aria-disabled="true" className={cellClass} key={date}>
                   {cellContent}
                 </div>
               );
             })}
           </div>
-        </section>
+        </Panel>
       </div>
     </>
   );

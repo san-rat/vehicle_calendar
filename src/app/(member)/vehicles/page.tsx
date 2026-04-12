@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Badge, EmptyState, PageHeader } from "@/components/ui";
+import { EmptyStateIcon, FleetIcon } from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -35,46 +37,49 @@ export default async function VehiclesPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <p className="text-sm font-semibold text-[var(--primary)]">Fleet</p>
-        <h1 className="mt-1 text-2xl font-semibold">Vehicles</h1>
-        <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
-          Pick an active vehicle to open its calendar.
-        </p>
-      </header>
+      <PageHeader
+        description="Pick an active vehicle to open its calendar."
+        eyebrow="Fleet"
+        title="Vehicles"
+      />
 
       {vehicles.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] p-6 text-sm text-[var(--muted)]">
-          No active vehicles are available yet.
-        </div>
+        <EmptyState
+          description="No active vehicles are available yet. Ask an admin to add or activate a vehicle."
+          icon={<EmptyStateIcon className="h-6 w-6" />}
+          title="No vehicles ready"
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {vehicles.map((vehicle) => (
             <Link
-              className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-5 transition hover:border-[var(--primary)]"
+              className="group rounded-lg border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm transition hover:border-[var(--primary)]"
               href={`/vehicles/${vehicle.id}/calendar`}
               key={vehicle.id}
             >
               <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-[var(--text)]">
-                    {vehicle.name}
-                  </h2>
-                  <p className="mt-2 text-sm text-[var(--muted)]">
-                    {getVehicleTypeLabel(vehicle.type)}
-                  </p>
+                <div className="flex gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
+                    <FleetIcon className="h-6 w-6" />
+                  </span>
+                  <div>
+                    <h2 className="text-lg font-semibold text-[var(--text)]">
+                      {vehicle.name}
+                    </h2>
+                    <p className="mt-2 text-sm text-[var(--muted)]">
+                      {getVehicleTypeLabel(vehicle.type)}
+                    </p>
+                  </div>
                 </div>
-                <span className="rounded-md bg-[var(--success)]/10 px-3 py-1 text-xs font-semibold text-green-700">
-                  Active
-                </span>
+                <Badge tone="success">Active</Badge>
               </div>
 
               <div className="mt-5 flex items-center justify-between border-t border-[var(--border)] pt-4">
-                <span className="rounded-md border border-[var(--border)] px-3 py-1 text-xs font-semibold text-[var(--muted)]">
+                <Badge tone="neutral">
                   {getVehicleTypeLabel(vehicle.type)}
-                </span>
-                <span className="text-sm font-semibold text-[var(--primary)]">
-                  Open Calendar
+                </Badge>
+                <span className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--primary)] group-hover:text-[var(--primary-hover)]">
+                  Open calendar
                 </span>
               </div>
             </Link>
