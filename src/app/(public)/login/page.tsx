@@ -4,6 +4,8 @@ import {
   getLoginErrorMessage,
   getPostLoginPath,
 } from "@/lib/auth/user";
+import { Button, Field, Notice, Panel, inputClassName } from "@/components/ui";
+import { FleetIcon } from "@/components/ui/icons";
 import { logInWithName } from "./actions";
 
 type LoginPageProps = {
@@ -27,68 +29,64 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <div className="flex min-h-screen items-center bg-[var(--bg)] py-12">
       <div className="app-container">
-        <div className="mx-auto max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--primary)]">
-            FleetTime
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold text-[var(--text)]">
-            Sign In
-          </h1>
-          <p className="mt-2 text-sm text-[var(--muted)]">
-            Use your unique name and password to access the vehicle calendar.
-          </p>
+        <Panel className="mx-auto max-w-md p-6 sm:p-8">
+          <div className="flex items-start gap-3">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
+              <FleetIcon className="h-7 w-7" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-[var(--primary)]">
+                FleetTime
+              </p>
+              <h1 className="mt-1 text-3xl font-semibold text-[var(--text)]">
+                Sign in
+              </h1>
+              <p className="mt-2 text-sm text-[var(--muted)]">
+                Use your name and password to open the vehicle calendar.
+              </p>
+            </div>
+          </div>
 
           {errorMessage ? (
-            <p className="mt-6 rounded-xl border border-[var(--danger)]/20 bg-[var(--danger)]/10 px-4 py-3 text-sm text-[var(--danger)]">
+            <Notice className="mt-6" tone="danger">
               {errorMessage}
-            </p>
+            </Notice>
           ) : null}
 
           <form action={logInWithName} className="mt-6 space-y-5">
-            <div className="space-y-2">
-              <label
-                htmlFor="name"
-                className="text-sm font-medium text-[var(--text)]"
-              >
-                Name
-              </label>
+            <Field htmlFor="name" label="Name">
               <input
                 id="name"
                 name="name"
                 type="text"
                 autoComplete="username"
-                className="w-full rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--text)] outline-none transition focus:border-[var(--primary)]"
+                className={inputClassName()}
                 placeholder="Super Admin"
                 required
               />
-            </div>
+            </Field>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="text-sm font-medium text-[var(--text)]"
-              >
-                Password
-              </label>
+            <Field htmlFor="password" label="Password">
               <input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="current-password"
-                className="w-full rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--text)] outline-none transition focus:border-[var(--primary)]"
+                className={inputClassName()}
                 placeholder="Enter your password"
                 required
               />
-            </div>
+            </Field>
 
-            <button
+            <Button
+              className="w-full"
+              tone="primary"
               type="submit"
-              className="w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-white transition hover:opacity-95"
             >
-              Sign In
-            </button>
+              Sign in
+            </Button>
           </form>
-        </div>
+        </Panel>
       </div>
     </div>
   );

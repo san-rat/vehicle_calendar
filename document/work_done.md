@@ -401,3 +401,18 @@ select cron.schedule(
 - Verified the final Phase 6 checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` cleanup smoke that inserted one retained and one older-than-30-days log row, deleted only the old scoped temp row, confirmed the retained temp row stayed, and cleaned up the remaining temp row.
 - Verified unauthenticated `/log` still redirects to `/login` with `307`.
 - Phase 6 is functionally complete. The cleanup cron SQL is documented for manual Supabase setup only; no migration was added and no scheduled job was applied from the repo.
+
+## Update
+Timestamp: 2026-04-12 23:46:00 +0530
+
+### Phase 7 UI/UX Polish - 7A Foundation, TopBar, Login
+
+- Added the first local Tailwind-only UI primitives under `src/components/ui`, including shared button/link, panel, badge, field, notice, page header, empty state, and inline SVG icon helpers.
+- Expanded the existing global design tokens with primary hover, success text, warning, info, and muted surface colors while keeping the established FleetTime palette and fonts.
+- Refined the global TopBar without changing navigation behavior: existing Log, Settings, and Logout actions remain, with larger tap targets, consistent action styling, user identity display, and local inline icons.
+- Polished `/login` with the shared panel, field, button, notice, and FleetTime icon patterns; login behavior and server action wiring are unchanged.
+- Verified the checkpoint with `npm test`, `npm run lint`, and `npm run build`.
+- Started the local review server at `http://127.0.0.1:3000` for manual review.
+- Verified unauthenticated redirects for `/vehicles`, `/admin/settings`, and `/log` return `307` to `/login`; verified `/login` returns `200`.
+- Live Supabase `FT_TMP_` mutation checks were not run for this checkpoint because 7A changed presentation-only UI code and did not alter data queries or actions.
+- Stopped after this checkpoint for manual review before starting 7B Member Booking Surfaces.

@@ -7,8 +7,15 @@
   --muted: #6b7280;
   --border: #e5e7eb;
   --primary: #2563eb;
+  --primary-hover: #1d4ed8;
   --success: #22c55e;
+  --success-text: #15803d;
   --danger: #ef4444;
+  --warning: #f59e0b;
+  --warning-text: #92400e;
+  --info: #0ea5e9;
+  --info-text: #0369a1;
+  --surface-muted: #f9fafb;
 }
 
 @theme inline {
@@ -21,6 +28,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
+  line-height: 1.5;
   min-height: 100%;
 }
 
@@ -37,6 +45,12 @@ button {
 .app-container {
   margin: 0 auto;
   max-width: 1200px;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
   width: 100%;
+}
+
+@media (min-width: 640px) {
+  .app-container {
+    padding: 0 1.5rem;
+  }
 }
