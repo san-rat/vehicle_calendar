@@ -11,7 +11,10 @@ export default async function MemberLayout({
 
   return (
     <div className="min-h-screen">
-      <TopBar currentUser={currentUser} />
+      <TopBar
+        currentUser={currentUser}
+        showAdminActions={currentUser.role === "super_admin"}
+      />
       <main className="app-container py-8">{children}</main>
     </div>
   );

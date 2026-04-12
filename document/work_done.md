@@ -241,3 +241,15 @@ Timestamp: 2026-04-12 11:14:45 +0530
 - Ran non-forcing `npm audit fix` to resolve remaining dev-tooling transitive advisories.
 - Confirmed both `npm audit --omit=dev` and full `npm audit` report `0 vulnerabilities`.
 - Verified the upgraded app with `npm test`, `npm run lint`, `npm run build`, and a local production smoke test under Next `16.2.3`.
+
+## Update
+Timestamp: 2026-04-12 11:36:56 +0530
+
+### Phase 4 Vehicle Selection Checkpoint
+
+- Replaced the `/vehicles` placeholder with a real authenticated active-vehicle list loaded from Supabase.
+- The vehicle selection page now hides inactive vehicles, shows mobile-first vehicle cards with name/type/status, and links each active vehicle to `/vehicles/[vehicleId]/calendar`.
+- Updated the member layout so super admins see the existing Settings action in the top bar while using the member-facing `/vehicles` route.
+- Kept vehicle icons deferred for later polish; this checkpoint uses simple type/status badges.
+- Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` active/inactive vehicle query check with cleanup, and an unauthenticated redirect check for `/vehicles`.
+- Stopped after this checkpoint for manual review before starting the Calendar checkpoint.
