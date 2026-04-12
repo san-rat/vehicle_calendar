@@ -201,3 +201,15 @@ Timestamp: 2026-04-12 10:36:24 +0530
 - Added the `npm test` script and installed Vitest for Phase 3 helper tests.
 - Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase temporary vehicle create/update/log/delete cleanup check, and unauthenticated redirect checks for `/admin/vehicles` and `/admin/settings`.
 - Noted a separate production dependency audit issue: `next@16.1.6` currently has high-severity advisories reported by `npm audit --omit=dev`; npm suggests `next@16.2.3`, which is outside this checkpoint's dependency scope.
+
+## Update
+Timestamp: 2026-04-12 10:46:23 +0530
+
+### Phase 3 Admin Settings - Privileges Checkpoint
+
+- Implemented `/admin/privileges` as an admin-protected singleton settings page for booking freedom, time limit, future booking window, and require-reason controls.
+- Added server action support for updating `privilege_config`. The action requires a super admin session, uses the server-only Supabase admin client, validates input, revalidates the privileges page, and redirects with a status message.
+- Added practical validation for privileges: `time_limit_minutes` is blank or 1-1440 minutes, `max_days_in_future` is 0-365 days, and boolean settings only accept explicit true/false values.
+- Added `privilege_updated` audit logging with both `before` and `after` snapshots.
+- Added pure privilege validation helpers and Vitest coverage for boolean parsing, nullable time limit, bounds, and whole-number requirements.
+- Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase privilege update/log/restore check, and an unauthenticated redirect check for `/admin/privileges`.
