@@ -129,3 +129,58 @@ Timestamp: 2026-03-17 22:42:00 +0530
 - Created `document/UI/UI_Anti_Patterns.md` outlining strict directives for AI/devs (no heavy external libraries, no inline styles, no desktop-only paradigms on mobile).
 - Created `document/UX/UX_Guideline.md` defining interactions (hamburger menu, 2-minute polling for live data, frictionless single-click booking, bulk admin Request List).
 - Created `document/UX/UX_Anti_Patterns.md` forbidding confusing navigation traps, complex state management, heavy confirmation modals, and persistent blocking banners.
+
+## Update
+Timestamp: 2026-04-12 09:03:00 +0530
+
+### Authentication System Implemented
+
+Implemented the full name + password authentication system backed by Supabase Auth.
+Users log in with their display name (not an email); the name is deterministically converted
+to an internal email (`slug--hash@auth.fleettime.local`) so Supabase's email+password
+auth can be used transparently.
+
+**New files created:**
+- `src/lib/auth/user.ts` — `AppUser` type, `getCurrentAppUserState`, `requireCurrentAppUser`, `requireAdminAppUser`, `getPostLoginPath`, and `getLoginErrorMessage` helpers.
+- `src/lib/auth/name-login.ts` — `buildInternalAuthEmail` converts a user's display name to a deterministic Supabase-compatible email.
+- `src/lib/supabase/server.ts` — SSR Supabase client using cookie-based sessions (via `@supabase/ssr`).
+- `src/lib/supabase/client.ts` — Browser Supabase client.
+- `src/lib/supabase/proxy.ts` — `updateSession()` for use in middleware to keep Supabase sessions alive.
+- `src/app/(public)/login/actions.ts` — Server Action `logInWithName`: validates name + password, builds internal email, signs in via Supabase, checks `is_active`, then redirects based on role.
+- `src/app/auth/logout/route.ts` — Route handler for `GET /auth/logout` and `POST /auth/logout`; signs out and redirects to `/login` with an optional error reason.
+- `middleware.ts` — Next.js middleware at the project root that calls `updateSession()` on every request to keep Supabase session cookies refreshed.
+
+**Modified files:**
+- `src/app/page.tsx` — Root `/` page now redirects: logged-in users → role-based path, unauthenticated → `/login`, problem (inactive/missing profile) → `/auth/logout`.
+- `src/app/(public)/login/page.tsx` — Full login form (name + password) with error display wired to `logInWithName` server action.
+- `src/app/(admin)/layout.tsx` — Protected with `requireAdminAppUser()`; passes `currentUser` to `TopBar`.
+- `src/app/(member)/layout.tsx` — Protected with `requireCurrentAppUser()`; passes `currentUser` to `TopBar`.
+- `src/components/TopBar.tsx` — Now accepts `currentUser` prop, displays the user's name, Logout is a real form POST to `/auth/logout`, Settings is a `<Link>` to `/admin/settings`.
+- `src/app/layout.tsx` — Page title updated to "FleetTime", description updated.
+- `package.json` — Added `@supabase/ssr` and `@supabase/supabase-js` dependencies.
+
+**Bugs fixed:**
+- `proxy.ts` (root) was incorrectly named — Next.js only recognises `middleware.ts`. Deleted `proxy.ts` and created `middleware.ts` exporting `middleware` so session refresh now actually runs on every request.
+- Login page was hardcoding `redirect("/vehicles")` for an already-logged-in user; updated to use `getPostLoginPath(user.role)` for consistency with the rest of the app.
+
+## Update
+Timestamp: 2026-04-12 10:00:00 +0530
+
+### Authentication Simplified & Fixed (Phase 2 Complete ✅)
+
+Replaced the crypto-hash email generation approach with a clean admin API lookup.
+The previous code converted names to fake internal emails using SHA256 — this was
+confusing and broke when existing Supabase Auth users had real emails.
+
+**New flow:** name → `public.users` lookup (case-insensitive) → user ID → Supabase Admin API → real auth email → `signInWithPassword`. Users only ever deal with name + password.
+
+**New files:**
+- `src/lib/supabase/admin.ts` — Supabase admin client using service role key (server-only).
+
+**Updated files:**
+- `src/lib/env.ts` — Added `getServiceRoleKey()` helper.
+- `src/lib/auth/name-login.ts` — Replaced hash logic with `lookupEmailByName()`.
+- `src/app/(public)/login/actions.ts` — Uses `lookupEmailByName` instead of `buildInternalAuthEmail`.
+- `.env.local` — Added `SUPABASE_SERVICE_ROLE_KEY`.
+
+**Result:** Login with name `Super Admin` + password `Admin@123` works correctly. ✅

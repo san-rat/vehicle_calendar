@@ -21,3 +21,15 @@ export function getPublicSupabaseEnv(): PublicSupabaseEnv {
 
   return { url, anonKey };
 }
+
+export function getServiceRoleKey(): string {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!key) {
+    throw new Error(
+      "Missing environment variable: SUPABASE_SERVICE_ROLE_KEY. Add it to .env.local. Never prefix it with NEXT_PUBLIC_."
+    );
+  }
+
+  return key;
+}
