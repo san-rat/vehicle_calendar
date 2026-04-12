@@ -5,7 +5,6 @@ import {
   BookingWorkspace,
   type TimelineBooking,
 } from "@/components/BookingWorkspace";
-import { FloatingLogButton } from "@/components/FloatingLogButton";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -235,7 +234,6 @@ export default async function BookingPage({
           timeOptions={getThirtyMinuteTimeOptions()}
         />
       </div>
-      <FloatingLogButton />
     </>
   );
 }

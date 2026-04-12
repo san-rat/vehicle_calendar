@@ -352,3 +352,15 @@ Timestamp: 2026-04-12 22:45:32 +0530
 - Verified the wrap-up with `npm test`, `npm run lint`, `npm run build`, and a live Supabase `FT_TMP_` lifecycle smoke covering request-list joins, rejection, normal approval, override approval, calendar/date query exclusions, audit log counts, and cleanup.
 - Verified unauthenticated redirects to `/login` for `/admin/requests`, `/admin/settings`, `/vehicles`, `/vehicles/[vehicleId]/calendar`, `/vehicles/[vehicleId]/date/[date]`, and `/log`.
 - Phase 5 is functionally complete. Remaining caveat: approval/override actions use server-side rechecks and status-guarded updates, but not a database-level transaction or RPC; full concurrency hardening should be handled in a later data-integrity/security task.
+
+## Update
+Timestamp: 2026-04-12 23:10:29 +0530
+
+### Phase 6 Log Page & Automated Cleanup - 6A Log List & Navigation
+
+- Replaced the `/log` placeholder with an authenticated server-rendered global log list loaded from `log_entries` through the service-role Supabase client after `requireCurrentAppUser()`.
+- The log list now shows only rows with `created_at` inside the last 30 days, newest first, 50 rows per page, with action label, Asia/Colombo action time, actor, target summary, description, recorded time, and previous/next pagination.
+- Added reusable log page helpers and focused Vitest coverage for action labels, Asia/Colombo time formatting, 30-day retention cutoff, pagination parsing/ranges, color fallback, and target-summary fallbacks.
+- Added a global TopBar `Log` link for signed-in users and removed the old floating log button from the vehicle, calendar, and booking day pages.
+- Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` log-retention and pagination smoke with cleanup, and an unauthenticated `/log` redirect check returning `307` to `/login`.
+- Stopped after this checkpoint for manual review before starting 6B Expanded Details & Links.

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AutoRefresh } from "@/components/AutoRefresh";
-import { FloatingLogButton } from "@/components/FloatingLogButton";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -274,7 +273,6 @@ export default async function VehicleCalendarPage({
           </div>
         </section>
       </div>
-      <FloatingLogButton />
     </>
   );
 }

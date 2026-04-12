@@ -23,6 +23,12 @@ export function TopBar({
           <span className="hidden text-sm text-[var(--muted)] sm:inline">
             {currentUser.name}
           </span>
+          <Link
+            href="/log"
+            className="rounded-md border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--text)]"
+          >
+            Log
+          </Link>
           {showAdminActions ? (
             <Link
               href="/admin/settings"
