@@ -186,3 +186,18 @@ confusing and broke when existing Supabase Auth users had real emails.
 - `.env.local` — Added `SUPABASE_SERVICE_ROLE_KEY`.
 
 **Result:** Login with name `Super Admin` + password `Admin@123` works correctly. ✅
+
+## Update
+Timestamp: 2026-04-12 10:36:24 +0530
+
+### Phase 3 Admin Settings - Vehicles Checkpoint
+
+- Added the Phase 3 admin settings hub at `/admin/settings` with links to Vehicles, Privileges, and Members.
+- Implemented `/admin/vehicles` as an admin-protected inline management page for creating, editing, activating/deactivating, and safely hard-deleting vehicles.
+- Added server actions for vehicle create/update/delete. Each action requires a super admin session, uses the server-only Supabase admin client, validates input, revalidates the vehicles page, and redirects with a status message.
+- Added safe hard-delete behavior for vehicles: admins must type the exact vehicle name, and deletion is blocked when any booking exists for that vehicle.
+- Added audit logging for vehicle create/update/delete. Update logs store both `before` and `after` snapshots; delete logs preserve the deleted vehicle snapshot.
+- Added pure vehicle validation helpers and Vitest coverage for vehicle type, name length, trimming, and active-state parsing.
+- Added the `npm test` script and installed Vitest for Phase 3 helper tests.
+- Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase temporary vehicle create/update/log/delete cleanup check, and unauthenticated redirect checks for `/admin/vehicles` and `/admin/settings`.
+- Noted a separate production dependency audit issue: `next@16.1.6` currently has high-severity advisories reported by `npm audit --omit=dev`; npm suggests `next@16.2.3`, which is outside this checkpoint's dependency scope.
