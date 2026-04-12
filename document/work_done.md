@@ -230,3 +230,14 @@ Timestamp: 2026-04-12 11:00:31 +0530
 - Added audit logging for member create/update/role-change/password-reset/delete. Update logs store `before` and `after` snapshots, and password reset logs never store the password.
 - Added pure member helper tests for validation, hidden email generation, auto color assignment, active-state parsing, and self-lockout guards.
 - Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase temporary member create/update/password-reset/log/delete cleanup check, and an unauthenticated redirect check for `/admin/members`.
+
+## Update
+Timestamp: 2026-04-12 11:14:45 +0530
+
+### Security Checkpoint - Next.js Patch Upgrade
+
+- Upgraded `next` from `16.1.6` to `16.2.3`.
+- Upgraded `eslint-config-next` from `16.1.6` to `16.2.3` to keep the lint config aligned with the framework version.
+- Ran non-forcing `npm audit fix` to resolve remaining dev-tooling transitive advisories.
+- Confirmed both `npm audit --omit=dev` and full `npm audit` report `0 vulnerabilities`.
+- Verified the upgraded app with `npm test`, `npm run lint`, `npm run build`, and a local production smoke test under Next `16.2.3`.
