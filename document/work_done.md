@@ -376,3 +376,28 @@ Timestamp: 2026-04-12 23:22:05 +0530
 - Added focused Vitest coverage for readable snapshot highlights, formatted snapshot JSON, and booking-day link resolution/fallbacks.
 - Verified the checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` log-retention/detail-snapshot/pagination smoke with cleanup, and an unauthenticated `/log` redirect check returning `307` to `/login`.
 - Stopped after this checkpoint for manual review before starting 6C Cleanup Documentation & Final Phase Check.
+
+## Update
+Timestamp: 2026-04-12 23:24:42 +0530
+
+### Phase 6 Log Page & Automated Cleanup - 6C Cleanup Documentation
+
+- Documented the manual Supabase Cron setup for the 30-day `log_entries.created_at` retention policy. No migration was added and no cron job was scheduled from the app.
+- Manual setup note: in Supabase Dashboard, enable the `pg_cron` extension from the Cron Postgres Module, then create a daily SQL job for `00:30 UTC`.
+- SQL to review and run manually in Supabase:
+
+```sql
+select cron.schedule(
+  'fleettime-log-retention-daily',
+  '30 0 * * *',
+  $$delete from public.log_entries
+    where created_at < now() - interval '30 days'$$
+);
+```
+
+- Supabase references:
+  - https://supabase.com/docs/guides/cron/install
+  - https://supabase.com/docs/guides/cron/quickstart
+- Verified the final Phase 6 checkpoint with `npm test`, `npm run lint`, `npm run build`, a live Supabase `FT_TMP_` cleanup smoke that inserted one retained and one older-than-30-days log row, deleted only the old scoped temp row, confirmed the retained temp row stayed, and cleaned up the remaining temp row.
+- Verified unauthenticated `/log` still redirects to `/login` with `307`.
+- Phase 6 is functionally complete. The cleanup cron SQL is documented for manual Supabase setup only; no migration was added and no scheduled job was applied from the repo.
