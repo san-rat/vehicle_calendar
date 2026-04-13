@@ -1,5 +1,6 @@
 import {
   Badge,
+  BreadcrumbNav,
   Button,
   ButtonLink,
   EmptyState,
@@ -225,6 +226,12 @@ export default async function AdminRequestsPage({
 
   return (
     <div className="space-y-8">
+      <BreadcrumbNav
+        items={[
+          { href: "/admin/settings", label: "Settings" },
+          { label: "Requests" },
+        ]}
+      />
       <PageHeader
         description="Review requested trips, spot conflicts, and keep inactive or past requests visible for a decision."
         eyebrow="Admin"

@@ -6,6 +6,7 @@ import {
 import { requireAdminAppUser } from "@/lib/auth/user";
 import {
   Badge,
+  BreadcrumbNav,
   Button,
   EmptyState,
   Field,
@@ -68,6 +69,12 @@ export default async function AdminMembersPage({
 
   return (
     <div className="space-y-8">
+      <BreadcrumbNav
+        items={[
+          { href: "/admin/settings", label: "Settings" },
+          { label: "Members" },
+        ]}
+      />
       <PageHeader
         description="Create members with name-only login, manage roles and access, reset passwords, and safely remove accounts that do not own bookings."
         eyebrow="Settings"

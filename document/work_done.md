@@ -512,3 +512,15 @@ Timestamp: 2026-04-13 13:27:11 +0530
 - Refined the booking day timeline empty case so when there are no visible bookings it shows a full empty-state panel instead of a long blank slot list, with a mobile-only action button that switches directly to the booking form tab.
 - Kept all Supabase queries, filtering rules, booking visibility logic, route behavior, and server actions unchanged; this checkpoint is presentation-only UI work.
 - Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
+
+## Update
+Timestamp: 2026-04-13 13:36:46 +0530
+
+### Phase 7 UI/UX Polish - Breadcrumb Navigation Pass
+
+- Added a shared semantic `BreadcrumbNav` UI component with accessible `nav`/`ol` structure, current-page handling, chevron separators, truncation-safe labels, and lightweight hover/active link feedback.
+- Updated `/vehicles/[vehicleId]/calendar` to build breadcrumb labels from server-fetched vehicle data so the route shows `Vehicles > {vehicle name}` instead of exposing the vehicle UUID.
+- Updated `/vehicles/[vehicleId]/date/[date]` to build `Vehicles > {vehicle name} > {short date}` breadcrumbs, with the vehicle crumb linking back to the matching calendar month for faster tiered navigation.
+- Added breadcrumbs to `/admin/vehicles`, `/admin/members`, `/admin/privileges`, and `/admin/requests` so admin leaf pages now provide a consistent path back to `/admin/settings`.
+- Kept all Supabase queries, auth guards, dynamic route validation, booking logic, and server actions unchanged; this checkpoint is presentation-only UI work.
+- Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.

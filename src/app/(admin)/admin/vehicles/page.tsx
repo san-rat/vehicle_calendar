@@ -1,6 +1,7 @@
 import { requireAdminAppUser } from "@/lib/auth/user";
 import {
   Badge,
+  BreadcrumbNav,
   Button,
   EmptyState,
   Field,
@@ -60,6 +61,12 @@ export default async function AdminVehiclesPage({
 
   return (
     <div className="space-y-8">
+      <BreadcrumbNav
+        items={[
+          { href: "/admin/settings", label: "Settings" },
+          { label: "Vehicles" },
+        ]}
+      />
       <PageHeader
         description="Add vehicles, edit their type, and mark them inactive when they should not appear in booking flows. Hard delete is blocked once bookings exist."
         eyebrow="Settings"

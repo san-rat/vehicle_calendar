@@ -1,6 +1,7 @@
 import { requireAdminAppUser } from "@/lib/auth/user";
 import {
   Badge,
+  BreadcrumbNav,
   Button,
   Field,
   Notice,
@@ -61,6 +62,12 @@ export default async function AdminPrivilegesPage({
 
   return (
     <div className="space-y-8">
+      <BreadcrumbNav
+        items={[
+          { href: "/admin/settings", label: "Settings" },
+          { label: "Privileges" },
+        ]}
+      />
       <PageHeader
         description="Control whether bookings are confirmed immediately, how far ahead members can book, whether reasons are required, and whether a time limit disables all-day bookings."
         eyebrow="Settings"

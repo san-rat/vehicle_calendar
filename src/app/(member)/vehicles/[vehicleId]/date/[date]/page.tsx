@@ -4,8 +4,7 @@ import {
   BookingWorkspace,
   type TimelineBooking,
 } from "@/components/BookingWorkspace";
-import { Badge, ButtonLink, Notice, PageHeader } from "@/components/ui";
-import { CalendarIcon } from "@/components/ui/icons";
+import { Badge, BreadcrumbNav, Notice, PageHeader } from "@/components/ui";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -92,6 +91,21 @@ function getDateLabel(date: string) {
   return new Intl.DateTimeFormat("en-US", {
     day: "numeric",
     month: "long",
+    timeZone: "UTC",
+    year: "numeric",
+  }).format(new Date(Date.UTC(parts.year, parts.month - 1, parts.day)));
+}
+
+function getBreadcrumbDateLabel(date: string) {
+  const parts = parseIsoDate(date);
+
+  if (!parts) {
+    return date;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    month: "short",
     timeZone: "UTC",
     year: "numeric",
   }).format(new Date(Date.UTC(parts.year, parts.month - 1, parts.day)));
@@ -186,21 +200,21 @@ export default async function BookingPage({
   const formDisabledMessage = isInsideBookingWindow
     ? null
     : "This date is outside the allowed booking window.";
+  const breadcrumbs = [
+    { href: "/vehicles", label: "Vehicles" },
+    {
+      href: `/vehicles/${vehicle.id}/calendar?month=${date.slice(0, 7)}`,
+      label: vehicle.name,
+    },
+    { label: getBreadcrumbDateLabel(date) },
+  ];
 
   return (
     <>
       <AutoRefresh />
       <div className="space-y-6">
         <div className="space-y-3">
-          <ButtonLink
-            className="w-fit"
-            href={`/vehicles/${vehicle.id}/calendar?month=${date.slice(0, 7)}`}
-            size="sm"
-            tone="neutral"
-          >
-            <CalendarIcon className="h-4 w-4" />
-            Calendar
-          </ButtonLink>
+          <BreadcrumbNav items={breadcrumbs} />
           <PageHeader
             action={
               <Badge

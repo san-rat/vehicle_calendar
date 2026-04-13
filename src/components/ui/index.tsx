@@ -4,6 +4,7 @@ import type {
   ElementType,
   ReactNode,
 } from "react";
+import { ChevronRightIcon } from "./icons";
 
 export type UiTone =
   | "danger"
@@ -50,6 +51,11 @@ type EmptyStateProps = {
   description: string;
   icon?: ElementType<ComponentPropsWithoutRef<"svg">>;
   title: string;
+};
+
+export type BreadcrumbItem = {
+  href?: string | null;
+  label: string;
 };
 
 function joinClasses(...classes: Array<string | false | null | undefined>) {
@@ -256,6 +262,47 @@ export function PageHeader({
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </header>
+  );
+}
+
+export function BreadcrumbNav({
+  items,
+}: {
+  items: BreadcrumbItem[];
+}) {
+  return (
+    <nav aria-label="Breadcrumb" className="w-full overflow-hidden">
+      <ol className="flex flex-wrap items-center gap-y-2 text-sm text-[var(--muted)]">
+        {items.map((item, index) => {
+          const href = item.href;
+          const labelClassName =
+            "block max-w-[140px] truncate sm:max-w-[220px] md:max-w-[280px]";
+
+          return (
+            <li className="flex min-w-0 items-center" key={`${index}-${item.label}`}>
+              {index > 0 ? (
+                <ChevronRightIcon className="mx-1 h-4 w-4 shrink-0 text-[var(--muted)]/70" />
+              ) : null}
+              {index === items.length - 1 || !href ? (
+                <span
+                  aria-current="page"
+                  className={`${labelClassName} font-medium text-[var(--text)]`}
+                >
+                  {item.label}
+                </span>
+              ) : (
+                <Link
+                  className={`${labelClassName} transition-colors duration-200 ease-in-out [@media(hover:hover)]:hover:text-[var(--primary)] [@media(hover:hover)]:hover:underline active:scale-[0.98]`}
+                  href={href}
+                >
+                  {item.label}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
   );
 }
 

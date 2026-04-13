@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AutoRefresh } from "@/components/AutoRefresh";
-import { Badge, ButtonLink, PageHeader, Panel } from "@/components/ui";
-import { CalendarIcon } from "@/components/ui/icons";
+import { Badge, BreadcrumbNav, ButtonLink, PageHeader, Panel } from "@/components/ui";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -152,16 +151,17 @@ export default async function VehicleCalendarPage({
 
   const { bookings, config, vehicle } = await getCalendarData(vehicleId, month);
   const indicatorsByDate = getBookingIndicatorsByDate(bookings);
+  const breadcrumbs = [
+    { href: "/vehicles", label: "Vehicles" },
+    { label: vehicle.name },
+  ];
 
   return (
     <>
       <AutoRefresh />
       <div className="space-y-6">
         <div className="space-y-3">
-          <ButtonLink className="w-fit" href="/vehicles" size="sm" tone="neutral">
-            <CalendarIcon className="h-4 w-4" />
-            Vehicles
-          </ButtonLink>
+          <BreadcrumbNav items={breadcrumbs} />
           <PageHeader
             action={
               <Badge className="w-fit" tone="neutral">
