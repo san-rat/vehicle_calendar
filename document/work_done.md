@@ -2,13 +2,13 @@
 
 Date: 2026-02-03
 
-## Current Status (as of 2026-04-12)
-- **Frontend scaffold**: Next.js (App Router) + Tailwind set up; base styling + fonts; route skeletons exist for login, vehicles, booking/calendar, log, admin.
-- **Env handling**: `src/lib/env.ts` reads Supabase public env vars and the server-only service role key; `.env.example` is tracked with placeholders; `.env.local` remains gitignored.
-- **Product decisions captured**: Supabase Auth as credential source of truth; hard delete for members/vehicles only when safe; no `password_hash` / no `deleted_at`; bookings support all-day; cancellation rules; override notifications in scope; logs retain 30 days.
-- **Database**: Initial Supabase migration and seed added (`supabase/migrations/0001_init_schema.sql`, `supabase/seed.sql`) with audit-safe logging (nullable FKs + snapshot JSON).
-- **Authentication**: Phase 2 is complete. Users log in with name + password; the server looks up the linked Supabase Auth email through `public.users` and the Admin API, verifies active profiles, protects member/admin layouts, refreshes sessions in middleware, and supports real logout.
-- **Next implementation phase**: Phase 3 Admin Settings is planned in checkpoints: preflight cleanup, Vehicles, Privileges, then Members. Each checkpoint should stop for manual review after lint/build/tests pass.
+## Current Status (as of 2026-04-13)
+- **Core product**: Phases 0 through 7 are complete in the repo, covering auth, admin settings, booking/calendar flows, request approval, log visibility, cleanup documentation, and the full Phase 7 UI/UX polish pass.
+- **UI system**: The app now uses a local Tailwind-only design system in `src/components/ui` with shared buttons, links, panels, badges, fields, notices, page headers, empty states, and inline icons across login, member, admin, request, and log routes.
+- **Security and platform**: `next` and `eslint-config-next` are on `16.2.3`; the app uses Supabase Auth as the credential source of truth; the current known data-integrity caveat is the deferred non-transactional request approval/override flow.
+- **Database and logging**: The initial Supabase migration and seed remain in place, with audit-safe logging via nullable foreign keys and snapshot JSON; log retention is documented for manual Supabase cron setup only.
+- **Verification status**: The latest Phase 7 checkpoint passed `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`, with protected-route redirect checks and authenticated review checks completed on the production review server.
+- **Next work**: Phase 7 is ready for final manual signoff. After that, the next work should be Phase 8 testing/deployment tasks or separately requested hardening work.
 
 ## Resources Read
 - `README.md`
@@ -480,3 +480,12 @@ Timestamp: 2026-04-13 09:12:28 +0530
 - Started the production review server at `http://127.0.0.1:3001` after a regenerated dev server on `3000` produced a dev-cache-only route miss for the booking date route; `3000` was stopped.
 - Live Supabase `FT_TMP_` mutation checks were not run for this checkpoint because 7E changed presentation/helper UI code and did not alter data queries or actions.
 - Stopped after this checkpoint for manual review.
+
+## Update
+Timestamp: 2026-04-13 12:26:22 +0530
+
+### Phase 7 UI/UX Polish - Final Phase Close-Out
+
+- Reviewed the guideline and work log again to confirm there is no Phase 7 checkpoint after 7E in the project plan.
+- Updated the top-level `Current Status` summary so the document now reflects the actual repo state: Phases 0 through 7 complete, Phase 7 ready for final manual signoff, and Phase 8 or separate hardening work next.
+- Kept all application code unchanged for this close-out step; this update is documentation-only.
