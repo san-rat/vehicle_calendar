@@ -1,4 +1,15 @@
-import Link from "next/link";
+import {
+  Badge,
+  Button,
+  ButtonLink,
+  EmptyState,
+  Field,
+  Notice,
+  PageHeader,
+  Panel,
+  inputClassName,
+} from "@/components/ui";
+import { CalendarIcon, EmptyStateIcon } from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -214,25 +225,16 @@ export default async function AdminRequestsPage({
 
   return (
     <div className="space-y-8">
-      <header>
-        <p className="text-sm font-semibold text-[var(--primary)]">Admin</p>
-        <h1 className="mt-1 text-2xl font-semibold">Booking Requests</h1>
-        <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
-          Review requested trips, spot conflicts, and keep inactive or past
-          requests visible for a decision.
-        </p>
-      </header>
+      <PageHeader
+        description="Review requested trips, spot conflicts, and keep inactive or past requests visible for a decision."
+        eyebrow="Admin"
+        title="Booking Requests"
+      />
 
       {statusMessage ? (
-        <p
-          className={`rounded-md border px-4 py-3 text-sm ${
-            statusTone === "error"
-              ? "border-[var(--danger)]/30 bg-[var(--danger)]/10 text-[var(--danger)]"
-              : "border-[var(--success)]/30 bg-[var(--success)]/10 text-green-700"
-          }`}
-        >
+        <Notice tone={statusTone === "error" ? "danger" : "success"}>
           {statusMessage}
-        </p>
+        </Notice>
       ) : null}
 
       <section>
@@ -243,15 +245,19 @@ export default async function AdminRequestsPage({
               Requested trips do not block availability until approved.
             </p>
           </div>
-          <span className="rounded-md border border-[var(--border)] px-3 py-1 text-sm text-[var(--muted)]">
+          <Badge tone="neutral">
             {requests.length} total
-          </span>
+          </Badge>
         </div>
 
         {requests.length === 0 ? (
-          <p className="mt-4 rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] p-6 text-sm text-[var(--muted)]">
-            No booking requests are waiting for review.
-          </p>
+          <div className="mt-4">
+            <EmptyState
+              description="No booking requests are waiting for review."
+              icon={<EmptyStateIcon className="h-6 w-6" />}
+              title="No pending requests"
+            />
+          </div>
         ) : (
           <div className="mt-4 space-y-4">
             {requests.map((request) => {
@@ -277,10 +283,7 @@ export default async function AdminRequestsPage({
                 request.conflicts.length > 0;
 
               return (
-                <article
-                  className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-5"
-                  key={request.id}
-                >
+                <Panel as="article" key={request.id}>
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
@@ -293,9 +296,9 @@ export default async function AdminRequestsPage({
                           {member?.name ?? "Unknown member"}
                         </h3>
                         {isMemberInactive ? (
-                          <span className="rounded-md bg-[var(--border)] px-2 py-1 text-xs font-semibold text-[var(--muted)]">
+                          <Badge tone="neutral">
                             Member inactive
-                          </span>
+                          </Badge>
                         ) : null}
                       </div>
                       <p className="mt-2 text-sm text-[var(--muted)]">
@@ -305,24 +308,24 @@ export default async function AdminRequestsPage({
 
                     <div className="flex flex-wrap gap-2">
                       {request.conflicts.length > 0 ? (
-                        <span className="rounded-md bg-[#F59E0B]/10 px-3 py-1 text-xs font-semibold text-[#92400E]">
+                        <Badge tone="warning">
                           {request.conflicts.length} conflict
                           {request.conflicts.length === 1 ? "" : "s"}
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="rounded-md bg-[var(--success)]/10 px-3 py-1 text-xs font-semibold text-green-700">
+                        <Badge tone="success">
                           No conflict
-                        </span>
+                        </Badge>
                       )}
                       {request.approvalProblem ? (
-                        <span className="rounded-md bg-[var(--danger)]/10 px-3 py-1 text-xs font-semibold text-[var(--danger)]">
+                        <Badge tone="danger">
                           Approval blocked
-                        </span>
+                        </Badge>
                       ) : null}
                       {isVehicleInactive ? (
-                        <span className="rounded-md bg-[var(--border)] px-3 py-1 text-xs font-semibold text-[var(--muted)]">
+                        <Badge tone="neutral">
                           Vehicle inactive
-                        </span>
+                        </Badge>
                       ) : null}
                     </div>
                   </div>
@@ -363,14 +366,14 @@ export default async function AdminRequestsPage({
                   </div>
 
                   {request.approvalProblem ? (
-                    <p className="mt-4 rounded-md border border-[var(--danger)]/30 bg-[var(--danger)]/10 px-4 py-3 text-sm text-[var(--danger)]">
+                    <Notice className="mt-4" tone="danger">
                       {request.approvalProblem}
-                    </p>
+                    </Notice>
                   ) : null}
 
                   {request.conflicts.length > 0 ? (
-                    <div className="mt-4 rounded-md border border-[#F59E0B]/40 bg-[#F59E0B]/10 px-4 py-3">
-                      <p className="text-sm font-semibold text-[#92400E]">
+                    <div className="mt-4 rounded-md border border-[var(--warning)]/40 bg-[var(--warning)]/10 px-4 py-3">
+                      <p className="text-sm font-semibold text-[var(--warning-text)]">
                         Confirmed bookings overlap this request.
                       </p>
                       <div className="mt-3 space-y-2">
@@ -395,12 +398,12 @@ export default async function AdminRequestsPage({
                       {canOverride ? (
                         <form
                           action={approveBookingRequest}
-                          className="mt-4 space-y-3 border-t border-[#F59E0B]/40 pt-4"
+                          className="mt-4 space-y-3 border-t border-[var(--warning)]/40 pt-4"
                         >
                           <input name="id" type="hidden" value={request.id} />
-                          <label className="flex gap-3 text-sm text-[#92400E]">
+                          <label className="flex gap-3 text-sm text-[var(--warning-text)]">
                             <input
-                              className="mt-1 h-4 w-4 rounded border-[#F59E0B]"
+                              className="mt-1 h-4 w-4 rounded border-[var(--warning)]"
                               name="override_confirmation"
                               required
                               type="checkbox"
@@ -411,26 +414,26 @@ export default async function AdminRequestsPage({
                               confirmed booking as overridden.
                             </span>
                           </label>
-                          <label className="block space-y-2">
-                            <span className="text-xs font-semibold uppercase text-[#92400E]">
-                              Optional override note
-                            </span>
+                          <Field
+                            htmlFor={`override-note-${request.id}`}
+                            label="Optional override note"
+                          >
                             <textarea
-                              className="min-h-20 w-full rounded-md border border-[#F59E0B]/50 bg-white px-3 py-2 text-sm text-[var(--text)] outline-none transition focus:border-[#F59E0B]"
+                              className={inputClassName(
+                                "min-h-20 border-[var(--warning)]/50 focus:border-[var(--warning)]"
+                              )}
+                              id={`override-note-${request.id}`}
                               maxLength={500}
                               name="override_note"
                               placeholder="Note stored in audit log only"
                             />
-                          </label>
-                          <button
-                            className="rounded-md bg-[#92400E] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#78350F]"
-                            type="submit"
-                          >
+                          </Field>
+                          <Button type="submit" tone="warning">
                             Approve with override
-                          </button>
+                          </Button>
                         </form>
                       ) : (
-                        <p className="mt-4 border-t border-[#F59E0B]/40 pt-4 text-sm text-[#92400E]">
+                        <p className="mt-4 border-t border-[var(--warning)]/40 pt-4 text-sm text-[var(--warning-text)]">
                           Override approval is unavailable until the request is
                           active and has not already started.
                         </p>
@@ -439,24 +442,26 @@ export default async function AdminRequestsPage({
                   ) : null}
 
                   <div className="mt-4 border-t border-[var(--border)] pt-4">
-                    <Link
-                      className="text-sm font-semibold text-[var(--primary)]"
+                    <ButtonLink
                       href={`/vehicles/${request.vehicle_id}/date/${request.date}`}
+                      size="sm"
+                      tone="neutral"
                     >
+                      <CalendarIcon className="h-4 w-4" />
                       Open booking day
-                    </Link>
+                    </ButtonLink>
                   </div>
 
                   <div className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[auto_1fr] md:items-center">
                     <form action={approveBookingRequest}>
                       <input name="id" type="hidden" value={request.id} />
-                      <button
-                        className="rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                      <Button
                         disabled={!canApprove}
+                        tone="primary"
                         type="submit"
                       >
                         Approve
-                      </button>
+                      </Button>
                     </form>
                     <p className="text-sm text-[var(--muted)]">
                       {approveBlockReason ??
@@ -469,25 +474,23 @@ export default async function AdminRequestsPage({
                     className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[1fr_auto] md:items-end"
                   >
                     <input name="id" type="hidden" value={request.id} />
-                    <label className="space-y-2">
-                      <span className="text-xs font-semibold uppercase text-[var(--muted)]">
-                        Optional rejection reason
-                      </span>
+                    <Field
+                      htmlFor={`rejection-reason-${request.id}`}
+                      label="Optional rejection reason"
+                    >
                       <textarea
-                        className="min-h-20 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)]"
+                        className={inputClassName("min-h-20")}
+                        id={`rejection-reason-${request.id}`}
                         maxLength={500}
                         name="rejection_reason"
                         placeholder="Reason shown in audit log only"
                       />
-                    </label>
-                    <button
-                      className="rounded-md border border-[var(--danger)] px-4 py-2 text-sm font-semibold text-[var(--danger)] transition hover:bg-[var(--danger)] hover:text-white"
-                      type="submit"
-                    >
+                    </Field>
+                    <Button type="submit" tone="danger">
                       Reject
-                    </button>
+                    </Button>
                   </form>
-                </article>
+                </Panel>
               );
             })}
           </div>

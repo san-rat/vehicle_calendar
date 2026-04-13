@@ -448,3 +448,18 @@ Timestamp: 2026-04-13 08:43:27 +0530
 - Verified unauthenticated redirects for `/admin/settings`, `/admin/vehicles`, `/admin/privileges`, and `/admin/members` return `307` to `/login`.
 - Live Supabase `FT_TMP_` mutation checks were not run for this checkpoint because 7C changed presentation-only UI code and did not alter data queries or actions.
 - Stopped after this checkpoint for manual review before starting 7D Request Review Surface.
+
+## Update
+Timestamp: 2026-04-13 08:55:17 +0530
+
+### Phase 7 UI/UX Polish - 7D Request Review Surface
+
+- Polished `/admin/requests` with the shared page header, badges, panels, buttons, button link, field, notice, empty-state, and inline icon patterns.
+- Updated request cards, conflict/warning sections, approval-blocked messaging, override controls, booking-day links, approve controls, rejection controls, and the no-request state for UI consistency.
+- Kept all request loading, conflict detection, approval/rejection/override server actions, form field names, validation, status messages, and audit behavior unchanged.
+- Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
+- Restarted the local review server at `http://127.0.0.1:3000` after the existing dev process served stale pre-7D HTML.
+- Verified authenticated `/admin/requests` renders the current 7D empty-state markup on the review server.
+- Verified unauthenticated `/admin/requests` returns `307` to `/login`.
+- Live Supabase `FT_TMP_` mutation checks were not run for this checkpoint because 7D changed presentation-only UI code and did not alter data queries or actions.
+- Stopped after this checkpoint for manual review before starting 7E Log Page + Final Cross-Route Pass.
