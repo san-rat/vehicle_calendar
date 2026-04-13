@@ -8,6 +8,7 @@ import {
   Notice,
   PageHeader,
   Panel,
+  StatusBadge,
   inputClassName,
 } from "@/components/ui";
 import { CalendarIcon, EmptyStateIcon } from "@/components/ui/icons";
@@ -314,6 +315,7 @@ export default async function AdminRequestsPage({
                     </div>
 
                     <div className="flex flex-wrap gap-2">
+                      <StatusBadge status="requested" />
                       {request.conflicts.length > 0 ? (
                         <Badge tone="warning">
                           {request.conflicts.length} conflict
@@ -395,9 +397,12 @@ export default async function AdminRequestsPage({
                               <span className="font-medium text-[var(--text)]">
                                 {conflictUser?.name ?? "Unknown member"}
                               </span>
-                              <span className="text-[var(--muted)]">
-                                {getTimeLabel(conflict)}
-                              </span>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <StatusBadge status="confirmed" />
+                                <span className="text-[var(--muted)]">
+                                  {getTimeLabel(conflict)}
+                                </span>
+                              </div>
                             </div>
                           );
                         })}

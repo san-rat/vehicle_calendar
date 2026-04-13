@@ -4,6 +4,7 @@ import {
   EmptyState,
   PageHeader,
   Panel,
+  StatusBadge,
   buttonClassName,
 } from "@/components/ui";
 import { CalendarIcon, ClockIcon, LogIcon } from "@/components/ui/icons";
@@ -12,6 +13,7 @@ import {
   formatLogActionTime,
   formatLogSnapshotJson,
   getLogActionLabel,
+  getLogBookingStatus,
   getLogActionTone,
   getLogBookingDayHref,
   getLogColorDotClass,
@@ -158,6 +160,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
             });
             const snapshotHighlights = getLogSnapshotHighlights(entry.snapshot);
             const snapshotJson = formatLogSnapshotJson(entry.snapshot);
+            const bookingStatus = getLogBookingStatus(entry.action_type);
 
             return (
               <Panel as="article" key={entry.id}>
@@ -171,9 +174,13 @@ export default async function LogPage({ searchParams }: LogPageProps) {
                     </span>
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge tone={getLogActionTone(entry.action_type)}>
-                          {getLogActionLabel(entry.action_type)}
-                        </Badge>
+                        {bookingStatus ? (
+                          <StatusBadge status={bookingStatus} />
+                        ) : (
+                          <Badge tone={getLogActionTone(entry.action_type)}>
+                            {getLogActionLabel(entry.action_type)}
+                          </Badge>
+                        )}
                         <Badge tone="neutral">
                           <ClockIcon className="h-3.5 w-3.5" />
                           {formatLogActionTime(entry.action_at)}

@@ -3,6 +3,7 @@ import {
   formatLogActionTime,
   formatLogSnapshotJson,
   getLogActionLabel,
+  getLogBookingStatus,
   getLogActionTone,
   getLogBookingDayHref,
   getLogColorDotClass,
@@ -29,6 +30,14 @@ describe("log page helpers", () => {
     expect(getLogActionTone("booking_rejected")).toBe("danger");
     expect(getLogActionTone("vehicle_updated")).toBe("info");
     expect(getLogActionTone("custom_action")).toBe("primary");
+  });
+
+  it("maps booking log actions to booking statuses", () => {
+    expect(getLogBookingStatus("booking_confirmed")).toBe("confirmed");
+    expect(getLogBookingStatus("booking_requested")).toBe("requested");
+    expect(getLogBookingStatus("booking_rejected")).toBe("rejected");
+    expect(getLogBookingStatus("booking_overridden")).toBe("overridden");
+    expect(getLogBookingStatus("vehicle_updated")).toBeNull();
   });
 
   it("formats action times in Asia/Colombo", () => {

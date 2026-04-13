@@ -1,3 +1,5 @@
+import type { BookingStatus } from "@/lib/booking/bookings";
+
 export const LOG_PAGE_SIZE = 50;
 export const LOG_RETENTION_DAYS = 30;
 export const LOG_TIME_ZONE = "Asia/Colombo";
@@ -82,6 +84,14 @@ const actionTones: Record<LogActionType, LogActionTone> = {
   vehicle_created: "success",
   vehicle_deleted: "danger",
   vehicle_updated: "info",
+};
+
+const bookingActionStatuses: Partial<Record<LogActionType, BookingStatus>> = {
+  booking_cancelled: "cancelled",
+  booking_confirmed: "confirmed",
+  booking_overridden: "overridden",
+  booking_rejected: "rejected",
+  booking_requested: "requested",
 };
 
 const colorHexPattern = /^#[0-9A-Fa-f]{6}$/;
@@ -225,6 +235,14 @@ export function getLogActionTone(actionType: string): LogActionTone {
   }
 
   return "primary";
+}
+
+export function getLogBookingStatus(actionType: string): BookingStatus | null {
+  if (actionType in bookingActionStatuses) {
+    return bookingActionStatuses[actionType as LogActionType] ?? null;
+  }
+
+  return null;
 }
 
 export function getSafeLogColor(colorHex: string | null | undefined) {

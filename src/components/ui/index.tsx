@@ -4,6 +4,7 @@ import type {
   ElementType,
   ReactNode,
 } from "react";
+import type { BookingStatus } from "@/lib/booking/bookings";
 import { ChevronRightIcon } from "./icons";
 
 export type UiTone =
@@ -93,6 +94,18 @@ const badgeToneClasses: Record<UiTone, string> = {
   secondary: "border border-[var(--border)] bg-white text-[var(--text)]",
   success: "bg-[var(--success)]/10 text-[var(--success-text)]",
   warning: "bg-[var(--warning)]/10 text-[var(--warning-text)]",
+};
+
+const statusBadgeClasses: Record<BookingStatus, string> = {
+  cancelled:
+    "bg-gray-100 text-gray-600 ring-1 ring-inset ring-gray-500/20",
+  confirmed:
+    "bg-green-100/50 text-green-700 ring-1 ring-inset ring-green-600/20",
+  overridden:
+    "bg-amber-100/50 text-amber-700 ring-1 ring-inset ring-amber-600/20",
+  rejected: "bg-red-100/50 text-red-700 ring-1 ring-inset ring-red-600/20",
+  requested:
+    "bg-blue-100/50 text-blue-700 ring-1 ring-inset ring-blue-600/20",
 };
 
 const noticeToneClasses: Record<Extract<UiTone, "danger" | "info" | "success" | "warning">, string> = {
@@ -197,6 +210,28 @@ export function Badge({
       )}
       {...props}
     />
+  );
+}
+
+export function StatusBadge({
+  className,
+  status,
+  ...props
+}: ComponentPropsWithoutRef<"span"> & {
+  status: BookingStatus;
+}) {
+  return (
+    <span
+      className={joinClasses(
+        "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium capitalize",
+        statusBadgeClasses[status] ??
+          "bg-gray-100 text-gray-500 ring-1 ring-inset ring-gray-200",
+        className
+      )}
+      {...props}
+    >
+      {status}
+    </span>
   );
 }
 

@@ -524,3 +524,15 @@ Timestamp: 2026-04-13 13:36:46 +0530
 - Added breadcrumbs to `/admin/vehicles`, `/admin/members`, `/admin/privileges`, and `/admin/requests` so admin leaf pages now provide a consistent path back to `/admin/settings`.
 - Kept all Supabase queries, auth guards, dynamic route validation, booking logic, and server actions unchanged; this checkpoint is presentation-only UI work.
 - Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
+
+## Update
+Timestamp: 2026-04-13 13:42:50 +0530
+
+### Phase 7 UI/UX Polish - Status Badge Scan Pass
+
+- Added a shared `StatusBadge` UI primitive for booking statuses so `confirmed`, `requested`, `rejected`, `overridden`, and `cancelled` now render with soft tinted backgrounds and inset ring boundaries instead of generic text styling.
+- Added `getLogBookingStatus()` with focused Vitest coverage so booking-related `/log` entries can use the new status badge while non-booking actions keep the existing generic action badge behavior.
+- Updated `/log` so booking action rows now surface colored status badges for faster visual scanning across confirmed, requested, rejected, overridden, and cancelled booking events.
+- Updated `/admin/requests` so each pending request card now shows a `requested` status badge and each overlapping confirmed booking row shows a `confirmed` status badge inside the conflict panel.
+- Kept all Supabase queries, request filtering, log retention logic, action labels, approval flows, and server actions unchanged; this checkpoint is presentation-only UI work.
+- Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
