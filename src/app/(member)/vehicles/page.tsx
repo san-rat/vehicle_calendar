@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { Badge, EmptyState, PageHeader } from "@/components/ui";
+import {
+  Badge,
+  EmptyState,
+  PageHeader,
+  interactiveCardClassName,
+} from "@/components/ui";
 import { EmptyStateIcon, FleetIcon } from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
@@ -53,7 +58,7 @@ export default async function VehiclesPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {vehicles.map((vehicle) => (
             <Link
-              className="group rounded-lg border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm transition hover:border-[var(--primary)]"
+              className={interactiveCardClassName()}
               href={`/vehicles/${vehicle.id}/calendar`}
               key={vehicle.id}
             >
@@ -78,7 +83,7 @@ export default async function VehiclesPage() {
                 <Badge tone="neutral">
                   {getVehicleTypeLabel(vehicle.type)}
                 </Badge>
-                <span className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--primary)] group-hover:text-[var(--primary-hover)]">
+                <span className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--primary)]">
                   Open calendar
                 </span>
               </div>

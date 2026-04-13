@@ -111,6 +111,13 @@ export function buttonClassName({
   );
 }
 
+export function interactiveCardClassName(className?: string) {
+  return joinClasses(
+    "rounded-lg border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm transform-gpu transition-all duration-300 ease-out [@media(hover:hover)]:hover:-translate-y-[2px] [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:shadow-md active:scale-[0.98] active:shadow-sm",
+    className
+  );
+}
+
 export function inputClassName(className?: string) {
   return joinClasses(
     "min-h-12 w-full rounded-md border border-[var(--border)] bg-white px-4 py-3 text-sm text-[var(--text)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-60",

@@ -224,9 +224,9 @@ export default async function VehicleCalendarPage({
               const visibleIndicators = indicators.slice(0, 4);
               const hiddenIndicatorCount =
                 indicators.length - visibleIndicators.length;
-              const cellClass = `flex min-h-16 flex-col rounded-md border p-2 text-left transition sm:min-h-24 ${
+              const cellClass = `flex min-h-16 flex-col rounded-md border p-2 text-left sm:min-h-24 ${
                 isBookable
-                  ? "border-[var(--border)] bg-white hover:border-[var(--primary)] hover:shadow-sm"
+                  ? "cursor-pointer border-[var(--border)] bg-white transition-colors duration-200 ease-in-out [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:bg-gray-100/50 active:bg-gray-200/50"
                   : "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted)] opacity-60"
               }`;
               const cellContent = (

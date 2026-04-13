@@ -489,3 +489,15 @@ Timestamp: 2026-04-13 12:26:22 +0530
 - Reviewed the guideline and work log again to confirm there is no Phase 7 checkpoint after 7E in the project plan.
 - Updated the top-level `Current Status` summary so the document now reflects the actual repo state: Phases 0 through 7 complete, Phase 7 ready for final manual signoff, and Phase 8 or separate hardening work next.
 - Kept all application code unchanged for this close-out step; this update is documentation-only.
+
+## Update
+Timestamp: 2026-04-13 13:18:59 +0530
+
+### Phase 7 UI/UX Polish - Micro-Interaction Pass
+
+- Added a shared `interactiveCardClassName()` helper so the member vehicle cards and `/admin/settings` cards now use GPU-backed lift/press interactions with `transition-all`, `hover:-translate-y-[2px]`, `hover:shadow-md`, and `active:scale-[0.98]`.
+- Gated card hover-only states behind `@media(hover:hover)` so touch devices do not retain sticky hover styling after tap-back navigation.
+- Updated bookable `/vehicles/[vehicleId]/calendar` date cells to use color-only transitions plus subtle hover and active background feedback without changing layout, routing, or booking-dot rendering.
+- Removed the card label `group-hover` color dependency and kept the CTA text styling static so the mobile hover mitigation applies consistently to the full card.
+- Kept all Supabase queries, route params, booking-window validation, links, and server actions unchanged; this checkpoint is presentation-only UI work.
+- Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.

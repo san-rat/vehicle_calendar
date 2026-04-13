@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge, PageHeader } from "@/components/ui";
+import { Badge, PageHeader, interactiveCardClassName } from "@/components/ui";
 import {
   FleetIcon,
   LogIcon,
@@ -49,7 +49,7 @@ export default function AdminSettingsPage() {
 
           return (
             <Link
-              className="group rounded-lg border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm transition hover:border-[var(--primary)]"
+              className={interactiveCardClassName()}
               href={item.href}
               key={item.href}
             >
@@ -63,7 +63,7 @@ export default function AdminSettingsPage() {
               <p className="mt-2 text-sm text-[var(--muted)]">
                 {item.description}
               </p>
-              <span className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--primary)] group-hover:text-[var(--primary-hover)]">
+              <span className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--primary)]">
                 Manage
               </span>
             </Link>
