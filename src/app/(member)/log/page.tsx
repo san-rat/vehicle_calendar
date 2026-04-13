@@ -1,9 +1,18 @@
-import Link from "next/link";
+import {
+  Badge,
+  ButtonLink,
+  EmptyState,
+  PageHeader,
+  Panel,
+  buttonClassName,
+} from "@/components/ui";
+import { CalendarIcon, ClockIcon, LogIcon } from "@/components/ui/icons";
 import { requireCurrentAppUser } from "@/lib/auth/user";
 import {
   formatLogActionTime,
   formatLogSnapshotJson,
   getLogActionLabel,
+  getLogActionTone,
   getLogBookingDayHref,
   getLogColorDotClass,
   getLogPageNumber,
@@ -106,15 +115,13 @@ export default async function LogPage({ searchParams }: LogPageProps) {
 
   return (
     <div className="space-y-8">
-      <header>
-        <p className="text-sm font-semibold text-[var(--primary)]">Log</p>
-        <h1 className="mt-1 text-2xl font-semibold">System Log</h1>
-        <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
-          Recent FleetTime actions from the last {LOG_RETENTION_DAYS} days.
-        </p>
-      </header>
+      <PageHeader
+        description={`Recent FleetTime actions from the last ${LOG_RETENTION_DAYS} days.`}
+        eyebrow="Log"
+        title="System Log"
+      />
 
-      <section className="grid gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-sm text-[var(--muted)] md:grid-cols-3">
+      <Panel className="grid gap-3 p-4 text-sm text-[var(--muted)] md:grid-cols-3">
         <div>
           <p className="text-xs font-semibold uppercase">Retention</p>
           <p className="mt-1 font-medium text-[var(--text)]">
@@ -129,12 +136,14 @@ export default async function LogPage({ searchParams }: LogPageProps) {
           <p className="text-xs font-semibold uppercase">Page</p>
           <p className="mt-1 font-medium text-[var(--text)]">{currentPage}</p>
         </div>
-      </section>
+      </Panel>
 
       {entries.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] p-6 text-sm text-[var(--muted)]">
-          No system actions were recorded in the current retention window.
-        </p>
+        <EmptyState
+          description="No system actions were recorded in the current retention window."
+          icon={<LogIcon className="h-6 w-6" />}
+          title="No log entries"
+        />
       ) : (
         <section className="space-y-4" aria-label="System log entries">
           {entries.map((entry) => {
@@ -151,24 +160,24 @@ export default async function LogPage({ searchParams }: LogPageProps) {
             const snapshotJson = formatLogSnapshotJson(entry.snapshot);
 
             return (
-              <article
-                className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-5"
-                key={entry.id}
-              >
+              <Panel as="article" key={entry.id}>
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="flex gap-3">
                     <span
                       aria-hidden="true"
-                      className={`mt-1 h-3 w-3 shrink-0 rounded-full border border-white shadow-sm ${actorColorClass}`}
-                    />
+                      className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-white text-white shadow-sm ${actorColorClass}`}
+                    >
+                      <LogIcon className="h-5 w-5" />
+                    </span>
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-md bg-[var(--primary)]/10 px-3 py-1 text-xs font-semibold text-[var(--primary)]">
+                        <Badge tone={getLogActionTone(entry.action_type)}>
                           {getLogActionLabel(entry.action_type)}
-                        </span>
-                        <span className="text-xs font-medium text-[var(--muted)]">
+                        </Badge>
+                        <Badge tone="neutral">
+                          <ClockIcon className="h-3.5 w-3.5" />
                           {formatLogActionTime(entry.action_at)}
-                        </span>
+                        </Badge>
                       </div>
                       <h2 className="mt-3 text-base font-semibold text-[var(--text)]">
                         {entry.description}
@@ -203,12 +212,14 @@ export default async function LogPage({ searchParams }: LogPageProps) {
                     </dd>
                     {bookingDayHref ? (
                       <dd className="mt-2">
-                        <Link
-                          className="text-sm font-semibold text-[var(--primary)]"
+                        <ButtonLink
                           href={bookingDayHref}
+                          size="sm"
+                          tone="neutral"
                         >
+                          <CalendarIcon className="h-4 w-4" />
                           Open booking day
-                        </Link>
+                        </ButtonLink>
                       </dd>
                     ) : null}
                   </div>
@@ -223,7 +234,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
                 </dl>
 
                 <details className="mt-5 border-t border-[var(--border)] pt-4">
-                  <summary className="cursor-pointer text-sm font-semibold text-[var(--primary)]">
+                  <summary className="min-h-11 cursor-pointer rounded-md py-2 text-sm font-semibold text-[var(--primary)] transition hover:text-[var(--primary-hover)]">
                     View details
                   </summary>
                   <div className="mt-4 space-y-4">
@@ -239,7 +250,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
                         <dl className="mt-3 grid gap-3 md:grid-cols-2">
                           {snapshotHighlights.map((highlight) => (
                             <div
-                              className="rounded-md border border-[var(--border)] p-3"
+                              className="rounded-md border border-[var(--border)] bg-[var(--surface-muted)] p-3"
                               key={`${entry.id}-${highlight.label}`}
                             >
                               <dt className="text-xs font-semibold uppercase text-[var(--muted)]">
@@ -258,13 +269,13 @@ export default async function LogPage({ searchParams }: LogPageProps) {
                       <h3 className="text-sm font-semibold text-[var(--text)]">
                         Snapshot JSON
                       </h3>
-                      <pre className="mt-3 max-h-96 overflow-auto rounded-md border border-[var(--border)] bg-[#F9FAFB] p-4 text-xs leading-5 text-[var(--text)]">
+                      <pre className="mt-3 max-h-96 overflow-auto rounded-md border border-[var(--border)] bg-[var(--surface-muted)] p-4 text-xs leading-5 text-[var(--text)]">
                         <code>{snapshotJson}</code>
                       </pre>
                     </section>
                   </div>
                 </details>
-              </article>
+              </Panel>
             );
           })}
         </section>
@@ -279,32 +290,42 @@ export default async function LogPage({ searchParams }: LogPageProps) {
         </p>
         <div className="flex gap-2">
           {hasPreviousPage ? (
-            <Link
-              className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:border-[var(--primary)]"
+            <ButtonLink
               href={getPageHref(currentPage - 1)}
+              size="sm"
+              tone="secondary"
             >
               Previous
-            </Link>
+            </ButtonLink>
           ) : (
             <span
               aria-disabled="true"
-              className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--muted)] opacity-50"
+              className={buttonClassName({
+                className: "pointer-events-none opacity-50",
+                size: "sm",
+                tone: "neutral",
+              })}
             >
               Previous
             </span>
           )}
 
           {hasNextPage ? (
-            <Link
-              className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:border-[var(--primary)]"
+            <ButtonLink
               href={getPageHref(currentPage + 1)}
+              size="sm"
+              tone="secondary"
             >
               Next
-            </Link>
+            </ButtonLink>
           ) : (
             <span
               aria-disabled="true"
-              className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--muted)] opacity-50"
+              className={buttonClassName({
+                className: "pointer-events-none opacity-50",
+                size: "sm",
+                tone: "neutral",
+              })}
             >
               Next
             </span>

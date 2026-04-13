@@ -463,3 +463,20 @@ Timestamp: 2026-04-13 08:55:17 +0530
 - Verified unauthenticated `/admin/requests` returns `307` to `/login`.
 - Live Supabase `FT_TMP_` mutation checks were not run for this checkpoint because 7D changed presentation-only UI code and did not alter data queries or actions.
 - Stopped after this checkpoint for manual review before starting 7E Log Page + Final Cross-Route Pass.
+
+## Update
+Timestamp: 2026-04-13 09:12:28 +0530
+
+### Phase 7 UI/UX Polish - 7E Log Page + Final Cross-Route Pass
+
+- Polished `/log` with the shared page header, panel, badge, button link, empty-state, and inline icon patterns.
+- Updated log stats, action badges, action-time badges, actor markers, booking-day links, details disclosure, readable snapshot cards, JSON block, pagination controls, and empty state for consistency with the rest of Phase 7.
+- Added `getLogActionTone()` with focused Vitest coverage so log action badges use semantic UI tones without adding component dependencies.
+- Kept log data loading, retention filtering, pagination windows, snapshot formatting, booking-day link resolution, Supabase queries, and route contracts unchanged.
+- Ran a final consistency scan for old hard-coded status colors and one-off log card/link styling across the Phase 7 surfaces.
+- Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
+- Verified unauthenticated redirects on the production review server for `/vehicles`, `/vehicles/[vehicleId]/calendar`, `/vehicles/[vehicleId]/date/[date]`, `/admin/settings`, `/admin/vehicles`, `/admin/privileges`, `/admin/members`, `/admin/requests`, and `/log`; all returned `307` to `/login`. Verified `/login` returned `200`.
+- Verified authenticated `/log` renders the current 7E markup and authenticated `/vehicles/[vehicleId]/date/[date]` returns `200` on the production review server.
+- Started the production review server at `http://127.0.0.1:3001` after a regenerated dev server on `3000` produced a dev-cache-only route miss for the booking date route; `3000` was stopped.
+- Live Supabase `FT_TMP_` mutation checks were not run for this checkpoint because 7E changed presentation/helper UI code and did not alter data queries or actions.
+- Stopped after this checkpoint for manual review.

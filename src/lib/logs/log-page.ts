@@ -18,6 +18,13 @@ export type LogActionType =
   | "member_password_reset"
   | "privilege_updated";
 
+export type LogActionTone =
+  | "danger"
+  | "info"
+  | "primary"
+  | "success"
+  | "warning";
+
 type NamedEntity = {
   name?: string | null;
 };
@@ -58,6 +65,23 @@ const actionLabels: Record<LogActionType, string> = {
   vehicle_created: "Vehicle created",
   vehicle_deleted: "Vehicle deleted",
   vehicle_updated: "Vehicle updated",
+};
+
+const actionTones: Record<LogActionType, LogActionTone> = {
+  booking_cancelled: "danger",
+  booking_confirmed: "success",
+  booking_overridden: "warning",
+  booking_rejected: "danger",
+  booking_requested: "info",
+  member_created: "success",
+  member_deleted: "danger",
+  member_password_reset: "warning",
+  member_role_changed: "warning",
+  member_updated: "info",
+  privilege_updated: "info",
+  vehicle_created: "success",
+  vehicle_deleted: "danger",
+  vehicle_updated: "info",
 };
 
 const colorHexPattern = /^#[0-9A-Fa-f]{6}$/;
@@ -193,6 +217,14 @@ export function getLogActionLabel(actionType: string) {
     .filter(Boolean)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+export function getLogActionTone(actionType: string): LogActionTone {
+  if (actionType in actionTones) {
+    return actionTones[actionType as LogActionType];
+  }
+
+  return "primary";
 }
 
 export function getSafeLogColor(colorHex: string | null | undefined) {

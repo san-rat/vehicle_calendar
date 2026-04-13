@@ -3,6 +3,7 @@ import {
   formatLogActionTime,
   formatLogSnapshotJson,
   getLogActionLabel,
+  getLogActionTone,
   getLogBookingDayHref,
   getLogColorDotClass,
   getLogPageNumber,
@@ -20,6 +21,14 @@ describe("log page helpers", () => {
       "Member role changed"
     );
     expect(getLogActionLabel("custom_action")).toBe("Custom Action");
+  });
+
+  it("maps action types to badge tones", () => {
+    expect(getLogActionTone("booking_confirmed")).toBe("success");
+    expect(getLogActionTone("booking_overridden")).toBe("warning");
+    expect(getLogActionTone("booking_rejected")).toBe("danger");
+    expect(getLogActionTone("vehicle_updated")).toBe("info");
+    expect(getLogActionTone("custom_action")).toBe("primary");
   });
 
   it("formats action times in Asia/Colombo", () => {
