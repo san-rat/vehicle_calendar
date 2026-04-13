@@ -100,6 +100,24 @@ export function getBusinessToday(
   return `${year}-${month}-${day}`;
 }
 
+export function getBusinessHour(
+  now = new Date(),
+  timeZone = BUSINESS_TIME_ZONE
+) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    hourCycle: "h23",
+    timeZone,
+  }).formatToParts(now);
+  const hour = parts.find((part) => part.type === "hour")?.value;
+
+  if (!hour) {
+    throw new Error("Unable to resolve the business hour.");
+  }
+
+  return Number(hour);
+}
+
 export function addDays(isoDate: string, days: number) {
   const parts = parseIsoDate(isoDate);
 

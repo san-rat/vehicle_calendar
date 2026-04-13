@@ -66,6 +66,9 @@ function joinClasses(...classes: Array<string | false | null | undefined>) {
 const buttonBaseClass =
   "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50";
 
+const inputBaseClass =
+  "min-h-12 w-full rounded-md border border-[var(--border)] bg-white px-4 py-3 text-sm text-[var(--text)] outline-none transition placeholder:text-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60";
+
 const buttonSizeClasses: Record<UiSize, string> = {
   md: "min-h-12 px-4 py-3 text-sm",
   sm: "min-h-11 px-3 py-2 text-sm",
@@ -139,7 +142,16 @@ export function interactiveCardClassName(className?: string) {
 
 export function inputClassName(className?: string) {
   return joinClasses(
-    "min-h-12 w-full rounded-md border border-[var(--border)] bg-white px-4 py-3 text-sm text-[var(--text)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-60",
+    inputBaseClass,
+    "focus:border-[var(--primary)] focus:ring-[3px] focus:ring-[var(--primary)]/15",
+    className
+  );
+}
+
+export function warningInputClassName(className?: string) {
+  return joinClasses(
+    inputBaseClass,
+    "focus:border-[var(--warning)] focus:ring-[3px] focus:ring-[var(--warning)]/15",
     className
   );
 }

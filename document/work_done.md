@@ -548,3 +548,18 @@ Timestamp: 2026-04-13 13:58:31 +0530
 - Removed the duplicated top-of-page success/error banners from the authenticated redirect targets `/admin/vehicles`, `/admin/members`, `/admin/privileges`, `/admin/requests`, and `/vehicles/[vehicleId]/date/[date]` so those actions now provide a single toast-based confirmation path.
 - Kept all server actions, redirect message payloads, Supabase queries, auth guards, booking validation, and admin workflows unchanged; this checkpoint is presentation-only UI work.
 - Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
+
+## Update
+Timestamp: 2026-04-13 17:55:48 +0530
+
+### Phase 7 UI/UX Polish - Premium Depth, Motion, Timeline, and Copy Pass
+
+- Upgraded the shared shell with a sticky glass-style `TopBar`, a reusable client `RouteTransition` wrapper, and motion-safe page-enter animation classes so authenticated routes, `/login`, `/log?page=`, and `/vehicles/[vehicleId]/calendar?month=` now animate in without changing routing behavior.
+- Upgraded the shared field styling so inputs, selects, and textareas now use a soft primary focus halo by default, and added a warning-toned field helper so the `/admin/requests` override and rejection note textareas use amber focus treatment instead of the default blue halo.
+- Refactored `BookingWorkspace` into a true time-scaled day view with an all-day band, a 24-hour scrollable track, overlap-aware timed booking block layout, a live current-time indicator for today only, and a separate booking detail list that preserves readable reason/status context below the visual track.
+- Added focused booking timeline helpers plus Vitest coverage for booking separation, time-scaled block math, overlap column layout, and live current-time positioning.
+- Added a small client `ClipboardText` primitive and upgraded `/log` details so readable snapshot cards and the raw snapshot JSON block now support quick copy actions; snapshot highlight data now carries both display text and the full raw copy payload so shortened IDs still copy their complete values.
+- Added a server-side concierge greeting on `/vehicles` using the business timezone, keeping `Vehicles` as the page title while replacing the static eyebrow with a time-based personalized welcome.
+- Kept all server actions, redirect flows, auth guards, Supabase queries, booking validation rules, admin approval behavior, and toast behavior unchanged; this checkpoint is presentation and client-side interaction work only.
+- Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
+- Verified the production build serves `/login` with `200 OK` and redirects unauthenticated `/vehicles`, `/admin/settings`, and `/log` requests to `/login` with `307 Temporary Redirect`.

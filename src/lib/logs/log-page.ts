@@ -47,7 +47,8 @@ type LogBookingDayHrefInput = {
   targetVehicleId?: string | null;
 };
 
-type SnapshotHighlight = {
+export type LogSnapshotHighlight = {
+  copyValue: string;
   label: string;
   value: string;
 };
@@ -200,8 +201,28 @@ function formatSnapshotValue(value: unknown) {
   return String(value);
 }
 
+function formatSnapshotCopyValue(value: unknown) {
+  if (value === null || value === undefined || value === "") {
+    return "None";
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item)).join(", ");
+  }
+
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+
+  return String(value);
+}
+
 function addRecordHighlights(
-  highlights: SnapshotHighlight[],
+  highlights: LogSnapshotHighlight[],
   prefix: string,
   record: Record<string, unknown>
 ) {
@@ -210,6 +231,7 @@ function addRecordHighlights(
 
     if (hasValue(value)) {
       highlights.push({
+        copyValue: formatSnapshotCopyValue(value),
         label: `${prefix} ${label}`,
         value: formatSnapshotValue(value),
       });
@@ -368,7 +390,7 @@ export function getLogSnapshotHighlights(snapshot: unknown) {
     return [];
   }
 
-  const highlights: SnapshotHighlight[] = [];
+  const highlights: LogSnapshotHighlight[] = [];
   const before = getSnapshotRecord(snapshot, "before");
   const after = getSnapshotRecord(snapshot, "after");
   const target = getSnapshotRecord(snapshot, "target");
@@ -377,6 +399,9 @@ export function getLogSnapshotHighlights(snapshot: unknown) {
     snapshotFields.forEach(([key, label]) => {
       if (before[key] !== after[key]) {
         highlights.push({
+          copyValue: `${formatSnapshotCopyValue(
+            before[key]
+          )} -> ${formatSnapshotCopyValue(after[key])}`,
           label,
           value: `${formatSnapshotValue(before[key])} -> ${formatSnapshotValue(
             after[key]
@@ -396,6 +421,7 @@ export function getLogSnapshotHighlights(snapshot: unknown) {
 
   if (typeof rejectionReason === "string" && rejectionReason.trim()) {
     highlights.push({
+      copyValue: rejectionReason.trim(),
       label: "Rejection reason",
       value: rejectionReason.trim(),
     });
@@ -405,6 +431,7 @@ export function getLogSnapshotHighlights(snapshot: unknown) {
 
   if (typeof overrideNote === "string" && overrideNote.trim()) {
     highlights.push({
+      copyValue: overrideNote.trim(),
       label: "Override note",
       value: overrideNote.trim(),
     });
@@ -414,6 +441,7 @@ export function getLogSnapshotHighlights(snapshot: unknown) {
 
   if (typeof approvedRequestId === "string" && approvedRequestId.trim()) {
     highlights.push({
+      copyValue: approvedRequestId.trim(),
       label: "Approved request",
       value: formatShortId(approvedRequestId.trim()),
     });
@@ -423,6 +451,7 @@ export function getLogSnapshotHighlights(snapshot: unknown) {
 
   if (Array.isArray(overriddenBookingIds) && overriddenBookingIds.length > 0) {
     highlights.push({
+      copyValue: overriddenBookingIds.join(", "),
       label: "Overridden bookings",
       value: formatSnapshotValue(overriddenBookingIds),
     });

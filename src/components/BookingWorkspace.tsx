@@ -1,13 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getBusinessTimeMinutes } from "@/lib/booking/bookings";
 import {
-  Badge,
+  TIMELINE_SLOT_HEIGHT_PX,
+  TIMELINE_TIME_GUTTER_PX,
+  TIMELINE_TRACK_HEIGHT_PX,
+  getTimedTimelineLayout,
+  getTimelineNowLineTopPx,
+  shouldShowTimelineNowLine,
+  splitTimelineBookings,
+} from "@/lib/booking/timeline";
+import {
   Button,
   EmptyState,
   Field,
   Notice,
   Panel,
+  StatusBadge,
   inputClassName,
 } from "@/components/ui";
 import { ClockIcon, EmptyStateIcon } from "@/components/ui/icons";
@@ -29,9 +39,11 @@ type BookingWorkspaceProps = {
   formAction: (formData: FormData) => void | Promise<void>;
   formDisabledMessage: string | null;
   reasonRequired: boolean;
+  selectedDate: string;
   submitLabel: string;
   timeOptions: string[];
   timeLimitMinutes: number | null;
+  today: string;
 };
 
 const bookingColorClasses: Record<string, string> = {
@@ -43,13 +55,22 @@ const bookingColorClasses: Record<string, string> = {
   "#F97316": "border-[#F97316] bg-[#F97316]/10 text-[#C2410C]",
 };
 
+const bookingDotClasses: Record<string, string> = {
+  "#10B981": "bg-[#10B981]",
+  "#14B8A6": "bg-[#14B8A6]",
+  "#3B82F6": "bg-[#3B82F6]",
+  "#6366F1": "bg-[#6366F1]",
+  "#EC4899": "bg-[#EC4899]",
+  "#F97316": "bg-[#F97316]",
+};
+
 function normalizeTime(value: string) {
   return value.slice(0, 5);
 }
 
-function getBookingClass(booking: TimelineBooking) {
+function getBookingSurfaceClass(booking: TimelineBooking) {
   if (booking.status === "requested") {
-    return "border-dashed border-[var(--primary)] bg-white text-[var(--text)]";
+    return "border-dashed border-[var(--primary)]/60 bg-white text-[var(--text)]";
   }
 
   return (
@@ -58,19 +79,111 @@ function getBookingClass(booking: TimelineBooking) {
   );
 }
 
-function getBookingsForSlot(bookings: TimelineBooking[], slot: string) {
-  return bookings.filter((booking) => normalizeTime(booking.startTime) === slot);
+function getBookingDotClass(booking: TimelineBooking) {
+  if (booking.status === "requested") {
+    return "bg-[var(--primary)]";
+  }
+
+  return (
+    bookingDotClasses[booking.colorHex.toUpperCase()] ?? "bg-[var(--primary)]"
+  );
+}
+
+function getBookingTimeLabel(booking: TimelineBooking) {
+  if (booking.isAllDay) {
+    return "All day";
+  }
+
+  return `${normalizeTime(booking.startTime)} - ${normalizeTime(booking.endTime)}`;
+}
+
+function compareBookings(first: TimelineBooking, second: TimelineBooking) {
+  if (first.isAllDay !== second.isAllDay) {
+    return first.isAllDay ? -1 : 1;
+  }
+
+  return (
+    normalizeTime(first.startTime).localeCompare(normalizeTime(second.startTime)) ||
+    normalizeTime(first.endTime).localeCompare(normalizeTime(second.endTime)) ||
+    first.userName.localeCompare(second.userName)
+  );
+}
+
+function TimelineDetailCard({
+  booking,
+}: {
+  booking: TimelineBooking;
+}) {
+  return (
+    <article
+      className={`rounded-lg border px-3 py-3 text-sm shadow-sm ${getBookingSurfaceClass(
+        booking
+      )}`}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            aria-hidden="true"
+            className={`h-2.5 w-2.5 shrink-0 rounded-full ${getBookingDotClass(
+              booking
+            )}`}
+          />
+          <span className="truncate font-semibold">{booking.userName}</span>
+        </div>
+        <StatusBadge status={booking.status} />
+      </div>
+      <p className="mt-1 text-xs font-medium opacity-90">
+        {getBookingTimeLabel(booking)}
+      </p>
+      {booking.reason ? (
+        <p className="mt-2 text-xs leading-5 text-[var(--text)]">
+          {booking.reason}
+        </p>
+      ) : null}
+    </article>
+  );
 }
 
 function TimelinePanel({
   bookings,
   onOpenForm,
+  selectedDate,
   timeOptions,
+  today,
 }: {
   bookings: TimelineBooking[];
   onOpenForm: () => void;
+  selectedDate: string;
   timeOptions: string[];
+  today: string;
 }) {
+  const { allDayBookings, timedBookings } = splitTimelineBookings(
+    [...bookings].sort(compareBookings)
+  );
+  const timedLayouts = getTimedTimelineLayout(timedBookings);
+  const orderedBookings = [...bookings].sort(compareBookings);
+  const showNowLine = shouldShowTimelineNowLine(selectedDate, today);
+  const [currentTimeMinutes, setCurrentTimeMinutes] = useState<number | null>(
+    showNowLine ? getBusinessTimeMinutes() : null
+  );
+
+  useEffect(() => {
+    if (!showNowLine) {
+      return;
+    }
+
+    const updateCurrentTime = () => {
+      setCurrentTimeMinutes(getBusinessTimeMinutes());
+    };
+
+    updateCurrentTime();
+    const intervalId = window.setInterval(updateCurrentTime, 60000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [showNowLine]);
+
   return (
     <Panel>
       <div className="mb-4">
@@ -81,7 +194,8 @@ function TimelinePanel({
           <h2 className="text-lg font-semibold">Timeline</h2>
         </div>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          Confirmed bookings block time. Requested bookings do not block time.
+          Confirmed bookings block time. Requested bookings stay visible without
+          blocking the calendar.
         </p>
       </div>
 
@@ -104,54 +218,177 @@ function TimelinePanel({
           />
         </div>
       ) : (
-        <div className="mt-4 max-h-[680px] space-y-1 overflow-y-auto pr-1">
-          {timeOptions.map((slot) => {
-            const slotBookings = getBookingsForSlot(bookings, slot);
+        <div className="mt-4 space-y-5">
+          {allDayBookings.length > 0 ? (
+            <section className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-sm font-semibold text-[var(--text)]">
+                  All-day bookings
+                </h3>
+                <span className="rounded-md border border-[var(--border)] bg-white px-3 py-1 text-xs font-semibold text-[var(--muted)]">
+                  {allDayBookings.length}
+                </span>
+              </div>
+              <div className="space-y-2">
+                {allDayBookings.map((booking) => (
+                  <TimelineDetailCard booking={booking} key={booking.id} />
+                ))}
+              </div>
+            </section>
+          ) : null}
 
-            return (
-              <div
-                className="grid min-h-12 grid-cols-[56px_1fr] gap-3 border-t border-[var(--border)] py-2"
-                key={slot}
-              >
-                <div className="text-xs font-semibold text-[var(--muted)]">
-                  {slot}
-                </div>
-                <div className="space-y-2">
-                  {slotBookings.map((booking) => (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text)]">
+                  Timed schedule
+                </h3>
+                <p className="mt-1 text-xs text-[var(--muted)]">
+                  A full-day track keeps overlaps and the current minute visible.
+                </p>
+              </div>
+              <span className="rounded-md border border-[var(--border)] bg-white px-3 py-1 text-xs font-semibold text-[var(--muted)]">
+                {timedBookings.length}
+              </span>
+            </div>
+
+            {timedBookings.length === 0 ? (
+              <Notice tone="info">
+                Only all-day bookings are scheduled for this date.
+              </Notice>
+            ) : (
+              <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-white">
+                <div className="max-h-[680px] overflow-y-auto">
+                  <div
+                    className="grid min-w-0"
+                    style={{
+                      gridTemplateColumns: `${TIMELINE_TIME_GUTTER_PX}px minmax(0, 1fr)`,
+                    }}
+                  >
                     <div
-                      className={`rounded-md border-l-4 px-3 py-3 text-sm shadow-sm ${getBookingClass(
-                        booking
-                      )}`}
-                      key={booking.id}
+                      className="relative border-r border-[var(--border)] bg-[var(--surface-muted)]/70"
+                      style={{ height: TIMELINE_TRACK_HEIGHT_PX }}
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="font-semibold">
-                          {booking.userName}
-                        </span>
-                        <Badge
-                          tone={
-                            booking.status === "confirmed" ? "success" : "info"
-                          }
-                        >
-                          {booking.status}
-                        </Badge>
-                      </div>
-                      <p className="mt-1 text-xs">
-                        {booking.isAllDay
-                          ? "All day"
-                          : `${normalizeTime(
-                              booking.startTime
-                            )} - ${normalizeTime(booking.endTime)}`}
-                      </p>
-                      {booking.reason ? (
-                        <p className="mt-1 text-xs">{booking.reason}</p>
-                      ) : null}
+                      {Array.from({ length: 24 }, (_, index) => {
+                        const label = `${String(index).padStart(2, "0")}:00`;
+
+                        return (
+                          <span
+                            className="absolute left-2 text-[11px] font-semibold text-[var(--muted)]"
+                            key={label}
+                            style={{ top: index * TIMELINE_SLOT_HEIGHT_PX * 2 }}
+                          >
+                            {label}
+                          </span>
+                        );
+                      })}
                     </div>
-                  ))}
+
+                    <div
+                      className="relative"
+                      style={{ height: TIMELINE_TRACK_HEIGHT_PX }}
+                    >
+                      {Array.from({ length: 24 }, (_, index) => (
+                        <div
+                          className={`absolute inset-x-0 ${
+                            index % 2 === 0
+                              ? "bg-[var(--surface-muted)]/45"
+                              : "bg-white"
+                          }`}
+                          key={`hour-band-${index}`}
+                          style={{
+                            height: TIMELINE_SLOT_HEIGHT_PX * 2,
+                            top: index * TIMELINE_SLOT_HEIGHT_PX * 2,
+                          }}
+                        />
+                      ))}
+
+                      {Array.from(
+                        { length: timeOptions.length + 1 },
+                        (_, index) => (
+                          <div
+                            className={`absolute inset-x-0 border-t ${
+                              index % 2 === 0
+                                ? "border-[var(--border)]"
+                                : "border-[var(--border)]/60"
+                            }`}
+                            key={`timeline-line-${index}`}
+                            style={{ top: index * TIMELINE_SLOT_HEIGHT_PX }}
+                          />
+                        )
+                      )}
+
+                      {showNowLine && currentTimeMinutes !== null ? (
+                        <div
+                          className="pointer-events-none absolute inset-x-0 z-20 flex items-center"
+                          style={{
+                            top: getTimelineNowLineTopPx(currentTimeMinutes),
+                          }}
+                        >
+                          <div className="absolute -left-[5px] h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                          <div className="h-[2px] w-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.35)]" />
+                        </div>
+                      ) : null}
+
+                      {timedLayouts.map((layout) => {
+                        const columnWidth = 100 / layout.totalColumns;
+                        const showTimeLabel =
+                          layout.heightPx >= TIMELINE_SLOT_HEIGHT_PX * 1.25;
+
+                        return (
+                          <article
+                            className={`absolute z-10 overflow-hidden rounded-lg border-l-4 px-3 py-2 text-xs shadow-sm ${getBookingSurfaceClass(
+                              layout.booking
+                            )}`}
+                            key={layout.booking.id}
+                            style={{
+                              height: Math.max(layout.heightPx - 6, 42),
+                              left: `calc(${layout.column * columnWidth}% + 8px)`,
+                              top: layout.topPx + 3,
+                              width: `calc(${columnWidth}% - 12px)`,
+                            }}
+                          >
+                            <p className="truncate text-sm font-semibold">
+                              {layout.booking.userName}
+                            </p>
+                            {showTimeLabel ? (
+                              <p className="mt-1 truncate opacity-90">
+                                {normalizeTime(layout.booking.startTime)}
+                                {" - "}
+                                {normalizeTime(layout.booking.endTime)}
+                              </p>
+                            ) : null}
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
-            );
-          })}
+            )}
+          </section>
+
+          <section className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text)]">
+                  Booking details
+                </h3>
+                <p className="mt-1 text-xs text-[var(--muted)]">
+                  Full status and reason details stay readable below the live
+                  track.
+                </p>
+              </div>
+              <span className="rounded-md border border-[var(--border)] bg-white px-3 py-1 text-xs font-semibold text-[var(--muted)]">
+                {orderedBookings.length}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {orderedBookings.map((booking) => (
+                <TimelineDetailCard booking={booking} key={`detail-${booking.id}`} />
+              ))}
+            </div>
+          </section>
         </div>
       )}
     </Panel>
@@ -166,7 +403,10 @@ function BookingFormPanel({
   submitLabel,
   timeOptions,
   timeLimitMinutes,
-}: Omit<BookingWorkspaceProps, "bookings">) {
+}: Omit<
+  BookingWorkspaceProps,
+  "bookings" | "selectedDate" | "today"
+>) {
   const [isAllDay, setIsAllDay] = useState(false);
   const isFormDisabled = formDisabledMessage !== null;
   const isTimeDisabled = isFormDisabled || isAllDay;
@@ -283,9 +523,11 @@ export function BookingWorkspace({
   formAction,
   formDisabledMessage,
   reasonRequired,
+  selectedDate,
   submitLabel,
   timeOptions,
   timeLimitMinutes,
+  today,
 }: BookingWorkspaceProps) {
   const [activePanel, setActivePanel] = useState<"timeline" | "form">(
     "timeline"
@@ -323,7 +565,9 @@ export function BookingWorkspace({
           <TimelinePanel
             bookings={bookings}
             onOpenForm={() => setActivePanel("form")}
+            selectedDate={selectedDate}
             timeOptions={timeOptions}
+            today={today}
           />
         </div>
         <div className={activePanel === "form" ? "block" : "hidden md:block"}>

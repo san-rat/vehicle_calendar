@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AutoRefresh } from "@/components/AutoRefresh";
+import { RouteTransition } from "@/components/RouteTransition";
 import { Badge, BreadcrumbNav, ButtonLink, PageHeader, Panel } from "@/components/ui";
 import {
   getVehicleTypeLabel,
@@ -159,119 +160,121 @@ export default async function VehicleCalendarPage({
   return (
     <>
       <AutoRefresh />
-      <div className="space-y-6">
-        <div className="space-y-3">
-          <BreadcrumbNav items={breadcrumbs} />
-          <PageHeader
-            action={
-              <Badge className="w-fit" tone="neutral">
-                Booking window: {config.max_days_in_future} days
-              </Badge>
-            }
-            description={`${getVehicleTypeLabel(
-              vehicle.type
-            )} calendar. Confirmed bookings appear as colored dots.`}
-            title={vehicle.name}
-          />
-        </div>
-
-        <Panel>
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <ButtonLink
-              href={`/vehicles/${vehicle.id}/calendar?month=${month.prevMonth}`}
-              size="sm"
-              tone="secondary"
-            >
-              Previous
-            </ButtonLink>
-            <div className="text-center">
-              <h2 className="text-lg font-semibold">{month.label}</h2>
-              <p className="text-xs text-[var(--muted)]">
-                Requested trips do not block availability.
-              </p>
-            </div>
-            <ButtonLink
-              href={`/vehicles/${vehicle.id}/calendar?month=${month.nextMonth}`}
-              size="sm"
-              tone="secondary"
-            >
-              Next
-            </ButtonLink>
+      <RouteTransition transitionKey={`calendar-${month.value}`}>
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <BreadcrumbNav items={breadcrumbs} />
+            <PageHeader
+              action={
+                <Badge className="w-fit" tone="neutral">
+                  Booking window: {config.max_days_in_future} days
+                </Badge>
+              }
+              description={`${getVehicleTypeLabel(
+                vehicle.type
+              )} calendar. Confirmed bookings appear as colored dots.`}
+              title={vehicle.name}
+            />
           </div>
 
-          <div className="grid grid-cols-7 gap-1 sm:gap-2">
-            {weekdayLabels.map((label) => (
-              <div
-                className="py-2 text-center text-xs font-semibold uppercase text-[var(--muted)]"
-                key={label}
+          <Panel>
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <ButtonLink
+                href={`/vehicles/${vehicle.id}/calendar?month=${month.prevMonth}`}
+                size="sm"
+                tone="secondary"
               >
-                {label}
+                Previous
+              </ButtonLink>
+              <div className="text-center">
+                <h2 className="text-lg font-semibold">{month.label}</h2>
+                <p className="text-xs text-[var(--muted)]">
+                  Requested trips do not block availability.
+                </p>
               </div>
-            ))}
+              <ButtonLink
+                href={`/vehicles/${vehicle.id}/calendar?month=${month.nextMonth}`}
+                size="sm"
+                tone="secondary"
+              >
+                Next
+              </ButtonLink>
+            </div>
 
-            {Array.from({ length: month.firstWeekday }, (_, index) => (
-              <div aria-hidden="true" key={`blank-${index}`} />
-            ))}
-
-            {month.days.map((date) => {
-              const dayNumber = Number(date.slice(-2));
-              const isBookable = isDateWithinBookingWindow({
-                date,
-                maxDaysInFuture: config.max_days_in_future,
-                today,
-              });
-              const indicators = indicatorsByDate.get(date) ?? [];
-              const visibleIndicators = indicators.slice(0, 4);
-              const hiddenIndicatorCount =
-                indicators.length - visibleIndicators.length;
-              const cellClass = `flex min-h-16 flex-col rounded-md border p-2 text-left sm:min-h-24 ${
-                isBookable
-                  ? "cursor-pointer border-[var(--border)] bg-white transition-colors duration-200 ease-in-out [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:bg-gray-100/50 active:bg-gray-200/50"
-                  : "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted)] opacity-60"
-              }`;
-              const cellContent = (
-                <>
-                  <span className="text-sm font-semibold">{dayNumber}</span>
-                  {visibleIndicators.length > 0 ? (
-                    <div className="mt-auto flex flex-wrap gap-1 pt-4">
-                      {visibleIndicators.map((indicator) => (
-                        <span
-                          aria-label={`Confirmed booking for ${indicator.userName}`}
-                          className={`h-2.5 w-2.5 rounded-full ${getUserColorDotClass(
-                            indicator.colorHex
-                          )}`}
-                          key={indicator.id}
-                          title={`Confirmed booking for ${indicator.userName}`}
-                        />
-                      ))}
-                      {hiddenIndicatorCount > 0 ? (
-                        <span className="text-xs font-semibold text-[var(--muted)]">
-                          +{hiddenIndicatorCount}
-                        </span>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </>
-              );
-
-              return isBookable ? (
-                <Link
-                  aria-label={`Open booking page for ${date}`}
-                  className={cellClass}
-                  href={`/vehicles/${vehicle.id}/date/${date}`}
-                  key={date}
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">
+              {weekdayLabels.map((label) => (
+                <div
+                  className="py-2 text-center text-xs font-semibold uppercase text-[var(--muted)]"
+                  key={label}
                 >
-                  {cellContent}
-                </Link>
-              ) : (
-                <div aria-disabled="true" className={cellClass} key={date}>
-                  {cellContent}
+                  {label}
                 </div>
-              );
-            })}
-          </div>
-        </Panel>
-      </div>
+              ))}
+
+              {Array.from({ length: month.firstWeekday }, (_, index) => (
+                <div aria-hidden="true" key={`blank-${index}`} />
+              ))}
+
+              {month.days.map((date) => {
+                const dayNumber = Number(date.slice(-2));
+                const isBookable = isDateWithinBookingWindow({
+                  date,
+                  maxDaysInFuture: config.max_days_in_future,
+                  today,
+                });
+                const indicators = indicatorsByDate.get(date) ?? [];
+                const visibleIndicators = indicators.slice(0, 4);
+                const hiddenIndicatorCount =
+                  indicators.length - visibleIndicators.length;
+                const cellClass = `flex min-h-16 flex-col rounded-md border p-2 text-left sm:min-h-24 ${
+                  isBookable
+                    ? "cursor-pointer border-[var(--border)] bg-white transition-colors duration-200 ease-in-out [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:bg-gray-100/50 active:bg-gray-200/50"
+                    : "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted)] opacity-60"
+                }`;
+                const cellContent = (
+                  <>
+                    <span className="text-sm font-semibold">{dayNumber}</span>
+                    {visibleIndicators.length > 0 ? (
+                      <div className="mt-auto flex flex-wrap gap-1 pt-4">
+                        {visibleIndicators.map((indicator) => (
+                          <span
+                            aria-label={`Confirmed booking for ${indicator.userName}`}
+                            className={`h-2.5 w-2.5 rounded-full ${getUserColorDotClass(
+                              indicator.colorHex
+                            )}`}
+                            key={indicator.id}
+                            title={`Confirmed booking for ${indicator.userName}`}
+                          />
+                        ))}
+                        {hiddenIndicatorCount > 0 ? (
+                          <span className="text-xs font-semibold text-[var(--muted)]">
+                            +{hiddenIndicatorCount}
+                          </span>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </>
+                );
+
+                return isBookable ? (
+                  <Link
+                    aria-label={`Open booking page for ${date}`}
+                    className={cellClass}
+                    href={`/vehicles/${vehicle.id}/date/${date}`}
+                    key={date}
+                  >
+                    {cellContent}
+                  </Link>
+                ) : (
+                  <div aria-disabled="true" className={cellClass} key={date}>
+                    {cellContent}
+                  </div>
+                );
+              })}
+            </div>
+          </Panel>
+        </div>
+      </RouteTransition>
     </>
   );
 }

@@ -110,16 +110,33 @@ describe("log page helpers", () => {
       })
     ).toEqual([
       {
+        copyValue: "requested -> confirmed",
         label: "Status",
         value: "requested -> confirmed",
       },
       {
+        copyValue: "Urgent trip",
         label: "Override note",
         value: "Urgent trip",
       },
       {
+        copyValue: "12345678-1111-2222-3333-444444444444",
         label: "Overridden bookings",
         value: "12345678",
+      },
+    ]);
+  });
+
+  it("keeps full ids in snapshot highlight copy payloads", () => {
+    expect(
+      getLogSnapshotHighlights({
+        approved_request_id: "87654321-1111-2222-3333-444444444444",
+      })
+    ).toEqual([
+      {
+        copyValue: "87654321-1111-2222-3333-444444444444",
+        label: "Approved request",
+        value: "87654321",
       },
     ]);
   });

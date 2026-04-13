@@ -233,11 +233,13 @@ export default async function BookingPage({
           formAction={createBookingAction}
           formDisabledMessage={formDisabledMessage}
           reasonRequired={config.require_reason}
+          selectedDate={date}
           submitLabel={
             bookingStatus === "confirmed" ? "Book Trip" : "Request Booking"
           }
           timeLimitMinutes={config.time_limit_minutes}
           timeOptions={getThirtyMinuteTimeOptions()}
+          today={today}
         />
       </div>
     </>

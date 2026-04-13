@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { requireAdminAppUser } from "@/lib/auth/user";
+import { RouteTransition } from "@/components/RouteTransition";
 import { TopBar } from "@/components/TopBar";
 
 export default async function AdminLayout({
@@ -12,7 +13,9 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen">
       <TopBar currentUser={currentUser} showAdminActions />
-      <main className="app-container py-8">{children}</main>
+      <main className="app-container py-8">
+        <RouteTransition>{children}</RouteTransition>
+      </main>
     </div>
   );
 }

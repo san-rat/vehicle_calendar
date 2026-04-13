@@ -19,7 +19,7 @@ export function TopBar({
   showAdminActions = false,
 }: TopBarProps) {
   return (
-    <header className="border-b border-[var(--border)] bg-[var(--card)]">
+    <header className="sticky top-0 z-50 border-b border-[var(--border)]/60 bg-[var(--bg)]/95 transition-colors duration-300 supports-[backdrop-filter]:bg-[var(--bg)]/75 supports-[backdrop-filter]:backdrop-blur-md">
       <div className="app-container flex min-h-16 flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
         <Link
           href="/vehicles"

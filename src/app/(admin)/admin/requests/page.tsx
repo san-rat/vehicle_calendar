@@ -9,7 +9,7 @@ import {
   PageHeader,
   Panel,
   StatusBadge,
-  inputClassName,
+  warningInputClassName,
 } from "@/components/ui";
 import { CalendarIcon, EmptyStateIcon } from "@/components/ui/icons";
 import {
@@ -415,8 +415,8 @@ export default async function AdminRequestsPage() {
                             label="Optional override note"
                           >
                             <textarea
-                              className={inputClassName(
-                                "min-h-20 border-[var(--warning)]/50 focus:border-[var(--warning)]"
+                              className={warningInputClassName(
+                                "min-h-20 border-[var(--warning)]/50"
                               )}
                               id={`override-note-${request.id}`}
                               maxLength={500}
@@ -475,7 +475,7 @@ export default async function AdminRequestsPage() {
                       label="Optional rejection reason"
                     >
                       <textarea
-                        className={inputClassName("min-h-20")}
+                        className={warningInputClassName("min-h-20")}
                         id={`rejection-reason-${request.id}`}
                         maxLength={500}
                         name="rejection_reason"

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   addDays,
+  getBusinessHour,
   getBusinessToday,
   getCalendarMonth,
   isDateWithinBookingWindow,
@@ -14,6 +15,10 @@ describe("booking date helpers", () => {
     expect(getBusinessToday(new Date("2026-04-11T19:00:00.000Z"))).toBe(
       "2026-04-12"
     );
+  });
+
+  it("resolves the business hour in Asia/Colombo", () => {
+    expect(getBusinessHour(new Date("2026-04-11T19:00:00.000Z"))).toBe(0);
   });
 
   it("parses and rejects ISO dates strictly", () => {

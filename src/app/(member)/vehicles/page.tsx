@@ -11,6 +11,7 @@ import {
   type VehicleType,
 } from "@/lib/admin/vehicles";
 import { requireCurrentAppUser } from "@/lib/auth/user";
+import { getBusinessHour } from "@/lib/booking/dates";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type VehicleRecord = {
@@ -20,8 +21,20 @@ type VehicleRecord = {
   type: VehicleType;
 };
 
+function getGreetingLabel(hour: number, name: string) {
+  if (hour < 12) {
+    return `Good morning, ${name}`;
+  }
+
+  if (hour < 17) {
+    return `Good afternoon, ${name}`;
+  }
+
+  return `Good evening, ${name}`;
+}
+
 async function getActiveVehicles() {
-  await requireCurrentAppUser();
+  const currentUser = await requireCurrentAppUser();
 
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
@@ -34,17 +47,20 @@ async function getActiveVehicles() {
     throw new Error("Unable to load vehicles.");
   }
 
-  return (data ?? []) as VehicleRecord[];
+  return {
+    currentUser,
+    vehicles: (data ?? []) as VehicleRecord[],
+  };
 }
 
 export default async function VehiclesPage() {
-  const vehicles = await getActiveVehicles();
+  const { currentUser, vehicles } = await getActiveVehicles();
 
   return (
     <div className="space-y-6">
       <PageHeader
         description="Pick an active vehicle to open its calendar."
-        eyebrow="Fleet"
+        eyebrow={getGreetingLabel(getBusinessHour(), currentUser.name)}
         title="Vehicles"
       />
 

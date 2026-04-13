@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { requireCurrentAppUser } from "@/lib/auth/user";
+import { RouteTransition } from "@/components/RouteTransition";
 import { TopBar } from "@/components/TopBar";
 
 export default async function MemberLayout({
@@ -15,7 +16,9 @@ export default async function MemberLayout({
         currentUser={currentUser}
         showAdminActions={currentUser.role === "super_admin"}
       />
-      <main className="app-container py-8">{children}</main>
+      <main className="app-container py-8">
+        <RouteTransition>{children}</RouteTransition>
+      </main>
     </div>
   );
 }
