@@ -540,7 +540,7 @@ export function BookingWorkspace({
           className={`min-h-11 rounded-md px-4 py-2 text-sm font-semibold transition ${
             activePanel === "timeline"
               ? "bg-[var(--primary)] text-white"
-              : "text-[var(--muted)] hover:text-[var(--text)]"
+              : "text-[var(--muted)] [@media(hover:hover)]:hover:text-[var(--text)]"
           }`}
           onClick={() => setActivePanel("timeline")}
           type="button"
@@ -551,7 +551,7 @@ export function BookingWorkspace({
           className={`min-h-11 rounded-md px-4 py-2 text-sm font-semibold transition ${
             activePanel === "form"
               ? "bg-[var(--primary)] text-white"
-              : "text-[var(--muted)] hover:text-[var(--text)]"
+              : "text-[var(--muted)] [@media(hover:hover)]:hover:text-[var(--text)]"
           }`}
           onClick={() => setActivePanel("form")}
           type="button"

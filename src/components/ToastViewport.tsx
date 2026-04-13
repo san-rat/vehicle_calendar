@@ -50,7 +50,7 @@ function ToastCard({
 
   return (
     <div
-      className={`relative mt-2 flex w-full max-w-sm items-center gap-3 overflow-hidden rounded-xl px-4 py-4 shadow-lg ring-1 transition-all duration-300 ease-out pointer-events-auto ${
+      className={`relative mt-2 flex w-full max-w-sm items-center gap-3 overflow-hidden rounded-2xl px-4 py-4 shadow-md shadow-slate-200/60 ring-1 transition-all duration-300 ease-out pointer-events-auto ${
         isError
           ? "bg-red-50 ring-red-900/10"
           : "bg-white ring-black/5"

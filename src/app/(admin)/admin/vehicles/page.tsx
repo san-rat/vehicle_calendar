@@ -9,6 +9,7 @@ import {
   Panel,
   inputClassName,
 } from "@/components/ui";
+import { VehicleManagerList } from "@/components/admin/VehicleManagerList";
 import { EmptyStateIcon, FleetIcon } from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
@@ -57,14 +58,13 @@ export default async function AdminVehiclesPage() {
         ]}
       />
       <PageHeader
-        description="Add vehicles, edit their type, and mark them inactive when they should not appear in booking flows. Hard delete is blocked once bookings exist."
         eyebrow="Settings"
         title="Admin Vehicles"
       />
 
-      <Panel>
-        <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
+      <Panel className="overflow-hidden border-white/70 bg-white/92">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--primary)]/15 bg-[var(--primary)]/10 text-[var(--primary)]">
             <FleetIcon className="h-5 w-5" />
           </span>
           <h2 className="text-lg font-semibold">Add Vehicle</h2>
@@ -120,12 +120,7 @@ export default async function AdminVehiclesPage() {
 
       <section>
         <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold">Vehicles</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              Showing active and inactive vehicles.
-            </p>
-          </div>
+          <h2 className="text-lg font-semibold">Vehicles</h2>
           <Badge tone="neutral">
             {vehicles.length} total
           </Badge>
@@ -140,93 +135,12 @@ export default async function AdminVehiclesPage() {
             />
           </div>
         ) : (
-          <div className="mt-4 space-y-4">
-            {vehicles.map((vehicle) => (
-              <Panel as="article" key={vehicle.id}>
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-base font-semibold">{vehicle.name}</h3>
-                    <p className="mt-1 text-sm text-[var(--muted)]">
-                      {getVehicleTypeLabel(vehicle.type)}
-                    </p>
-                  </div>
-                  <Badge tone={vehicle.is_active ? "success" : "neutral"}>
-                    {vehicle.is_active ? "Active" : "Inactive"}
-                  </Badge>
-                </div>
-
-                <form
-                  action={updateVehicle}
-                  className="grid gap-4 md:grid-cols-[1fr_180px_160px_auto] md:items-end"
-                >
-                  <input name="id" type="hidden" value={vehicle.id} />
-                  <Field htmlFor={`vehicle-name-${vehicle.id}`} label="Name">
-                    <input
-                      className={inputClass}
-                      defaultValue={vehicle.name}
-                      id={`vehicle-name-${vehicle.id}`}
-                      maxLength={80}
-                      minLength={2}
-                      name="name"
-                      required
-                    />
-                  </Field>
-
-                  <Field htmlFor={`vehicle-type-${vehicle.id}`} label="Type">
-                    <select
-                      className={inputClass}
-                      defaultValue={vehicle.type}
-                      id={`vehicle-type-${vehicle.id}`}
-                      name="type"
-                      required
-                    >
-                      {VEHICLE_TYPES.map((type) => (
-                        <option key={type} value={type}>
-                          {getVehicleTypeLabel(type)}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-
-                  <Field htmlFor={`vehicle-active-${vehicle.id}`} label="Status">
-                    <select
-                      className={inputClass}
-                      defaultValue={String(vehicle.is_active)}
-                      id={`vehicle-active-${vehicle.id}`}
-                      name="is_active"
-                    >
-                      <option value="true">Active</option>
-                      <option value="false">Inactive</option>
-                    </select>
-                  </Field>
-
-                  <Button type="submit" tone="secondary">
-                    Save
-                  </Button>
-                </form>
-
-                <form
-                  action={deleteVehicle}
-                  className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[1fr_auto] md:items-end"
-                >
-                  <input name="id" type="hidden" value={vehicle.id} />
-                  <Field
-                    htmlFor={`vehicle-delete-${vehicle.id}`}
-                    label="Type vehicle name to hard delete"
-                  >
-                    <input
-                      className={inputClass}
-                      id={`vehicle-delete-${vehicle.id}`}
-                      name="confirmation"
-                      placeholder={vehicle.name}
-                    />
-                  </Field>
-                  <Button type="submit" tone="danger">
-                    Delete
-                  </Button>
-                </form>
-              </Panel>
-            ))}
+          <div className="mt-4">
+            <VehicleManagerList
+              deleteVehicleAction={deleteVehicle}
+              updateVehicleAction={updateVehicle}
+              vehicles={vehicles}
+            />
           </div>
         )}
       </section>

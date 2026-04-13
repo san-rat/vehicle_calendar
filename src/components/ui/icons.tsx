@@ -118,6 +118,47 @@ export function ChevronRightIcon(props: IconProps) {
   );
 }
 
+export function MenuIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M4.5 7h15" />
+      <path d="M4.5 12h15" />
+      <path d="M4.5 17h15" />
+    </IconBase>
+  );
+}
+
+export function CloseIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M6 6l12 12" />
+      <path d="M18 6 6 18" />
+    </IconBase>
+  );
+}
+
+export function SearchIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4 4" />
+    </IconBase>
+  );
+}
+
+export function ManageIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M4.5 7.5h15" />
+      <path d="M4.5 16.5h15" />
+      <path d="M8 5v5" />
+      <path d="M16 14v5" />
+      <circle cx="8" cy="7.5" r="2" />
+      <circle cx="16" cy="16.5" r="2" />
+    </IconBase>
+  );
+}
+
 export function CheckCircleIcon(props: IconProps) {
   return (
     <IconBase {...props}>

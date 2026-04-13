@@ -13,6 +13,7 @@ Users must always feel in control of where they are and how to go back.
 *   **🚫 DO NOT trap the user.** Every screen, especially forms and settings, must have a clear "Cancel" or "Close" button, or an obvious back-arrow if not using the hamburger menu.
 *   **🚫 DO NOT use the browser "Back" button to submit data.** Hitting the hardware/software back button must exclusively serve as a "Cancel/Return" action. If a user hits back while filling out a booking, the draft *must* safely discard without throwing warnings or attempting to save.
 *   **🚫 DO NOT open internal links in new tabs (`target="_blank"`).** FleetTime is designed to feel like a single cohesive app. Opening standard pages (like the log or settings) in new tabs breaks the mobile flow.
+*   **🚫 DO NOT crowd mobile headers with multiple inline nav actions.** Small screens should use the hamburger drawer instead of forcing users to parse a cramped action row.
 
 ---
 
@@ -33,6 +34,8 @@ We want members to book vehicles in seconds.
 *   **🚫 DO NOT use "Are you sure?" confirmation modals for routine actions.** Standard bookings do not require a confirmation popup. Super Admins approving or rejecting routine requests do not need confirmation popups. Only highly destructive actions (like permanently deleting a vehicle or an override) require confirmation.
 *   **🚫 DO NOT use multi-step wizards.** If a user needs to input information, it should be consolidated onto a single clean form page or slide-up sheet. Do not force them to tap "Next" multiple times for the start time, end time, and reason separately.
 *   **🚫 DO NOT provide multiple buttons that do the same thing.** A primary action (like "Book Trip") should exist in exactly one obvious place on the form.
+*   **🚫 DO NOT bury admin list management inside always-open inline forms.** Secondary actions on long members or vehicles lists should be revealed through a clear `Manage` affordance, not exposed on every row by default.
+*   **🚫 DO NOT require users to open raw audit payloads for routine log review.** The log experience should stay readable at a glance, with Who / What / When visible in the primary list.
 
 ---
 
@@ -49,8 +52,8 @@ Users need to know what happened without being annoyed.
 
 Super Admins are busy. We cannot create administrative fatigue.
 
-*   **🚫 DO NOT force single-action workflows on lists.** Super Admins *must* have checkboxes to select multiple booking requests for Bulk Approval/Rejection. Forcing them to click "Approve" 20 individual times on a Monday morning is a UX failure.
 *   **🚫 DO NOT hide "Override" workflows or warnings.** Overriding a confirmed booking is a severe action. The UX must never obscure this action; it must be clearly visible and permanently logged.
+*   **🚫 DO NOT scatter critical request actions across distant parts of the card.** Approve, override, reject, and open-day actions should feel grouped so admins can review quickly without hunting across the layout.
 
 ---
 

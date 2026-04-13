@@ -9,6 +9,7 @@ import { ChevronRightIcon } from "./icons";
 
 export type UiTone =
   | "danger"
+  | "ghost"
   | "info"
   | "neutral"
   | "primary"
@@ -64,10 +65,10 @@ function joinClasses(...classes: Array<string | false | null | undefined>) {
 }
 
 const buttonBaseClass =
-  "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition duration-200 ease-out active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50";
 
 const inputBaseClass =
-  "min-h-12 w-full rounded-md border border-[var(--border)] bg-white px-4 py-3 text-sm text-[var(--text)] outline-none transition placeholder:text-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60";
+  "min-h-12 w-full rounded-xl border border-[var(--border)] bg-white/95 px-4 py-3 text-sm text-[var(--text)] outline-none transition duration-200 ease-out placeholder:text-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60";
 
 const buttonSizeClasses: Record<UiSize, string> = {
   md: "min-h-12 px-4 py-3 text-sm",
@@ -76,21 +77,26 @@ const buttonSizeClasses: Record<UiSize, string> = {
 
 const buttonToneClasses: Record<UiTone, string> = {
   danger:
-    "border border-[var(--danger)] bg-white text-[var(--danger)] hover:bg-[var(--danger)] hover:text-white",
-  info: "border border-[var(--info)]/30 bg-[var(--info)]/10 text-[var(--info-text)] hover:border-[var(--info)]",
+    "border border-[var(--danger)]/25 bg-white text-[var(--danger)] shadow-sm shadow-red-100/30 [@media(hover:hover)]:hover:border-[var(--danger)] [@media(hover:hover)]:hover:bg-[var(--danger)]/8",
+  ghost:
+    "border border-transparent bg-transparent text-[var(--muted)] [@media(hover:hover)]:hover:bg-white/80 [@media(hover:hover)]:hover:text-[var(--text)]",
+  info:
+    "border border-[var(--info)]/30 bg-[var(--info)]/10 text-[var(--info-text)] [@media(hover:hover)]:hover:border-[var(--info)]",
   neutral:
-    "border border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--text)]",
-  primary: "bg-[var(--primary)] text-white shadow-sm hover:bg-[var(--primary-hover)]",
+    "border border-[var(--border)] bg-white/80 text-[var(--muted)] [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:text-[var(--text)]",
+  primary:
+    "bg-[var(--primary)] text-white shadow-sm shadow-blue-200/60 [@media(hover:hover)]:hover:bg-[var(--primary-hover)]",
   secondary:
-    "border border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--primary)] hover:text-[var(--primary)]",
+    "border border-[var(--border)] bg-white/90 text-[var(--text)] shadow-sm shadow-slate-200/30 [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:bg-white [@media(hover:hover)]:hover:text-[var(--primary)]",
   success:
-    "border border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success-text)] hover:border-[var(--success)]",
+    "border border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success-text)] [@media(hover:hover)]:hover:border-[var(--success)]",
   warning:
-    "border border-[var(--warning)]/40 bg-[var(--warning)]/10 text-[var(--warning-text)] hover:border-[var(--warning)]",
+    "border border-[var(--warning)]/40 bg-[var(--warning)]/10 text-[var(--warning-text)] [@media(hover:hover)]:hover:border-[var(--warning)]",
 };
 
 const badgeToneClasses: Record<UiTone, string> = {
   danger: "bg-[var(--danger)]/10 text-[var(--danger)]",
+  ghost: "bg-transparent text-[var(--muted)]",
   info: "bg-[var(--info)]/10 text-[var(--info-text)]",
   neutral: "border border-[var(--border)] bg-white text-[var(--muted)]",
   primary: "bg-[var(--primary)]/10 text-[var(--primary)]",
@@ -133,9 +139,16 @@ export function buttonClassName({
   );
 }
 
+export function panelClassName(className?: string) {
+  return joinClasses(
+    "rounded-2xl border border-[var(--border)] bg-[var(--card)]/95 p-5 shadow-sm shadow-slate-200/50 backdrop-blur-[1px]",
+    className
+  );
+}
+
 export function interactiveCardClassName(className?: string) {
   return joinClasses(
-    "rounded-lg border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm transform-gpu transition-all duration-300 ease-out [@media(hover:hover)]:hover:-translate-y-[2px] [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:shadow-md active:scale-[0.98] active:shadow-sm",
+    "rounded-2xl border border-[var(--border)] bg-[var(--card)]/96 p-5 shadow-sm shadow-slate-200/50 transform-gpu transition-all duration-300 ease-out [@media(hover:hover)]:hover:-translate-y-[2px] [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:shadow-slate-200/70 active:scale-[0.98] active:shadow-sm",
     className
   );
 }
@@ -199,10 +212,7 @@ export function Panel({
 
   return (
     <Component
-      className={joinClasses(
-        "rounded-lg border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm",
-        className
-      )}
+      className={panelClassName(className)}
       {...props}
     />
   );
@@ -216,7 +226,7 @@ export function Badge({
   return (
     <span
       className={joinClasses(
-        "inline-flex min-h-7 items-center rounded-md px-3 py-1 text-xs font-semibold",
+        "inline-flex min-h-7 items-center rounded-full px-3 py-1 text-xs font-semibold",
         badgeToneClasses[tone],
         className
       )}
@@ -235,7 +245,7 @@ export function StatusBadge({
   return (
     <span
       className={joinClasses(
-        "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium capitalize",
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize",
         statusBadgeClasses[status] ??
           "bg-gray-100 text-gray-500 ring-1 ring-inset ring-gray-200",
         className
@@ -289,20 +299,20 @@ export function PageHeader({
     <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
         {eyebrow ? (
-          <div className="text-sm font-semibold text-[var(--primary)]">
+          <div className="text-sm font-semibold tracking-[0.02em] text-[var(--primary)]">
             {eyebrow}
           </div>
         ) : null}
         <h1
           className={joinClasses(
-            "text-2xl font-semibold",
+            "text-3xl font-semibold tracking-[-0.02em] text-[var(--text)] sm:text-[2rem]",
             eyebrow ? "mt-1" : undefined
           )}
         >
           {title}
         </h1>
         {description ? (
-          <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">
             {description}
           </p>
         ) : null}
@@ -360,9 +370,9 @@ export function EmptyState({
   title,
 }: EmptyStateProps) {
   return (
-    <div className="flex min-h-[240px] w-full flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] px-6 py-12 text-center motion-safe:animate-[empty-state-fade_500ms_ease-out]">
+    <div className="flex min-h-[240px] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)]/96 px-6 py-12 text-center shadow-sm shadow-slate-200/40 motion-safe:animate-[empty-state-fade_500ms_ease-out]">
       {Icon ? (
-        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--surface-muted)] text-[var(--muted)]">
+        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted)]">
           <Icon
             aria-hidden="true"
             className="h-8 w-8 opacity-80 [stroke-width:1.5]"

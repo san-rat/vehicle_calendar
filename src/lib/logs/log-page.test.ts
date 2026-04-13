@@ -1,18 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
   formatLogActionTime,
-  formatLogSnapshotJson,
+  formatRelativeLogTime,
   getLogActionLabel,
-  getLogBookingStatus,
   getLogActionTone,
-  getLogBookingDayHref,
+  getLogBookingStatus,
   getLogColorDotClass,
   getLogPageNumber,
   getLogPaginationWindow,
   getLogRetentionCutoffIso,
-  getLogSnapshotHighlights,
-  getLogTargetSummary,
+  getLogSearchPattern,
   getSafeLogColor,
+  normalizeLogQuery,
 } from "./log-page";
 
 describe("log page helpers", () => {
@@ -46,6 +45,22 @@ describe("log page helpers", () => {
     );
   });
 
+  it("formats recent actions with relative time labels", () => {
+    expect(
+      formatRelativeLogTime(
+        "2026-04-12T23:59:40.000Z",
+        new Date("2026-04-13T00:00:00.000Z")
+      )
+    ).toBe("Just now");
+
+    expect(
+      formatRelativeLogTime(
+        "2026-04-12T22:00:00.000Z",
+        new Date("2026-04-13T00:00:00.000Z")
+      )
+    ).toBe("2 hours ago");
+  });
+
   it("builds the 30-day retention cutoff from created_at", () => {
     expect(
       getLogRetentionCutoffIso(new Date("2026-04-12T00:00:00.000Z"))
@@ -64,123 +79,18 @@ describe("log page helpers", () => {
     });
   });
 
+  it("normalizes log search params and builds ilike patterns", () => {
+    expect(normalizeLogQuery("  member   updated  ")).toBe("member updated");
+    expect(normalizeLogQuery(undefined)).toBe("");
+    expect(getLogSearchPattern("vehicle, deleted")).toBe("%vehicle  deleted%");
+    expect(getLogSearchPattern("   ")).toBeNull();
+  });
+
   it("uses safe color fallbacks", () => {
     expect(getSafeLogColor("#10B981")).toBe("#10B981");
     expect(getSafeLogColor("green")).toBe("#3B82F6");
     expect(getSafeLogColor(null)).toBe("#3B82F6");
     expect(getLogColorDotClass("#10B981")).toBe("bg-[#10B981]");
     expect(getLogColorDotClass("green")).toBe("bg-[#3B82F6]");
-  });
-
-  it("summarizes targets with readable fallbacks", () => {
-    expect(
-      getLogTargetSummary({
-        actionType: "booking_confirmed",
-        bookingId: "12345678-1111-2222-3333-444444444444",
-        targetUser: { name: "Mina" },
-        targetVehicle: { name: "Pool Car" },
-      })
-    ).toBe("Member: Mina | Vehicle: Pool Car | Booking: 12345678");
-
-    expect(
-      getLogTargetSummary({
-        actionType: "vehicle_deleted",
-        snapshot: { before: { name: "Old Van" } },
-      })
-    ).toBe("Vehicle: Old Van");
-
-    expect(getLogTargetSummary({ actionType: "privilege_updated" })).toBe(
-      "Booking privileges"
-    );
-  });
-
-  it("builds readable snapshot highlights from before and after data", () => {
-    expect(
-      getLogSnapshotHighlights({
-        after: {
-          date: "2026-04-12",
-          status: "confirmed",
-        },
-        before: {
-          date: "2026-04-12",
-          status: "requested",
-        },
-        overridden_booking_ids: ["12345678-1111-2222-3333-444444444444"],
-        override_note: "Urgent trip",
-      })
-    ).toEqual([
-      {
-        copyValue: "requested -> confirmed",
-        label: "Status",
-        value: "requested -> confirmed",
-      },
-      {
-        copyValue: "Urgent trip",
-        label: "Override note",
-        value: "Urgent trip",
-      },
-      {
-        copyValue: "12345678-1111-2222-3333-444444444444",
-        label: "Overridden bookings",
-        value: "12345678",
-      },
-    ]);
-  });
-
-  it("keeps full ids in snapshot highlight copy payloads", () => {
-    expect(
-      getLogSnapshotHighlights({
-        approved_request_id: "87654321-1111-2222-3333-444444444444",
-      })
-    ).toEqual([
-      {
-        copyValue: "87654321-1111-2222-3333-444444444444",
-        label: "Approved request",
-        value: "87654321",
-      },
-    ]);
-  });
-
-  it("formats raw snapshot JSON", () => {
-    expect(formatLogSnapshotJson({ after: { status: "confirmed" } })).toBe(
-      '{\n  "after": {\n    "status": "confirmed"\n  }\n}'
-    );
-  });
-
-  it("builds booking day links only for booking logs with date and vehicle", () => {
-    expect(
-      getLogBookingDayHref({
-        actionType: "booking_confirmed",
-        snapshot: {
-          after: {
-            date: "2026-04-12",
-            vehicle_id: "vehicle-1",
-          },
-        },
-      })
-    ).toBe("/vehicles/vehicle-1/date/2026-04-12");
-
-    expect(
-      getLogBookingDayHref({
-        actionType: "vehicle_updated",
-        snapshot: {
-          after: {
-            date: "2026-04-12",
-            vehicle_id: "vehicle-1",
-          },
-        },
-      })
-    ).toBeNull();
-
-    expect(
-      getLogBookingDayHref({
-        actionType: "booking_confirmed",
-        snapshot: {
-          after: {
-            status: "confirmed",
-          },
-        },
-      })
-    ).toBeNull();
   });
 });

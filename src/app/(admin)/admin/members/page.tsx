@@ -14,6 +14,7 @@ import {
   Panel,
   inputClassName,
 } from "@/components/ui";
+import { MemberManagerList } from "@/components/admin/MemberManagerList";
 import { EmptyStateIcon, UserIcon } from "@/components/ui/icons";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
@@ -65,14 +66,13 @@ export default async function AdminMembersPage() {
         ]}
       />
       <PageHeader
-        description="Create members with name-only login, manage roles and access, reset passwords, and safely remove accounts that do not own bookings."
         eyebrow="Settings"
         title="Admin Members"
       />
 
-      <Panel>
-        <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
+      <Panel className="overflow-hidden border-white/70 bg-white/92">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--primary)]/15 bg-[var(--primary)]/10 text-[var(--primary)]">
             <UserIcon className="h-5 w-5" />
           </span>
           <h2 className="text-lg font-semibold">Add Member</h2>
@@ -155,12 +155,7 @@ export default async function AdminMembersPage() {
 
       <section>
         <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold">Members</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              Showing active and inactive accounts.
-            </p>
-          </div>
+          <h2 className="text-lg font-semibold">Members</h2>
           <Badge tone="neutral">
             {members.length} total
           </Badge>
@@ -175,145 +170,14 @@ export default async function AdminMembersPage() {
             />
           </div>
         ) : (
-          <div className="mt-4 space-y-4">
-            {members.map((member) => {
-              const isSelf = member.id === currentUser.id;
-
-              return (
-                <Panel as="article" key={member.id}>
-                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <Badge tone="neutral">
-                        {member.color_hex}
-                      </Badge>
-                      <div>
-                        <h3 className="text-base font-semibold">
-                          {member.name}
-                          {isSelf ? (
-                            <Badge className="ml-2" tone="info">
-                              You
-                            </Badge>
-                          ) : null}
-                        </h3>
-                        <p className="mt-1 text-sm text-[var(--muted)]">
-                          {getMemberRoleLabel(member.role)}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge tone={member.is_active ? "success" : "neutral"}>
-                      {member.is_active ? "Active" : "Inactive"}
-                    </Badge>
-                  </div>
-
-                  <form
-                    action={updateMember}
-                    className="grid gap-4 md:grid-cols-[1fr_180px_160px_auto] md:items-end"
-                  >
-                    <input name="id" type="hidden" value={member.id} />
-                    <Field htmlFor={`member-name-${member.id}`} label="Name">
-                      <input
-                        className={inputClass}
-                        defaultValue={member.name}
-                        id={`member-name-${member.id}`}
-                        maxLength={60}
-                        minLength={2}
-                        name="name"
-                        required
-                      />
-                    </Field>
-
-                    <Field htmlFor={`member-role-${member.id}`} label="Role">
-                      <select
-                        className={inputClass}
-                        defaultValue={member.role}
-                        id={`member-role-${member.id}`}
-                        name="role"
-                        required
-                      >
-                        {MEMBER_ROLES.map((role) => (
-                          <option key={role} value={role}>
-                            {getMemberRoleLabel(role)}
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
-
-                    <Field htmlFor={`member-active-${member.id}`} label="Status">
-                      <select
-                        className={inputClass}
-                        defaultValue={String(member.is_active)}
-                        id={`member-active-${member.id}`}
-                        name="is_active"
-                      >
-                        <option value="true">Active</option>
-                        <option value="false">Inactive</option>
-                      </select>
-                    </Field>
-
-                    <Button type="submit" tone="secondary">
-                      Save
-                    </Button>
-                  </form>
-
-                  <form
-                    action={resetMemberPassword}
-                    className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[1fr_1fr_auto] md:items-end"
-                  >
-                    <input name="id" type="hidden" value={member.id} />
-                    <Field
-                      htmlFor={`member-password-${member.id}`}
-                      label="New Password"
-                    >
-                      <input
-                        className={inputClass}
-                        id={`member-password-${member.id}`}
-                        minLength={8}
-                        name="password"
-                        placeholder="Minimum 8 characters"
-                        type="password"
-                      />
-                    </Field>
-                    <Field
-                      htmlFor={`member-password-confirmation-${member.id}`}
-                      label="Confirm Password"
-                    >
-                      <input
-                        className={inputClass}
-                        id={`member-password-confirmation-${member.id}`}
-                        minLength={8}
-                        name="password_confirmation"
-                        placeholder="Repeat password"
-                        type="password"
-                      />
-                    </Field>
-                    <Button type="submit" tone="secondary">
-                      Reset Password
-                    </Button>
-                  </form>
-
-                  <form
-                    action={deleteMember}
-                    className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[1fr_auto] md:items-end"
-                  >
-                    <input name="id" type="hidden" value={member.id} />
-                    <Field
-                      htmlFor={`member-delete-${member.id}`}
-                      label="Type member name to hard delete"
-                    >
-                      <input
-                        className={inputClass}
-                        id={`member-delete-${member.id}`}
-                        name="confirmation"
-                        placeholder={member.name}
-                      />
-                    </Field>
-                    <Button type="submit" tone="danger">
-                      Delete
-                    </Button>
-                  </form>
-                </Panel>
-              );
-            })}
+          <div className="mt-4">
+            <MemberManagerList
+              currentUserId={currentUser.id}
+              deleteMemberAction={deleteMember}
+              members={members}
+              resetMemberPasswordAction={resetMemberPassword}
+              updateMemberAction={updateMember}
+            />
           </div>
         )}
       </section>

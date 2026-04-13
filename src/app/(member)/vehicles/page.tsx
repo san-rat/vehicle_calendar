@@ -55,14 +55,11 @@ async function getActiveVehicles() {
 
 export default async function VehiclesPage() {
   const { currentUser, vehicles } = await getActiveVehicles();
+  const greetingLabel = getGreetingLabel(getBusinessHour(), currentUser.name);
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        description="Pick an active vehicle to open its calendar."
-        eyebrow={getGreetingLabel(getBusinessHour(), currentUser.name)}
-        title="Vehicles"
-      />
+      <PageHeader title={greetingLabel} />
 
       {vehicles.length === 0 ? (
         <EmptyState
@@ -74,20 +71,20 @@ export default async function VehiclesPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {vehicles.map((vehicle) => (
             <Link
-              className={interactiveCardClassName()}
+              className={interactiveCardClassName("overflow-hidden")}
               href={`/vehicles/${vehicle.id}/calendar`}
               key={vehicle.id}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[var(--primary)]/15 bg-[var(--primary)]/10 text-[var(--primary)]">
                     <FleetIcon className="h-6 w-6" />
                   </span>
                   <div>
                     <h2 className="text-lg font-semibold text-[var(--text)]">
                       {vehicle.name}
                     </h2>
-                    <p className="mt-2 text-sm text-[var(--muted)]">
+                    <p className="mt-1 text-sm text-[var(--muted)]">
                       {getVehicleTypeLabel(vehicle.type)}
                     </p>
                   </div>
@@ -95,10 +92,7 @@ export default async function VehiclesPage() {
                 <Badge tone="success">Active</Badge>
               </div>
 
-              <div className="mt-5 flex items-center justify-between border-t border-[var(--border)] pt-4">
-                <Badge tone="neutral">
-                  {getVehicleTypeLabel(vehicle.type)}
-                </Badge>
+              <div className="mt-5 flex items-center justify-between border-t border-[var(--border)]/80 pt-4">
                 <span className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--primary)]">
                   Open calendar
                 </span>

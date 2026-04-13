@@ -58,7 +58,6 @@ export default async function AdminPrivilegesPage() {
         ]}
       />
       <PageHeader
-        description="Control whether bookings are confirmed immediately, how far ahead members can book, whether reasons are required, and whether a time limit disables all-day bookings."
         eyebrow="Settings"
         title="Admin Privileges"
       />
@@ -94,10 +93,10 @@ export default async function AdminPrivilegesPage() {
         </Panel>
       </section>
 
-      <Panel>
+      <Panel className="overflow-hidden border-white/70 bg-white/92">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--primary)]/15 bg-[var(--primary)]/10 text-[var(--primary)]">
               <SettingsIcon className="h-5 w-5" />
             </span>
             <h2 className="text-lg font-semibold">Update Privileges</h2>
@@ -131,11 +130,7 @@ export default async function AdminPrivilegesPage() {
             </select>
           </Field>
 
-          <Field
-            hint="Leave blank to allow all-day bookings."
-            htmlFor="time-limit-minutes"
-            label="Time Limit Minutes"
-          >
+          <Field htmlFor="time-limit-minutes" label="Time Limit Minutes">
             <input
               className={inputClass}
               defaultValue={config.time_limit_minutes ?? ""}
@@ -148,11 +143,7 @@ export default async function AdminPrivilegesPage() {
             />
           </Field>
 
-          <Field
-            hint="Use 0 to allow bookings only for today."
-            htmlFor="max-days-in-future"
-            label="Future Booking Window"
-          >
+          <Field htmlFor="max-days-in-future" label="Future Booking Window">
             <input
               className={inputClass}
               defaultValue={config.max_days_in_future}

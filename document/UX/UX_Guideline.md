@@ -11,8 +11,9 @@ The core UX goals are to minimize friction for end-users while providing robust,
 Navigation must feel unified and predictable, specifically optimized for the "Mobile-First" paradigm.
 
 ### 1.1 The Hamburger Menu
-- **Mobile Paradigm**: All primary navigation (Home/Vehicles, Calendar, Logs, Settings) is housed behind a sleek **Hamburger Menu** located in the Top Bar. This maximizes the vertical screen real estate for the calendar timeline and booking forms.
-- **Desktop Paradigm**: On wider screens, the hamburger menu may elegantly expand into a permanent left-hand sidebar or top horizontal navigation links to reduce clicks.
+- **Mobile Paradigm**: Primary navigation lives behind a **Hamburger Menu** in the Top Bar. The trigger sits on the left, the FleetTime brand stays visually centered, and the drawer holds Vehicles/Home, Log, Settings when allowed, the current user label, and Logout.
+- **Desktop Paradigm**: On wider screens, keep the navigation inline in the top bar with low-emphasis ghost actions and a clearly separated logout control.
+- **Goal**: Preserve screen real estate for booking and admin workflows without making navigation hard to reach.
 
 ### 1.2 The "Back" Interaction
 - **Discarding Drafts**: If a user is actively filling out the Booking Form and hits the physical "Back" button on their device (or the browser back button), the app will **discard the draft** and return them to the clean Calendar view. 
@@ -49,10 +50,10 @@ A primary goal of FleetTime is speed. Members should be able to book a vehicle i
 
 Super Admins must manage the system efficiently, especially if the organization uses the "Booking Freedom = OFF" setting, generating many requests.
 
-### 4.1 Bulk Actions (Request List)
-- Admins will see the Request List with **checkboxes** next to each row.
-- They can select multiple requests and execute a **Bulk Approve** or **Bulk Reject** action from a sticky bottom or top action bar. 
-- *Rationale*: This prevents administrative fatigue when dealing with dozens of routine daily requests.
+### 4.1 Focused Review Cards (Request List)
+- Admins should see each request as a compact review card that groups the request summary, conflict state, and primary actions without forcing excessive vertical scrolling.
+- Approval, override, rejection, and "Open booking day" controls should feel clustered and readable, but the flow remains single-request focused unless bulk review is explicitly added later.
+- *Rationale*: The immediate goal is fast review with strong visual hierarchy, not hidden or overloaded admin controls.
 
 ### 4.2 Overriding Bookings
 - When a Super Admin needs to override an existing booking (due to a conflict), the UX heavily flags this action with the **Warning** color.
@@ -67,7 +68,16 @@ Initial impressions dictate user adoption.
 ### 5.1 The "Clean Slate" Empty State
 - When a new member logs in for the first time, there is no heavy guided tutorial or forced modal overlay. They are presented with the clean, raw UI.
 - Instead, the UI relies on **Action-Oriented Empty States**. If there are no bookings, the timeline shows an attractive icon indicating "No trips scheduled." with a clear, pulsating call-to-action button pointing them to the "Book" button.
+- The login screen itself should not add onboarding prose. Authentication is a known action and should stay visually minimal.
 - *Future Enhancement*: A dedicated, static "Help" or "How to Use" page will be added to the Hamburger menu for users who prefer explicit instructions.
+
+## 6. Dense Admin List Management
+
+### 6.1 Compact Lists + Focused Detail
+- Members and Vehicles pages should keep their default list view read-only and easy to scan.
+- Secondary tasks such as editing, password reset, and hard delete confirmation should open in an adaptive sheet/modal so the main list remains compact.
+- The backdrop should clearly blur and dim the underlying page so the focused management task reads as a true modal layer.
+- Closing that sheet/modal must return the user to the same list context without disorienting route changes.
 
 ---
 *End of UX Guideline.*

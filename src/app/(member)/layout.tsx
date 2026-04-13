@@ -16,7 +16,7 @@ export default async function MemberLayout({
         currentUser={currentUser}
         showAdminActions={currentUser.role === "super_admin"}
       />
-      <main className="app-container py-8">
+      <main className="app-container pb-10 pt-6 sm:pt-8">
         <RouteTransition>{children}</RouteTransition>
       </main>
     </div>

@@ -3,12 +3,12 @@
 Date: 2026-02-03
 
 ## Current Status (as of 2026-04-13)
-- **Core product**: Phases 0 through 7 are complete in the repo, covering auth, admin settings, booking/calendar flows, request approval, log visibility, cleanup documentation, and the full Phase 7 UI/UX polish pass.
-- **UI system**: The app now uses a local Tailwind-only design system in `src/components/ui` with shared buttons, links, panels, badges, fields, notices, page headers, empty states, and inline icons across login, member, admin, request, and log routes.
+- **Core product**: Phases 0 through 7 are complete in the repo, followed by a premium refinement pass and a subsequent clutter-reduction/mobile-navigation pass across the shell, login, vehicle list, admin settings flows, request review, and log surfaces.
+- **UI system**: The app now uses a local Tailwind-only design system in `src/components/ui` with shared buttons, links, panels, badges, fields, notices, page headers, empty states, inline icons, a responsive overlay pattern for compact admin record management, and a mobile drawer navigation shell.
 - **Security and platform**: `next` and `eslint-config-next` are on `16.2.3`; the app uses Supabase Auth as the credential source of truth; the current known data-integrity caveat is the deferred non-transactional request approval/override flow.
-- **Database and logging**: The initial Supabase migration and seed remain in place, with audit-safe logging via nullable foreign keys and snapshot JSON; log retention is documented for manual Supabase cron setup only.
-- **Verification status**: The latest Phase 7 checkpoint passed `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`, with protected-route redirect checks and authenticated review checks completed on the production review server.
-- **Next work**: Phase 7 is ready for final manual signoff. After that, the next work should be Phase 8 testing/deployment tasks or separately requested hardening work.
+- **Database and logging**: The initial Supabase migration and seed remain in place, with audit-safe logging via nullable foreign keys and snapshot JSON; the current UI now keeps those snapshots out of the primary log surface while retaining the 30-day filtered audit trail and documented manual Supabase cron setup.
+- **Verification status**: The latest clutter-reduction/mobile-nav checkpoint passed `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`. A production-build route smoke also confirmed `/login` returns `200` and unauthenticated `/vehicles`, `/admin/settings`, and `/log?q=member` redirect to `/login` with `307`. A fresh authenticated visual desktop/mobile review was not rerun during this checkpoint.
+- **Next work**: Run the final localhost visual signoff for the cleaned-up mobile/header/modal behavior on Super Admin and Member flows, then continue with Phase 8 testing/deployment tasks or separately requested hardening work.
 
 ## Resources Read
 - `README.md`
@@ -563,3 +563,31 @@ Timestamp: 2026-04-13 17:55:48 +0530
 - Kept all server actions, redirect flows, auth guards, Supabase queries, booking validation rules, admin approval behavior, and toast behavior unchanged; this checkpoint is presentation and client-side interaction work only.
 - Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
 - Verified the production build serves `/login` with `200 OK` and redirects unauthenticated `/vehicles`, `/admin/settings`, and `/log` requests to `/login` with `307 Temporary Redirect`.
+
+## Update
+Timestamp: 2026-04-13 19:29:30 +0530
+
+### Post-Phase-7 Premium Refinement Pass
+
+- Extended the shared Tailwind UI layer with a new `ghost` action style, slightly tighter button/panel/badge tokens, extra inline icons, and a lightweight responsive overlay component that behaves as a bottom sheet on mobile and a centered modal on larger screens.
+- Refined the sticky shell and top navigation so Log and Settings use low-emphasis ghost actions, the user chip is quieter, and Logout reads as the clearly separated destructive action without changing auth or route behavior.
+- Refined `/login`, `/vehicles`, `/admin/settings`, `/admin/privileges`, and `/admin/requests` for stronger hierarchy and more premium spacing while keeping all existing Supabase queries, server actions, validation rules, and database contracts unchanged.
+- Replaced the always-open per-record management stacks on `/admin/vehicles` and `/admin/members` with compact summary rows plus `Manage` overlays; create forms remain inline, and all existing field names and server-action posts are preserved.
+- Reworked `/log` into a denser row-first surface with a sticky filter bar, optional `GET /log?q=` filtering against `description` and `action_type`, relative-time row badges, exact timestamps in supporting metadata, and pagination links that preserve the active query.
+- Added focused Vitest coverage for the new relative-time and log-query helpers and updated the UI/UX guideline and anti-pattern docs to document the refined shell, adaptive management overlays, neutral placeholders, and sticky log filtering pattern.
+- Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
+- Verified a production-build route smoke on `http://127.0.0.1:3001`: `/login` returned `200`, and unauthenticated `/vehicles`, `/admin/settings`, and `/log` redirected to `/login` with `307`.
+
+## Update
+Timestamp: 2026-04-13 20:28:01 +0530
+
+### FleetTime Clutter-Reduction + Mobile Nav Pass
+
+- Stripped non-essential helper copy from `/login`, `/vehicles`, `/vehicles/[vehicleId]/calendar`, `/admin/vehicles`, `/admin/members`, `/admin/privileges`, `/admin/requests`, and `/log` so the app now leans on labels, hierarchy, and action text instead of explanatory filler.
+- Reworked the mobile shell so the top bar now uses a hamburger-triggered drawer with a centered FleetTime brand, while desktop keeps the inline ghost navigation and separated logout action.
+- Tightened the member and vehicle management experience by keeping the compact list rows, trimming overlay copy, rendering the overlays through a portal, and strengthening the full-page blurred backdrop so `Manage` reads as a real modal/sheet layer.
+- Simplified `/log` to a Who / What / When list with sticky search, relative-time scan badges, exact timestamps, and pagination while removing the snapshot-detail disclosure, raw JSON viewer, booking-day jump, and copy affordances from the primary UI.
+- Removed the now-unused `ClipboardText` log helper component and trimmed the log helper/test surface so the codebase matches the simplified log product surface.
+- Updated `document/UI/UI_Guideline.md`, `document/UI/UI_Anti_Patterns.md`, `document/UX/UX_Guideline.md`, and `document/UX/UX_Anti_Patterns.md` to document the stripped-down login, mobile drawer navigation, true blurred management overlays, and simplified log behavior.
+- Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
+- Verified a production-build route smoke on `http://127.0.0.1:3001`: `/login` returned `200`, and unauthenticated `/vehicles`, `/admin/settings`, and `/log?q=member` redirected to `/login` with `307`.

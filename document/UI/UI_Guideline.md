@@ -87,18 +87,21 @@ Assigned to users for visual differentiation on the calendar timeline.
 ## 5. Component Design Patterns
 
 ### 5.1 Top Navigation Bar
--   **Style**: Flat, no heavy bottom border. It should blend smoothly with the background (`#F5F5F7`) or be pure white if sticky.
--   **Content**: Title (Montserrat), Profile Menu/Logout (icon-based), and a prominent contextual action if needed.
+-   **Style**: Sticky, lightly translucent, and softly elevated. Use a subtle backdrop blur with a restrained bottom border so content can scroll beneath it without visual heaviness.
+-   **Mobile**: Use a hamburger trigger on the left, keep the FleetTime brand visually centered, and move the navigation actions into a drawer so the header stays clean.
+-   **Desktop / Tablet**: Keep low-emphasis ghost actions such as Log or Settings inline, retain a quiet user identity chip, and visually separate Logout as the destructive secondary action.
 
 ### 5.2 Buttons
 -   **Primary Button**: Solid `Primary Accent` (`#2563EB`) background, white `Montserrat` text, `12px` rounded corners. Large tap target (min `48px` tall on mobile).
 -   **Secondary Button**: Transparent background, `Text Primary` (`#111827`) text, `Border` (`#E5E7EB`) outline.
 -   **Destructive Button**: Solid or outlines `Danger` (`#EF4444`).
+-   **Ghost Button**: Borderless or near-borderless low-emphasis action used for shell navigation and supportive controls. It should gain background or text emphasis only on hover/focus.
 
 ### 5.3 Inputs & Forms
 -   Clean, border-only inputs (`#E5E7EB` border), focusing changes border to `Primary Accent`.
 -   Labels sit above inputs in `Text Secondary` (`#6B7280`).
 -   No heavy backgrounds on input fields.
+-   Placeholders must remain descriptive and neutral. Do not use example identities or values that look like already-entered content.
 
 ### 5.4 Loading & Empty States
 -   **Loading**: A simple, modern spinner icon (e.g., SVG circular dash array that rotates) in `Primary Accent` color. *No skeleton blocks* to maintain the minimal aesthetic.
@@ -109,7 +112,9 @@ Assigned to users for visual differentiation on the calendar timeline.
 
 ### 5.5 Modals vs. Slide-up Sheets (Adaptive Behavior)
 -   **Mobile Screens (Width < 768px)**: Use **Bottom Slide-up Sheets**. These slide up from the bottom of the screen, have a drag-handle indicator at the top, and top-rounded corners (`24px`).
--   **Desktop/Tablet Screens (Width >= 768px)**: Use **Centered Modals**. A dialog box centered on the screen with a subtle backdrop blur or darkening overlay.
+-   **Desktop/Tablet Screens (Width >= 768px)**: Use **Centered Modals**. A dialog box centered on the screen with a full-page dimmed, blurred backdrop so the page clearly falls behind the task in focus.
+-   **Rendering**: Overlay surfaces should be portal-backed at the document level so they are not clipped by parent layout containers or stacking contexts.
+-   **Admin Management Lists**: Members and Vehicles list views should stay compact and read-only by default. Editing, password reset, and delete controls belong inside these adaptive sheets/modals instead of rendering inline on every row.
 
 ### 5.6 Micro-Interactions & Feedback
 -   **Toasts/Snackbars**: Temporary tiny popups at the bottom or top center for success/error messages (e.g., "Booking Confirmed ✅", "Conflict Overridden ⚠️"). They should slide in, pause for 3 seconds, and fade out.
@@ -125,7 +130,8 @@ Assigned to users for visual differentiation on the calendar timeline.
 ### 6.1 Login Page
 -   **Layout**: Centered content vertical and horizontal.
 -   **Elements**: App Logo / Title ("FleetTime"), Name input, Password input, and a full-width Primary Login button.
--   **Vibe**: Maximum whitespace, distraction-free.
+-   **Copy**: Keep the page stripped down. Do not add explanatory paragraphs or field helper prose unless an error must be shown.
+-   **Vibe**: Maximum whitespace, distraction-free, with optional subtle non-gradient shapes or texture to avoid an unfinished blank-screen feel.
 
 ### 6.2 Choose Vehicle Page
 -   **Layout**: Grid (1 column on mobile, 2-3 on desktop).
@@ -159,13 +165,16 @@ This is the most complex screen. It features a "Swap" paradigm on mobile to main
 
 ### 6.5 Log Page
 -   **List View**: A chronologically ordered vertical list of actions.
--   **Card Style**: Each log entry is a simple horizontal row.
--   **Visuals**: Use the User's block color as a small dot or badge next to their name. Use icons to represent the action (e.g., a plus for creation, a trash can for deletion, an alert icon for override).
--   **Interaction**: Tapping the row expands it inline to show JSON snapshot details or longer descriptions.
+-   **Card Style**: Each log entry is a simple horizontal row focused on Who, What, and When.
+-   **Visuals**: Use the User's block color as a small dot or badge next to their name. Status or action badges may support the row, but the description should remain the primary readable signal.
+-   **Interaction**: Do not expose raw snapshot JSON or snapshot-detail disclosure in the primary log experience.
+-   **Filtering**: A sticky search/filter bar should sit below the page header so long log sessions keep filtering in reach.
+-   **Time Hierarchy**: Row chrome should prioritize relative time for quick scanning, while the exact timestamp stays visible in the supporting metadata.
 
 ### 6.6 Super Admin: Request List & Settings
 -   **Request List**: Rendered as dismissible cards. Each card clearly shows Who, What, When. Two prominent buttons per card: Approve (Success color) and Reject (Danger outline).
--   **Settings (Vehicles, Members, Privileges)**: Formally separated sections (via tabs or sub-pages) using standard form inputs (toggles for 'Freedom', numbers for 'Time Limit'). Clean, table-like layout on desktop or list layout on mobile for members/vehicles.
+-   **Settings (Vehicles, Members, Privileges)**: Formally separated sections (via tabs or sub-pages) using standard form inputs (toggles for 'Freedom', numbers for 'Time Limit'). Keep the list layout compact on mobile and desktop for members/vehicles, with a dedicated `Manage` affordance that opens the adaptive sheet/modal.
+-   **Overlay Copy**: Management overlays should use short section titles and essential confirmation copy only. Avoid filler explanations once the user is already in a focused edit/delete flow.
 
 ---
 *End of UI Guideline.*

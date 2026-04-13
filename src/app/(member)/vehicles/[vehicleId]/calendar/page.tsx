@@ -3,10 +3,7 @@ import { notFound } from "next/navigation";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { RouteTransition } from "@/components/RouteTransition";
 import { Badge, BreadcrumbNav, ButtonLink, PageHeader, Panel } from "@/components/ui";
-import {
-  getVehicleTypeLabel,
-  type VehicleType,
-} from "@/lib/admin/vehicles";
+import { type VehicleType } from "@/lib/admin/vehicles";
 import { requireCurrentAppUser } from "@/lib/auth/user";
 import {
   getBusinessToday,
@@ -170,9 +167,6 @@ export default async function VehicleCalendarPage({
                   Booking window: {config.max_days_in_future} days
                 </Badge>
               }
-              description={`${getVehicleTypeLabel(
-                vehicle.type
-              )} calendar. Confirmed bookings appear as colored dots.`}
               title={vehicle.name}
             />
           </div>
@@ -188,9 +182,6 @@ export default async function VehicleCalendarPage({
               </ButtonLink>
               <div className="text-center">
                 <h2 className="text-lg font-semibold">{month.label}</h2>
-                <p className="text-xs text-[var(--muted)]">
-                  Requested trips do not block availability.
-                </p>
               </div>
               <ButtonLink
                 href={`/vehicles/${vehicle.id}/calendar?month=${month.nextMonth}`}

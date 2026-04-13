@@ -24,6 +24,10 @@
   --font-sans: var(--font-body);
 }
 
+html {
+  background: var(--bg);
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -78,7 +82,7 @@ button {
 
 .app-container {
   margin: 0 auto;
-  max-width: 1200px;
+  max-width: 1240px;
   padding: 0 1rem;
   width: 100%;
 }

@@ -46,8 +46,12 @@ Since the application is "Mobile-First," desktop paradigms must not be shoehorne
 Forms must be frictionless and intuitive:
 
 *   **🚫 DO NOT hide form labels inside the `placeholder` attribute.** When a user starts typing, the placeholder disappears, leaving them without context of what they are filling out. Always use visible labels positioned above the input field.
+*   **🚫 DO NOT use example user identities as placeholders.** A placeholder like `"Super Admin"` looks like real data and weakens clarity on authentication and admin forms.
+*   **🚫 DO NOT pad simple forms with explanatory filler copy.** The login screen and other obvious flows should stay stripped down to the essentials unless guidance is required to recover from an error.
 *   **🚫 DO NOT use multi-step wizards for simple tasks.** The booking form process only requires a few fields (Time, Reason, All-day). Do not stretch this across multiple screens; it belongs on a single concise form or sheet.
 *   **🚫 DO NOT use native HTML alerts/prompts (`alert()`, `confirm()`, `prompt()`).** These block the main thread and look terrible. Build integrated UI modals or use standard integrated toasts.
+*   **🚫 DO NOT render full edit/delete forms inline on every admin list row.** Long members or vehicles lists must remain scannable; use a clear `Manage` trigger that opens a sheet/modal for secondary controls.
+*   **🚫 DO NOT expose raw audit JSON in the routine log browsing flow.** System logs should prioritize readable rows over developer-facing payload inspection.
 
 ---
 

@@ -224,19 +224,13 @@ export default async function AdminRequestsPage() {
         ]}
       />
       <PageHeader
-        description="Review requested trips, spot conflicts, and keep inactive or past requests visible for a decision."
         eyebrow="Admin"
         title="Booking Requests"
       />
 
       <section>
         <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold">Pending Requests</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              Requested trips do not block availability until approved.
-            </p>
-          </div>
+          <h2 className="text-lg font-semibold">Pending Requests</h2>
           <Badge tone="neutral">
             {requests.length} total
           </Badge>
@@ -275,7 +269,7 @@ export default async function AdminRequestsPage() {
                 request.conflicts.length > 0;
 
               return (
-                <Panel as="article" key={request.id}>
+                <Panel as="article" className="p-4 sm:p-5" key={request.id}>
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
@@ -323,7 +317,7 @@ export default async function AdminRequestsPage() {
                     </div>
                   </div>
 
-                  <div className="mt-5 grid gap-4 md:grid-cols-3">
+                  <div className="mt-4 grid gap-4 md:grid-cols-3">
                     <div>
                       <p className="text-xs font-semibold uppercase text-[var(--muted)]">
                         Vehicle
@@ -365,7 +359,7 @@ export default async function AdminRequestsPage() {
                   ) : null}
 
                   {request.conflicts.length > 0 ? (
-                    <div className="mt-4 rounded-md border border-[var(--warning)]/40 bg-[var(--warning)]/10 px-4 py-3">
+                    <div className="mt-4 rounded-2xl border border-[var(--warning)]/35 bg-[var(--warning)]/10 px-4 py-4">
                       <p className="text-sm font-semibold text-[var(--warning-text)]">
                         Confirmed bookings overlap this request.
                       </p>
@@ -375,7 +369,7 @@ export default async function AdminRequestsPage() {
 
                           return (
                             <div
-                              className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-white px-3 py-2 text-sm"
+                              className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 text-sm"
                               key={conflict.id}
                             >
                               <span className="font-medium text-[var(--text)]">
@@ -437,29 +431,29 @@ export default async function AdminRequestsPage() {
                     </div>
                   ) : null}
 
-                  <div className="mt-4 border-t border-[var(--border)] pt-4">
-                    <ButtonLink
-                      href={`/vehicles/${request.vehicle_id}/date/${request.date}`}
-                      size="sm"
-                      tone="neutral"
-                    >
-                      <CalendarIcon className="h-4 w-4" />
-                      Open booking day
-                    </ButtonLink>
-                  </div>
-
-                  <div className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[auto_1fr] md:items-center">
-                    <form action={approveBookingRequest}>
-                      <input name="id" type="hidden" value={request.id} />
-                      <Button
-                        disabled={!canApprove}
-                        tone="primary"
-                        type="submit"
+                  <div className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 lg:grid-cols-[1fr_auto] lg:items-center">
+                    <div className="flex flex-wrap gap-2">
+                      <ButtonLink
+                        href={`/vehicles/${request.vehicle_id}/date/${request.date}`}
+                        size="sm"
+                        tone="neutral"
                       >
-                        Approve
-                      </Button>
-                    </form>
-                    <p className="text-sm text-[var(--muted)]">
+                        <CalendarIcon className="h-4 w-4" />
+                        Open booking day
+                      </ButtonLink>
+                      <form action={approveBookingRequest}>
+                        <input name="id" type="hidden" value={request.id} />
+                        <Button
+                          disabled={!canApprove}
+                          size="sm"
+                          tone="primary"
+                          type="submit"
+                        >
+                          Approve
+                        </Button>
+                      </form>
+                    </div>
+                    <p className="text-sm text-[var(--muted)] lg:text-right">
                       {approveBlockReason ??
                         "No conflicts found. This request can be approved."}
                     </p>

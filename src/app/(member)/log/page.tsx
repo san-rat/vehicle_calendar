@@ -6,32 +6,31 @@ import {
   Panel,
   StatusBadge,
   buttonClassName,
+  inputClassName,
 } from "@/components/ui";
-import { ClipboardText } from "@/components/ClipboardText";
 import { RouteTransition } from "@/components/RouteTransition";
-import { CalendarIcon, ClockIcon, LogIcon } from "@/components/ui/icons";
+import { ClockIcon, LogIcon, SearchIcon } from "@/components/ui/icons";
 import { requireCurrentAppUser } from "@/lib/auth/user";
 import {
   formatLogActionTime,
-  formatLogSnapshotJson,
+  formatRelativeLogTime,
   getLogActionLabel,
-  getLogBookingStatus,
   getLogActionTone,
-  getLogBookingDayHref,
+  getLogBookingStatus,
   getLogColorDotClass,
   getLogPageNumber,
   getLogPaginationWindow,
   getLogRetentionCutoffIso,
-  getLogSnapshotHighlights,
-  getLogTargetSummary,
+  getLogSearchPattern,
   LOG_PAGE_SIZE,
   LOG_RETENTION_DAYS,
+  normalizeLogQuery,
   type LogActionType,
 } from "@/lib/logs/log-page";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type LogPageProps = {
-  searchParams?: Promise<{ page?: string }>;
+  searchParams?: Promise<{ page?: string; q?: string }>;
 };
 
 type JoinedUser = {
@@ -39,23 +38,12 @@ type JoinedUser = {
   name: string;
 };
 
-type JoinedVehicle = {
-  name: string;
-};
-
 type LogEntryRecord = {
   action_at: string;
   action_type: LogActionType;
   actor_user: JoinedUser | JoinedUser[] | null;
-  booking_id: string | null;
-  created_at: string;
   description: string;
   id: string;
-  snapshot: unknown;
-  target_user: JoinedUser | JoinedUser[] | null;
-  target_user_id: string | null;
-  target_vehicle: JoinedVehicle | JoinedVehicle[] | null;
-  target_vehicle_id: string | null;
 };
 
 type LogPageData = {
@@ -63,6 +51,7 @@ type LogPageData = {
   entries: LogEntryRecord[];
   hasNextPage: boolean;
   hasPreviousPage: boolean;
+  query: string;
   totalCount: number;
 };
 
@@ -74,23 +63,48 @@ function getJoinedOne<T>(value: T | T[] | null) {
   return value;
 }
 
-function getPageHref(page: number) {
-  return page <= 1 ? "/log" : `/log?page=${page}`;
+function getPageHref(page: number, query: string) {
+  const params = new URLSearchParams();
+
+  if (page > 1) {
+    params.set("page", String(page));
+  }
+
+  if (query) {
+    params.set("q", query);
+  }
+
+  const search = params.toString();
+
+  return search ? `/log?${search}` : "/log";
 }
 
-async function getLogPageData(pageParam: string | undefined): Promise<LogPageData> {
+async function getLogPageData(
+  pageParam: string | undefined,
+  queryParam: string | undefined
+): Promise<LogPageData> {
   await requireCurrentAppUser();
 
   const currentPage = getLogPageNumber(pageParam);
+  const query = normalizeLogQuery(queryParam);
+  const searchPattern = getLogSearchPattern(query);
   const { from, to } = getLogPaginationWindow(currentPage);
   const supabase = createSupabaseAdminClient();
-  const { count, data, error } = await supabase
+  let request = supabase
     .from("log_entries")
     .select(
-      "id, action_at, action_type, description, snapshot, booking_id, target_user_id, target_vehicle_id, created_at, actor_user:users!log_entries_actor_user_id_fkey(name, color_hex), target_user:users!log_entries_target_user_id_fkey(name, color_hex), target_vehicle:vehicles!log_entries_target_vehicle_id_fkey(name)",
+      "id, action_at, action_type, description, actor_user:users!log_entries_actor_user_id_fkey(name, color_hex)",
       { count: "exact" }
     )
-    .gte("created_at", getLogRetentionCutoffIso())
+    .gte("created_at", getLogRetentionCutoffIso());
+
+  if (searchPattern) {
+    request = request.or(
+      `description.ilike.${searchPattern},action_type.ilike.${searchPattern}`
+    );
+  }
+
+  const { count, data, error } = await request
     .order("created_at", { ascending: false })
     .order("action_at", { ascending: false })
     .range(from, to);
@@ -108,203 +122,136 @@ async function getLogPageData(pageParam: string | undefined): Promise<LogPageDat
     hasNextPage:
       typeof count === "number" ? to + 1 < count : entries.length === LOG_PAGE_SIZE,
     hasPreviousPage: currentPage > 1,
+    query,
     totalCount,
   };
 }
 
 export default async function LogPage({ searchParams }: LogPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const { currentPage, entries, hasNextPage, hasPreviousPage, totalCount } =
-    await getLogPageData(resolvedSearchParams.page);
+  const {
+    currentPage,
+    entries,
+    hasNextPage,
+    hasPreviousPage,
+    query,
+    totalCount,
+  } = await getLogPageData(resolvedSearchParams.page, resolvedSearchParams.q);
+  const emptyDescription = query
+    ? `No system actions matched "${query}" in the last ${LOG_RETENTION_DAYS} days.`
+    : "No system actions were recorded in the current retention window.";
 
   return (
-    <RouteTransition transitionKey={`log-page-${currentPage}`}>
-      <div className="space-y-8">
-        <PageHeader
-          description={`Recent FleetTime actions from the last ${LOG_RETENTION_DAYS} days.`}
-          eyebrow="Log"
-          title="System Log"
-        />
+    <RouteTransition transitionKey={`log-page-${currentPage}-${query || "all"}`}>
+      <div className="space-y-6 sm:space-y-8">
+        <PageHeader eyebrow="Log" title="System Log" />
 
-        <Panel className="grid gap-3 p-4 text-sm text-[var(--muted)] md:grid-cols-3">
-          <div>
-            <p className="text-xs font-semibold uppercase">Retention</p>
-            <p className="mt-1 font-medium text-[var(--text)]">
-              Last {LOG_RETENTION_DAYS} days
-            </p>
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase">Entries</p>
-            <p className="mt-1 font-medium text-[var(--text)]">{totalCount}</p>
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase">Page</p>
-            <p className="mt-1 font-medium text-[var(--text)]">{currentPage}</p>
-          </div>
+        <Panel className="sticky top-20 z-20 border-white/75 bg-[var(--bg)]/90 p-4 backdrop-blur-xl">
+          <form
+            action="/log"
+            className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-end"
+            method="get"
+          >
+            <div className="space-y-2">
+              <label
+                className="text-sm font-medium text-[var(--text)]"
+                htmlFor="log-search"
+              >
+                Search log
+              </label>
+              <div className="relative">
+                <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
+                <input
+                  className={inputClassName("pl-11")}
+                  defaultValue={query}
+                  id="log-search"
+                  name="q"
+                  placeholder="Search descriptions or action types"
+                  type="search"
+                />
+              </div>
+            </div>
+
+            <button
+              className={buttonClassName({
+                className: "w-full md:w-auto",
+                tone: "primary",
+              })}
+              type="submit"
+            >
+              Apply filter
+            </button>
+
+            {query ? (
+              <ButtonLink className="w-full md:w-auto" href="/log" tone="ghost">
+                Clear
+              </ButtonLink>
+            ) : null}
+          </form>
         </Panel>
 
         {entries.length === 0 ? (
           <EmptyState
-            description="No system actions were recorded in the current retention window."
+            description={emptyDescription}
             icon={LogIcon}
             title="No log entries"
           />
         ) : (
-          <section className="space-y-4" aria-label="System log entries">
-            {entries.map((entry) => {
-              const actor = getJoinedOne(entry.actor_user);
-              const targetUser = getJoinedOne(entry.target_user);
-              const targetVehicle = getJoinedOne(entry.target_vehicle);
-              const actorColorClass = getLogColorDotClass(actor?.color_hex);
-              const bookingDayHref = getLogBookingDayHref({
-                actionType: entry.action_type,
-                snapshot: entry.snapshot,
-                targetVehicleId: entry.target_vehicle_id,
-              });
-              const snapshotHighlights = getLogSnapshotHighlights(entry.snapshot);
-              const snapshotJson = formatLogSnapshotJson(entry.snapshot);
-              const bookingStatus = getLogBookingStatus(entry.action_type);
+          <section aria-label="System log entries" className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-[var(--muted)]">
+                Last {LOG_RETENTION_DAYS} days
+              </p>
+              <Badge tone="neutral">{totalCount} total</Badge>
+            </div>
 
-              return (
-                <Panel as="article" key={entry.id}>
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="flex gap-3">
-                      <span
-                        aria-hidden="true"
-                        className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-white text-white shadow-sm ${actorColorClass}`}
-                      >
-                        <LogIcon className="h-5 w-5" />
-                      </span>
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          {bookingStatus ? (
-                            <StatusBadge status={bookingStatus} />
-                          ) : (
-                            <Badge tone={getLogActionTone(entry.action_type)}>
-                              {getLogActionLabel(entry.action_type)}
-                            </Badge>
-                          )}
-                          <Badge tone="neutral">
-                            <ClockIcon className="h-3.5 w-3.5" />
-                            {formatLogActionTime(entry.action_at)}
-                          </Badge>
-                        </div>
-                        <h2 className="mt-3 text-base font-semibold text-[var(--text)]">
-                          {entry.description}
-                        </h2>
-                      </div>
-                    </div>
-                  </div>
+            <div className="space-y-3">
+              {entries.map((entry) => {
+                const actor = getJoinedOne(entry.actor_user);
+                const actorColorClass = getLogColorDotClass(actor?.color_hex);
+                const bookingStatus = getLogBookingStatus(entry.action_type);
 
-                  <dl className="mt-5 grid gap-4 border-t border-[var(--border)] pt-4 text-sm md:grid-cols-3">
-                    <div>
-                      <dt className="text-xs font-semibold uppercase text-[var(--muted)]">
-                        Actor
-                      </dt>
-                      <dd className="mt-1 font-medium text-[var(--text)]">
-                        {actor?.name ?? "Unknown actor"}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs font-semibold uppercase text-[var(--muted)]">
-                        Target
-                      </dt>
-                      <dd className="mt-1 font-medium text-[var(--text)]">
-                        {getLogTargetSummary({
-                          actionType: entry.action_type,
-                          bookingId: entry.booking_id,
-                          snapshot: entry.snapshot,
-                          targetUser,
-                          targetUserId: entry.target_user_id,
-                          targetVehicle,
-                          targetVehicleId: entry.target_vehicle_id,
-                        })}
-                      </dd>
-                      {bookingDayHref ? (
-                        <dd className="mt-2">
-                          <ButtonLink
-                            href={bookingDayHref}
-                            size="sm"
-                            tone="neutral"
-                          >
-                            <CalendarIcon className="h-4 w-4" />
-                            Open booking day
-                          </ButtonLink>
-                        </dd>
-                      ) : null}
-                    </div>
-                    <div>
-                      <dt className="text-xs font-semibold uppercase text-[var(--muted)]">
-                        Recorded
-                      </dt>
-                      <dd className="mt-1 font-medium text-[var(--text)]">
-                        {formatLogActionTime(entry.created_at)}
-                      </dd>
-                    </div>
-                  </dl>
+                return (
+                  <Panel as="article" className="p-4 sm:p-5" key={entry.id}>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0 flex gap-3">
+                        <span
+                          aria-hidden="true"
+                          className={`mt-1 h-3.5 w-3.5 shrink-0 rounded-full ${actorColorClass}`}
+                        />
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-[var(--text)]">
+                              {actor?.name ?? "Unknown actor"}
+                            </p>
+                            {bookingStatus ? (
+                              <StatusBadge status={bookingStatus} />
+                            ) : (
+                              <Badge tone={getLogActionTone(entry.action_type)}>
+                                {getLogActionLabel(entry.action_type)}
+                              </Badge>
+                            )}
+                          </div>
 
-                  <details className="mt-5 border-t border-[var(--border)] pt-4">
-                    <summary className="min-h-11 cursor-pointer rounded-md py-2 text-sm font-semibold text-[var(--primary)] transition hover:text-[var(--primary-hover)]">
-                      View details
-                    </summary>
-                    <div className="mt-4 space-y-4">
-                      <section>
-                        <h3 className="text-sm font-semibold text-[var(--text)]">
-                          Readable snapshot
-                        </h3>
-                        {snapshotHighlights.length === 0 ? (
-                          <p className="mt-2 text-sm text-[var(--muted)]">
-                            No readable snapshot highlights are available.
+                          <p className="mt-2 text-sm font-medium text-[var(--text)] sm:text-[15px]">
+                            {entry.description}
                           </p>
-                        ) : (
-                          <dl className="mt-3 grid gap-3 md:grid-cols-2">
-                            {snapshotHighlights.map((highlight) => (
-                              <div
-                                className="rounded-md border border-[var(--border)] bg-[var(--surface-muted)] p-3"
-                                key={`${entry.id}-${highlight.label}`}
-                              >
-                                <dt className="text-xs font-semibold uppercase text-[var(--muted)]">
-                                  {highlight.label}
-                                </dt>
-                                <dd className="mt-1 text-sm font-medium text-[var(--text)]">
-                                  <ClipboardText
-                                    ariaLabel={`Copy ${highlight.label}`}
-                                    className="-mx-1.5 max-w-full text-[var(--text)]"
-                                    text={highlight.copyValue}
-                                  >
-                                    <span className="block max-w-full break-words">
-                                      {highlight.value}
-                                    </span>
-                                  </ClipboardText>
-                                </dd>
-                              </div>
-                            ))}
-                          </dl>
-                        )}
-                      </section>
-
-                      <section>
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <h3 className="text-sm font-semibold text-[var(--text)]">
-                            Snapshot JSON
-                          </h3>
-                          <ClipboardText
-                            ariaLabel="Copy snapshot JSON"
-                            className="rounded-md border border-[var(--border)] bg-white px-3 py-2 text-xs font-semibold text-[var(--primary)] [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:bg-[var(--primary)]/5"
-                            text={snapshotJson}
-                          >
-                            <span>Copy JSON</span>
-                          </ClipboardText>
                         </div>
-                        <pre className="mt-3 max-h-96 overflow-auto rounded-md border border-[var(--border)] bg-[var(--surface-muted)] p-4 text-xs leading-5 text-[var(--text)]">
-                          <code>{snapshotJson}</code>
-                        </pre>
-                      </section>
+                      </div>
+
+                      <Badge className="shrink-0 self-start" tone="neutral">
+                        <ClockIcon className="h-3.5 w-3.5" />
+                        {formatRelativeLogTime(entry.action_at)}
+                      </Badge>
                     </div>
-                  </details>
-                </Panel>
-              );
-            })}
+
+                    <div className="mt-3 border-t border-[var(--border)] pt-3 text-xs text-[var(--muted)]">
+                      {formatLogActionTime(entry.action_at)}
+                    </div>
+                  </Panel>
+                );
+              })}
+            </div>
           </section>
         )}
 
@@ -318,7 +265,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
           <div className="flex gap-2">
             {hasPreviousPage ? (
               <ButtonLink
-                href={getPageHref(currentPage - 1)}
+                href={getPageHref(currentPage - 1, query)}
                 size="sm"
                 tone="secondary"
               >
@@ -339,7 +286,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
 
             {hasNextPage ? (
               <ButtonLink
-                href={getPageHref(currentPage + 1)}
+                href={getPageHref(currentPage + 1, query)}
                 size="sm"
                 tone="secondary"
               >
