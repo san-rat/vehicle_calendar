@@ -1,5 +1,16 @@
 import { requireAdminAppUser } from "@/lib/auth/user";
 import {
+  Badge,
+  Button,
+  EmptyState,
+  Field,
+  Notice,
+  PageHeader,
+  Panel,
+  inputClassName,
+} from "@/components/ui";
+import { EmptyStateIcon, FleetIcon } from "@/components/ui/icons";
+import {
   getVehicleTypeLabel,
   VEHICLE_TYPES,
   type VehicleType,
@@ -20,10 +31,7 @@ type VehicleRecord = {
   updated_at: string;
 };
 
-const inputClass =
-  "w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)]";
-
-const labelClass = "text-xs font-semibold uppercase text-[var(--muted)]";
+const inputClass = inputClassName();
 
 async function getVehicles() {
   await requireAdminAppUser();
@@ -52,70 +60,73 @@ export default async function AdminVehiclesPage({
 
   return (
     <div className="space-y-8">
-      <header>
-        <p className="text-sm font-semibold text-[var(--primary)]">Settings</p>
-        <h1 className="mt-1 text-2xl font-semibold">Admin Vehicles</h1>
-        <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
-          Add vehicles, edit their type, and mark them inactive when they should
-          not appear in booking flows. Hard delete is blocked once bookings
-          exist.
-        </p>
-      </header>
+      <PageHeader
+        description="Add vehicles, edit their type, and mark them inactive when they should not appear in booking flows. Hard delete is blocked once bookings exist."
+        eyebrow="Settings"
+        title="Admin Vehicles"
+      />
 
       {statusMessage ? (
-        <p
-          className={`rounded-md border px-4 py-3 text-sm ${
-            statusTone === "error"
-              ? "border-[var(--danger)]/30 bg-[var(--danger)]/10 text-[var(--danger)]"
-              : "border-[var(--success)]/30 bg-[var(--success)]/10 text-green-700"
-          }`}
-        >
+        <Notice tone={statusTone === "error" ? "danger" : "success"}>
           {statusMessage}
-        </p>
+        </Notice>
       ) : null}
 
-      <section className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-5">
-        <h2 className="text-lg font-semibold">Add Vehicle</h2>
-        <form action={createVehicle} className="mt-4 grid gap-4 md:grid-cols-[1fr_180px_160px_auto] md:items-end">
-          <label className="space-y-2">
-            <span className={labelClass}>Name</span>
+      <Panel>
+        <div className="flex items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
+            <FleetIcon className="h-5 w-5" />
+          </span>
+          <h2 className="text-lg font-semibold">Add Vehicle</h2>
+        </div>
+        <form
+          action={createVehicle}
+          className="mt-4 grid gap-4 md:grid-cols-[1fr_180px_160px_auto] md:items-end"
+        >
+          <Field htmlFor="vehicle-create-name" label="Name">
             <input
               className={inputClass}
+              id="vehicle-create-name"
               maxLength={80}
               minLength={2}
               name="name"
               placeholder="Pool Car 2"
               required
             />
-          </label>
+          </Field>
 
-          <label className="space-y-2">
-            <span className={labelClass}>Type</span>
-            <select className={inputClass} name="type" required>
+          <Field htmlFor="vehicle-create-type" label="Type">
+            <select
+              className={inputClass}
+              id="vehicle-create-type"
+              name="type"
+              required
+            >
               {VEHICLE_TYPES.map((type) => (
                 <option key={type} value={type}>
                   {getVehicleTypeLabel(type)}
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
 
-          <label className="space-y-2">
-            <span className={labelClass}>Status</span>
-            <select className={inputClass} defaultValue="true" name="is_active">
+          <Field htmlFor="vehicle-create-active" label="Status">
+            <select
+              className={inputClass}
+              defaultValue="true"
+              id="vehicle-create-active"
+              name="is_active"
+            >
               <option value="true">Active</option>
               <option value="false">Inactive</option>
             </select>
-          </label>
+          </Field>
 
-          <button
-            className="rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95"
-            type="submit"
-          >
+          <Button type="submit" tone="primary">
             Add Vehicle
-          </button>
+          </Button>
         </form>
-      </section>
+      </Panel>
 
       <section>
         <div className="flex items-center justify-between gap-4">
@@ -125,22 +136,23 @@ export default async function AdminVehiclesPage({
               Showing active and inactive vehicles.
             </p>
           </div>
-          <span className="rounded-md border border-[var(--border)] px-3 py-1 text-sm text-[var(--muted)]">
+          <Badge tone="neutral">
             {vehicles.length} total
-          </span>
+          </Badge>
         </div>
 
         {vehicles.length === 0 ? (
-          <p className="mt-4 rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] p-6 text-sm text-[var(--muted)]">
-            No vehicles have been added yet.
-          </p>
+          <div className="mt-4">
+            <EmptyState
+              description="Add the first vehicle to make it available for booking."
+              icon={<EmptyStateIcon className="h-6 w-6" />}
+              title="No vehicles yet"
+            />
+          </div>
         ) : (
           <div className="mt-4 space-y-4">
             {vehicles.map((vehicle) => (
-              <article
-                className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-5"
-                key={vehicle.id}
-              >
+              <Panel as="article" key={vehicle.id}>
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h3 className="text-base font-semibold">{vehicle.name}</h3>
@@ -148,15 +160,9 @@ export default async function AdminVehiclesPage({
                       {getVehicleTypeLabel(vehicle.type)}
                     </p>
                   </div>
-                  <span
-                    className={`rounded-md px-3 py-1 text-xs font-semibold ${
-                      vehicle.is_active
-                        ? "bg-[var(--success)]/10 text-green-700"
-                        : "bg-[var(--border)] text-[var(--muted)]"
-                    }`}
-                  >
+                  <Badge tone={vehicle.is_active ? "success" : "neutral"}>
                     {vehicle.is_active ? "Active" : "Inactive"}
-                  </span>
+                  </Badge>
                 </div>
 
                 <form
@@ -164,23 +170,23 @@ export default async function AdminVehiclesPage({
                   className="grid gap-4 md:grid-cols-[1fr_180px_160px_auto] md:items-end"
                 >
                   <input name="id" type="hidden" value={vehicle.id} />
-                  <label className="space-y-2">
-                    <span className={labelClass}>Name</span>
+                  <Field htmlFor={`vehicle-name-${vehicle.id}`} label="Name">
                     <input
                       className={inputClass}
                       defaultValue={vehicle.name}
+                      id={`vehicle-name-${vehicle.id}`}
                       maxLength={80}
                       minLength={2}
                       name="name"
                       required
                     />
-                  </label>
+                  </Field>
 
-                  <label className="space-y-2">
-                    <span className={labelClass}>Type</span>
+                  <Field htmlFor={`vehicle-type-${vehicle.id}`} label="Type">
                     <select
                       className={inputClass}
                       defaultValue={vehicle.type}
+                      id={`vehicle-type-${vehicle.id}`}
                       name="type"
                       required
                     >
@@ -190,26 +196,23 @@ export default async function AdminVehiclesPage({
                         </option>
                       ))}
                     </select>
-                  </label>
+                  </Field>
 
-                  <label className="space-y-2">
-                    <span className={labelClass}>Status</span>
+                  <Field htmlFor={`vehicle-active-${vehicle.id}`} label="Status">
                     <select
                       className={inputClass}
                       defaultValue={String(vehicle.is_active)}
+                      id={`vehicle-active-${vehicle.id}`}
                       name="is_active"
                     >
                       <option value="true">Active</option>
                       <option value="false">Inactive</option>
                     </select>
-                  </label>
+                  </Field>
 
-                  <button
-                    className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:border-[var(--primary)]"
-                    type="submit"
-                  >
+                  <Button type="submit" tone="secondary">
                     Save
-                  </button>
+                  </Button>
                 </form>
 
                 <form
@@ -217,24 +220,22 @@ export default async function AdminVehiclesPage({
                   className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[1fr_auto] md:items-end"
                 >
                   <input name="id" type="hidden" value={vehicle.id} />
-                  <label className="space-y-2">
-                    <span className={labelClass}>
-                      Type vehicle name to hard delete
-                    </span>
+                  <Field
+                    htmlFor={`vehicle-delete-${vehicle.id}`}
+                    label="Type vehicle name to hard delete"
+                  >
                     <input
                       className={inputClass}
+                      id={`vehicle-delete-${vehicle.id}`}
                       name="confirmation"
                       placeholder={vehicle.name}
                     />
-                  </label>
-                  <button
-                    className="rounded-md border border-[var(--danger)] px-4 py-2 text-sm font-semibold text-[var(--danger)] transition hover:bg-[var(--danger)] hover:text-white"
-                    type="submit"
-                  >
+                  </Field>
+                  <Button type="submit" tone="danger">
                     Delete
-                  </button>
+                  </Button>
                 </form>
-              </article>
+              </Panel>
             ))}
           </div>
         )}

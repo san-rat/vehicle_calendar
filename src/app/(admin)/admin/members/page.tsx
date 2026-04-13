@@ -4,6 +4,17 @@ import {
   type MemberRole,
 } from "@/lib/admin/members";
 import { requireAdminAppUser } from "@/lib/auth/user";
+import {
+  Badge,
+  Button,
+  EmptyState,
+  Field,
+  Notice,
+  PageHeader,
+  Panel,
+  inputClassName,
+} from "@/components/ui";
+import { EmptyStateIcon, UserIcon } from "@/components/ui/icons";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   createMember,
@@ -26,10 +37,7 @@ type MemberRecord = {
   updated_at: string;
 };
 
-const inputClass =
-  "w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--text)] outline-none transition focus:border-[var(--primary)]";
-
-const labelClass = "text-xs font-semibold uppercase text-[var(--muted)]";
+const inputClass = inputClassName();
 
 async function getMembers() {
   const currentUser = await requireAdminAppUser();
@@ -60,96 +68,100 @@ export default async function AdminMembersPage({
 
   return (
     <div className="space-y-8">
-      <header>
-        <p className="text-sm font-semibold text-[var(--primary)]">Settings</p>
-        <h1 className="mt-1 text-2xl font-semibold">Admin Members</h1>
-        <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
-          Create members with name-only login, manage roles and access, reset
-          passwords, and safely remove accounts that do not own bookings.
-        </p>
-      </header>
+      <PageHeader
+        description="Create members with name-only login, manage roles and access, reset passwords, and safely remove accounts that do not own bookings."
+        eyebrow="Settings"
+        title="Admin Members"
+      />
 
       {statusMessage ? (
-        <p
-          className={`rounded-md border px-4 py-3 text-sm ${
-            statusTone === "error"
-              ? "border-[var(--danger)]/30 bg-[var(--danger)]/10 text-[var(--danger)]"
-              : "border-[var(--success)]/30 bg-[var(--success)]/10 text-green-700"
-          }`}
-        >
+        <Notice tone={statusTone === "error" ? "danger" : "success"}>
           {statusMessage}
-        </p>
+        </Notice>
       ) : null}
 
-      <section className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-5">
-        <h2 className="text-lg font-semibold">Add Member</h2>
+      <Panel>
+        <div className="flex items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
+            <UserIcon className="h-5 w-5" />
+          </span>
+          <h2 className="text-lg font-semibold">Add Member</h2>
+        </div>
         <form
           action={createMember}
           className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-[1fr_170px_150px_1fr_1fr_auto] lg:items-end"
         >
-          <label className="space-y-2">
-            <span className={labelClass}>Name</span>
+          <Field htmlFor="member-create-name" label="Name">
             <input
               className={inputClass}
+              id="member-create-name"
               maxLength={60}
               minLength={2}
               name="name"
               placeholder="New Member"
               required
             />
-          </label>
+          </Field>
 
-          <label className="space-y-2">
-            <span className={labelClass}>Role</span>
-            <select className={inputClass} name="role" required>
+          <Field htmlFor="member-create-role" label="Role">
+            <select
+              className={inputClass}
+              id="member-create-role"
+              name="role"
+              required
+            >
               {MEMBER_ROLES.map((role) => (
                 <option key={role} value={role}>
                   {getMemberRoleLabel(role)}
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
 
-          <label className="space-y-2">
-            <span className={labelClass}>Status</span>
-            <select className={inputClass} defaultValue="true" name="is_active">
+          <Field htmlFor="member-create-active" label="Status">
+            <select
+              className={inputClass}
+              defaultValue="true"
+              id="member-create-active"
+              name="is_active"
+            >
               <option value="true">Active</option>
               <option value="false">Inactive</option>
             </select>
-          </label>
+          </Field>
 
-          <label className="space-y-2">
-            <span className={labelClass}>Password</span>
+          <Field htmlFor="member-create-password" label="Password">
             <input
               className={inputClass}
+              id="member-create-password"
               minLength={8}
               name="password"
               placeholder="Minimum 8 characters"
               required
               type="password"
             />
-          </label>
+          </Field>
 
-          <label className="space-y-2">
-            <span className={labelClass}>Confirm Password</span>
+          <Field
+            htmlFor="member-create-password-confirmation"
+            label="Confirm Password"
+          >
             <input
               className={inputClass}
+              id="member-create-password-confirmation"
               minLength={8}
               name="password_confirmation"
               placeholder="Repeat password"
               required
               type="password"
             />
-          </label>
+          </Field>
 
-          <button
-            className="rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95"
-            type="submit"
-          >
+          <Button type="submit" tone="primary">
             Add Member
-          </button>
+          </Button>
         </form>
-      </section>
+      </Panel>
 
       <section>
         <div className="flex items-center justify-between gap-4">
@@ -159,37 +171,38 @@ export default async function AdminMembersPage({
               Showing active and inactive accounts.
             </p>
           </div>
-          <span className="rounded-md border border-[var(--border)] px-3 py-1 text-sm text-[var(--muted)]">
+          <Badge tone="neutral">
             {members.length} total
-          </span>
+          </Badge>
         </div>
 
         {members.length === 0 ? (
-          <p className="mt-4 rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] p-6 text-sm text-[var(--muted)]">
-            No members have been added yet.
-          </p>
+          <div className="mt-4">
+            <EmptyState
+              description="Add the first member to give someone access to FleetTime."
+              icon={<EmptyStateIcon className="h-6 w-6" />}
+              title="No members yet"
+            />
+          </div>
         ) : (
           <div className="mt-4 space-y-4">
             {members.map((member) => {
               const isSelf = member.id === currentUser.id;
 
               return (
-                <article
-                  className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-5"
-                  key={member.id}
-                >
+                <Panel as="article" key={member.id}>
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <span className="rounded-md border border-[var(--border)] px-2 py-1 text-xs font-semibold text-[var(--muted)]">
+                      <Badge tone="neutral">
                         {member.color_hex}
-                      </span>
+                      </Badge>
                       <div>
                         <h3 className="text-base font-semibold">
                           {member.name}
                           {isSelf ? (
-                            <span className="ml-2 text-xs font-medium text-[var(--muted)]">
+                            <Badge className="ml-2" tone="info">
                               You
-                            </span>
+                            </Badge>
                           ) : null}
                         </h3>
                         <p className="mt-1 text-sm text-[var(--muted)]">
@@ -197,15 +210,9 @@ export default async function AdminMembersPage({
                         </p>
                       </div>
                     </div>
-                    <span
-                      className={`rounded-md px-3 py-1 text-xs font-semibold ${
-                        member.is_active
-                          ? "bg-[var(--success)]/10 text-green-700"
-                          : "bg-[var(--border)] text-[var(--muted)]"
-                      }`}
-                    >
+                    <Badge tone={member.is_active ? "success" : "neutral"}>
                       {member.is_active ? "Active" : "Inactive"}
-                    </span>
+                    </Badge>
                   </div>
 
                   <form
@@ -213,23 +220,23 @@ export default async function AdminMembersPage({
                     className="grid gap-4 md:grid-cols-[1fr_180px_160px_auto] md:items-end"
                   >
                     <input name="id" type="hidden" value={member.id} />
-                    <label className="space-y-2">
-                      <span className={labelClass}>Name</span>
+                    <Field htmlFor={`member-name-${member.id}`} label="Name">
                       <input
                         className={inputClass}
                         defaultValue={member.name}
+                        id={`member-name-${member.id}`}
                         maxLength={60}
                         minLength={2}
                         name="name"
                         required
                       />
-                    </label>
+                    </Field>
 
-                    <label className="space-y-2">
-                      <span className={labelClass}>Role</span>
+                    <Field htmlFor={`member-role-${member.id}`} label="Role">
                       <select
                         className={inputClass}
                         defaultValue={member.role}
+                        id={`member-role-${member.id}`}
                         name="role"
                         required
                       >
@@ -239,26 +246,23 @@ export default async function AdminMembersPage({
                           </option>
                         ))}
                       </select>
-                    </label>
+                    </Field>
 
-                    <label className="space-y-2">
-                      <span className={labelClass}>Status</span>
+                    <Field htmlFor={`member-active-${member.id}`} label="Status">
                       <select
                         className={inputClass}
                         defaultValue={String(member.is_active)}
+                        id={`member-active-${member.id}`}
                         name="is_active"
                       >
                         <option value="true">Active</option>
                         <option value="false">Inactive</option>
                       </select>
-                    </label>
+                    </Field>
 
-                    <button
-                      className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:border-[var(--primary)]"
-                      type="submit"
-                    >
+                    <Button type="submit" tone="secondary">
                       Save
-                    </button>
+                    </Button>
                   </form>
 
                   <form
@@ -266,32 +270,35 @@ export default async function AdminMembersPage({
                     className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[1fr_1fr_auto] md:items-end"
                   >
                     <input name="id" type="hidden" value={member.id} />
-                    <label className="space-y-2">
-                      <span className={labelClass}>New Password</span>
+                    <Field
+                      htmlFor={`member-password-${member.id}`}
+                      label="New Password"
+                    >
                       <input
                         className={inputClass}
+                        id={`member-password-${member.id}`}
                         minLength={8}
                         name="password"
                         placeholder="Minimum 8 characters"
                         type="password"
                       />
-                    </label>
-                    <label className="space-y-2">
-                      <span className={labelClass}>Confirm Password</span>
+                    </Field>
+                    <Field
+                      htmlFor={`member-password-confirmation-${member.id}`}
+                      label="Confirm Password"
+                    >
                       <input
                         className={inputClass}
+                        id={`member-password-confirmation-${member.id}`}
                         minLength={8}
                         name="password_confirmation"
                         placeholder="Repeat password"
                         type="password"
                       />
-                    </label>
-                    <button
-                      className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:border-[var(--primary)]"
-                      type="submit"
-                    >
+                    </Field>
+                    <Button type="submit" tone="secondary">
                       Reset Password
-                    </button>
+                    </Button>
                   </form>
 
                   <form
@@ -299,24 +306,22 @@ export default async function AdminMembersPage({
                     className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[1fr_auto] md:items-end"
                   >
                     <input name="id" type="hidden" value={member.id} />
-                    <label className="space-y-2">
-                      <span className={labelClass}>
-                        Type member name to hard delete
-                      </span>
+                    <Field
+                      htmlFor={`member-delete-${member.id}`}
+                      label="Type member name to hard delete"
+                    >
                       <input
                         className={inputClass}
+                        id={`member-delete-${member.id}`}
                         name="confirmation"
                         placeholder={member.name}
                       />
-                    </label>
-                    <button
-                      className="rounded-md border border-[var(--danger)] px-4 py-2 text-sm font-semibold text-[var(--danger)] transition hover:bg-[var(--danger)] hover:text-white"
-                      type="submit"
-                    >
+                    </Field>
+                    <Button type="submit" tone="danger">
                       Delete
-                    </button>
+                    </Button>
                   </form>
-                </article>
+                </Panel>
               );
             })}
           </div>

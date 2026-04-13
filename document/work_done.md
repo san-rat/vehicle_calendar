@@ -432,3 +432,19 @@ Timestamp: 2026-04-12 23:58:59 +0530
 - Verified unauthenticated redirects for `/vehicles`, `/vehicles/00000000-0000-0000-0000-000000000000/calendar`, and `/vehicles/00000000-0000-0000-0000-000000000000/date/2026-04-13` return `307` to `/login`.
 - Live Supabase `FT_TMP_` mutation checks were not run for this checkpoint because 7B changed presentation-only UI code and did not alter data queries or actions.
 - Stopped after this checkpoint for manual review before starting 7C Admin Settings Surfaces.
+
+## Update
+Timestamp: 2026-04-13 08:43:27 +0530
+
+### Phase 7 UI/UX Polish - 7C Admin Settings Surfaces
+
+- Polished `/admin/settings` with the shared page header, soft setting cards, local inline icons, and consistent action badges.
+- Polished `/admin/vehicles` with shared page header, panel, field, button, badge, notice, and empty-state patterns while keeping create/update/delete form actions and confirmation inputs unchanged.
+- Polished `/admin/privileges` with shared summary panels, global badge, form fields, notice, and primary save button while keeping the existing singleton privilege update action unchanged.
+- Polished `/admin/members` with shared page header, panel, field, button, badge, notice, and empty-state patterns while keeping create/update/password-reset/delete form actions and self-protection behavior unchanged.
+- Kept all Supabase queries, server actions, validation helpers, hard-delete safeguards, role/status controls, and audit logging behavior unchanged.
+- Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
+- Restarted the local review server at `http://127.0.0.1:3000` for manual review after the build stopped the previous dev process.
+- Verified unauthenticated redirects for `/admin/settings`, `/admin/vehicles`, `/admin/privileges`, and `/admin/members` return `307` to `/login`.
+- Live Supabase `FT_TMP_` mutation checks were not run for this checkpoint because 7C changed presentation-only UI code and did not alter data queries or actions.
+- Stopped after this checkpoint for manual review before starting 7D Request Review Surface.
