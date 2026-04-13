@@ -145,7 +145,7 @@ export default async function AdminVehiclesPage({
           <div className="mt-4">
             <EmptyState
               description="Add the first vehicle to make it available for booking."
-              icon={<EmptyStateIcon className="h-6 w-6" />}
+              icon={EmptyStateIcon}
               title="No vehicles yet"
             />
           </div>

@@ -48,7 +48,7 @@ type PageHeaderProps = {
 type EmptyStateProps = {
   action?: ReactNode;
   description: string;
-  icon?: ReactNode;
+  icon?: ElementType<ComponentPropsWithoutRef<"svg">>;
   title: string;
 };
 
@@ -262,21 +262,24 @@ export function PageHeader({
 export function EmptyState({
   action,
   description,
-  icon,
+  icon: Icon,
   title,
 }: EmptyStateProps) {
   return (
-    <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] px-5 py-8 text-center">
-      {icon ? (
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
-          {icon}
+    <div className="flex min-h-[240px] w-full flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] px-6 py-12 text-center motion-safe:animate-[empty-state-fade_500ms_ease-out]">
+      {Icon ? (
+        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--surface-muted)] text-[var(--muted)]">
+          <Icon
+            aria-hidden="true"
+            className="h-8 w-8 opacity-80 [stroke-width:1.5]"
+          />
         </div>
       ) : null}
-      <h2 className="text-base font-semibold text-[var(--text)]">{title}</h2>
-      <p className="mx-auto mt-2 max-w-md text-sm text-[var(--muted)]">
+      <h2 className="text-lg font-semibold text-[var(--text)]">{title}</h2>
+      <p className="mx-auto mt-2 max-w-sm text-sm text-[var(--muted)]">
         {description}
       </p>
-      {action ? <div className="mt-5">{action}</div> : null}
+      {action ? <div className="mt-6">{action}</div> : null}
     </div>
   );
 }

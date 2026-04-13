@@ -51,7 +51,7 @@ export default async function VehiclesPage() {
       {vehicles.length === 0 ? (
         <EmptyState
           description="No active vehicles are available yet. Ask an admin to add or activate a vehicle."
-          icon={<EmptyStateIcon className="h-6 w-6" />}
+          icon={EmptyStateIcon}
           title="No vehicles ready"
         />
       ) : (

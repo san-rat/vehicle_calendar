@@ -180,7 +180,7 @@ export default async function AdminMembersPage({
           <div className="mt-4">
             <EmptyState
               description="Add the first member to give someone access to FleetTime."
-              icon={<EmptyStateIcon className="h-6 w-6" />}
+              icon={EmptyStateIcon}
               title="No members yet"
             />
           </div>

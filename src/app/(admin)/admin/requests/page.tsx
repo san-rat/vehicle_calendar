@@ -254,7 +254,7 @@ export default async function AdminRequestsPage({
           <div className="mt-4">
             <EmptyState
               description="No booking requests are waiting for review."
-              icon={<EmptyStateIcon className="h-6 w-6" />}
+              icon={EmptyStateIcon}
               title="No pending requests"
             />
           </div>

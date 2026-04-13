@@ -141,7 +141,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
       {entries.length === 0 ? (
         <EmptyState
           description="No system actions were recorded in the current retention window."
-          icon={<LogIcon className="h-6 w-6" />}
+          icon={LogIcon}
           title="No log entries"
         />
       ) : (

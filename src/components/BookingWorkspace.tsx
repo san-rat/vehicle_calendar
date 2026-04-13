@@ -64,9 +64,11 @@ function getBookingsForSlot(bookings: TimelineBooking[], slot: string) {
 
 function TimelinePanel({
   bookings,
+  onOpenForm,
   timeOptions,
 }: {
   bookings: TimelineBooking[];
+  onOpenForm: () => void;
   timeOptions: string[];
 }) {
   return (
@@ -84,60 +86,74 @@ function TimelinePanel({
       </div>
 
       {bookings.length === 0 ? (
-        <EmptyState
-          description="This day is open. Switch to the form when you are ready to book."
-          icon={<EmptyStateIcon className="h-6 w-6" />}
-          title="No trips scheduled"
-        />
-      ) : null}
+        <div className="mt-4">
+          <EmptyState
+            action={
+              <Button
+                className="w-full sm:w-auto md:hidden"
+                onClick={onOpenForm}
+                tone="primary"
+                type="button"
+              >
+                Open booking form
+              </Button>
+            }
+            description="The calendar is clear. You can move to the form and book this vehicle right now."
+            icon={EmptyStateIcon}
+            title="No trips scheduled"
+          />
+        </div>
+      ) : (
+        <div className="mt-4 max-h-[680px] space-y-1 overflow-y-auto pr-1">
+          {timeOptions.map((slot) => {
+            const slotBookings = getBookingsForSlot(bookings, slot);
 
-      <div className="mt-4 max-h-[680px] space-y-1 overflow-y-auto pr-1">
-        {timeOptions.map((slot) => {
-          const slotBookings = getBookingsForSlot(bookings, slot);
-
-          return (
-            <div
-              className="grid min-h-12 grid-cols-[56px_1fr] gap-3 border-t border-[var(--border)] py-2"
-              key={slot}
-            >
-              <div className="text-xs font-semibold text-[var(--muted)]">
-                {slot}
-              </div>
-              <div className="space-y-2">
-                {slotBookings.map((booking) => (
-                  <div
-                    className={`rounded-md border-l-4 px-3 py-3 text-sm shadow-sm ${getBookingClass(
-                      booking
-                    )}`}
-                    key={booking.id}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-semibold">
-                        {booking.userName}
-                      </span>
-                      <Badge
-                        tone={booking.status === "confirmed" ? "success" : "info"}
-                      >
-                        {booking.status}
-                      </Badge>
+            return (
+              <div
+                className="grid min-h-12 grid-cols-[56px_1fr] gap-3 border-t border-[var(--border)] py-2"
+                key={slot}
+              >
+                <div className="text-xs font-semibold text-[var(--muted)]">
+                  {slot}
+                </div>
+                <div className="space-y-2">
+                  {slotBookings.map((booking) => (
+                    <div
+                      className={`rounded-md border-l-4 px-3 py-3 text-sm shadow-sm ${getBookingClass(
+                        booking
+                      )}`}
+                      key={booking.id}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-semibold">
+                          {booking.userName}
+                        </span>
+                        <Badge
+                          tone={
+                            booking.status === "confirmed" ? "success" : "info"
+                          }
+                        >
+                          {booking.status}
+                        </Badge>
+                      </div>
+                      <p className="mt-1 text-xs">
+                        {booking.isAllDay
+                          ? "All day"
+                          : `${normalizeTime(
+                              booking.startTime
+                            )} - ${normalizeTime(booking.endTime)}`}
+                      </p>
+                      {booking.reason ? (
+                        <p className="mt-1 text-xs">{booking.reason}</p>
+                      ) : null}
                     </div>
-                    <p className="mt-1 text-xs">
-                      {booking.isAllDay
-                        ? "All day"
-                        : `${normalizeTime(booking.startTime)} - ${normalizeTime(
-                            booking.endTime
-                          )}`}
-                    </p>
-                    {booking.reason ? (
-                      <p className="mt-1 text-xs">{booking.reason}</p>
-                    ) : null}
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </Panel>
   );
 }
@@ -304,7 +320,11 @@ export function BookingWorkspace({
 
       <div className="grid gap-6 md:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
         <div className={activePanel === "timeline" ? "block" : "hidden md:block"}>
-          <TimelinePanel bookings={bookings} timeOptions={timeOptions} />
+          <TimelinePanel
+            bookings={bookings}
+            onOpenForm={() => setActivePanel("form")}
+            timeOptions={timeOptions}
+          />
         </div>
         <div className={activePanel === "form" ? "block" : "hidden md:block"}>
           <BookingFormPanel
