@@ -5,7 +5,6 @@ import {
   Button,
   EmptyState,
   Field,
-  Notice,
   PageHeader,
   Panel,
   inputClassName,
@@ -18,10 +17,6 @@ import {
 } from "@/lib/admin/vehicles";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createVehicle, deleteVehicle, updateVehicle } from "./actions";
-
-type AdminVehiclesPageProps = {
-  searchParams?: Promise<{ error?: string; success?: string }>;
-};
 
 type VehicleRecord = {
   created_at: string;
@@ -50,14 +45,8 @@ async function getVehicles() {
   return (data ?? []) as VehicleRecord[];
 }
 
-export default async function AdminVehiclesPage({
-  searchParams,
-}: AdminVehiclesPageProps) {
+export default async function AdminVehiclesPage() {
   const vehicles = await getVehicles();
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-  const statusMessage =
-    resolvedSearchParams.success ?? resolvedSearchParams.error ?? null;
-  const statusTone = resolvedSearchParams.error ? "error" : "success";
 
   return (
     <div className="space-y-8">
@@ -72,12 +61,6 @@ export default async function AdminVehiclesPage({
         eyebrow="Settings"
         title="Admin Vehicles"
       />
-
-      {statusMessage ? (
-        <Notice tone={statusTone === "error" ? "danger" : "success"}>
-          {statusMessage}
-        </Notice>
-      ) : null}
 
       <Panel>
         <div className="flex items-center gap-2">

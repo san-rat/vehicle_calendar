@@ -4,7 +4,6 @@ import {
   BreadcrumbNav,
   Button,
   Field,
-  Notice,
   PageHeader,
   Panel,
   inputClassName,
@@ -12,10 +11,6 @@ import {
 import { SettingsIcon } from "@/components/ui/icons";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { updatePrivileges } from "./actions";
-
-type AdminPrivilegesPageProps = {
-  searchParams?: Promise<{ error?: string; success?: string }>;
-};
 
 type PrivilegeConfigRecord = {
   allow_booking_freedom: boolean;
@@ -51,14 +46,8 @@ function getTimeLimitSummary(minutes: number | null) {
   return minutes === null ? "No time limit" : `${minutes} minutes`;
 }
 
-export default async function AdminPrivilegesPage({
-  searchParams,
-}: AdminPrivilegesPageProps) {
+export default async function AdminPrivilegesPage() {
   const config = await getPrivilegeConfig();
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-  const statusMessage =
-    resolvedSearchParams.success ?? resolvedSearchParams.error ?? null;
-  const statusTone = resolvedSearchParams.error ? "error" : "success";
 
   return (
     <div className="space-y-8">
@@ -73,12 +62,6 @@ export default async function AdminPrivilegesPage({
         eyebrow="Settings"
         title="Admin Privileges"
       />
-
-      {statusMessage ? (
-        <Notice tone={statusTone === "error" ? "danger" : "success"}>
-          {statusMessage}
-        </Notice>
-      ) : null}
 
       <section className="grid gap-4 md:grid-cols-4">
         <Panel as="div">

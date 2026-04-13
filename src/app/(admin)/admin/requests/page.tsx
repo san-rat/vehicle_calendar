@@ -28,10 +28,6 @@ import { getBusinessToday, parseIsoDate } from "@/lib/booking/dates";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { approveBookingRequest, rejectBookingRequest } from "./actions";
 
-type AdminRequestsPageProps = {
-  searchParams?: Promise<{ error?: string; success?: string }>;
-};
-
 type JoinedUser = {
   color_hex: string;
   is_active: boolean;
@@ -216,14 +212,8 @@ async function getRequestReviewData() {
   return requestsWithReviewState;
 }
 
-export default async function AdminRequestsPage({
-  searchParams,
-}: AdminRequestsPageProps) {
+export default async function AdminRequestsPage() {
   const requests = await getRequestReviewData();
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-  const statusMessage =
-    resolvedSearchParams.success ?? resolvedSearchParams.error ?? null;
-  const statusTone = resolvedSearchParams.error ? "error" : "success";
 
   return (
     <div className="space-y-8">
@@ -238,12 +228,6 @@ export default async function AdminRequestsPage({
         eyebrow="Admin"
         title="Booking Requests"
       />
-
-      {statusMessage ? (
-        <Notice tone={statusTone === "error" ? "danger" : "success"}>
-          {statusMessage}
-        </Notice>
-      ) : null}
 
       <section>
         <div className="flex items-center justify-between gap-4">

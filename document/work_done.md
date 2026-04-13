@@ -536,3 +536,15 @@ Timestamp: 2026-04-13 13:42:50 +0530
 - Updated `/admin/requests` so each pending request card now shows a `requested` status badge and each overlapping confirmed booking row shows a `confirmed` status badge inside the conflict panel.
 - Kept all Supabase queries, request filtering, log retention logic, action labels, approval flows, and server actions unchanged; this checkpoint is presentation-only UI work.
 - Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
+
+## Update
+Timestamp: 2026-04-13 13:58:31 +0530
+
+### Phase 7 UI/UX Polish - Global Toast Feedback Pass
+
+- Added a root-level client `ToastViewport` mounted from `src/app/layout.tsx` so redirect-driven success and error messages now render in a fixed bottom-center toast layer above the app shell instead of being constrained by individual page layouts.
+- Implemented self-dismissing toast cards with success/error icon states, entrance/exit motion, a 4-second progress bar, `aria-live="assertive"` announcement behavior, and URL cleanup that removes only the `success` and `error` query params after the toast is queued.
+- Kept `/login` on its existing inline auth error notice so raw login error codes are not surfaced through the global toast layer.
+- Removed the duplicated top-of-page success/error banners from the authenticated redirect targets `/admin/vehicles`, `/admin/members`, `/admin/privileges`, `/admin/requests`, and `/vehicles/[vehicleId]/date/[date]` so those actions now provide a single toast-based confirmation path.
+- Kept all server actions, redirect message payloads, Supabase queries, auth guards, booking validation, and admin workflows unchanged; this checkpoint is presentation-only UI work.
+- Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.

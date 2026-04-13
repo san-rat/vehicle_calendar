@@ -10,7 +10,6 @@ import {
   Button,
   EmptyState,
   Field,
-  Notice,
   PageHeader,
   Panel,
   inputClassName,
@@ -23,10 +22,6 @@ import {
   resetMemberPassword,
   updateMember,
 } from "./actions";
-
-type AdminMembersPageProps = {
-  searchParams?: Promise<{ error?: string; success?: string }>;
-};
 
 type MemberRecord = {
   color_hex: string;
@@ -58,14 +53,8 @@ async function getMembers() {
   };
 }
 
-export default async function AdminMembersPage({
-  searchParams,
-}: AdminMembersPageProps) {
+export default async function AdminMembersPage() {
   const { currentUser, members } = await getMembers();
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-  const statusMessage =
-    resolvedSearchParams.success ?? resolvedSearchParams.error ?? null;
-  const statusTone = resolvedSearchParams.error ? "error" : "success";
 
   return (
     <div className="space-y-8">
@@ -80,12 +69,6 @@ export default async function AdminMembersPage({
         eyebrow="Settings"
         title="Admin Members"
       />
-
-      {statusMessage ? (
-        <Notice tone={statusTone === "error" ? "danger" : "success"}>
-          {statusMessage}
-        </Notice>
-      ) : null}
 
       <Panel>
         <div className="flex items-center gap-2">

@@ -4,7 +4,7 @@ import {
   BookingWorkspace,
   type TimelineBooking,
 } from "@/components/BookingWorkspace";
-import { Badge, BreadcrumbNav, Notice, PageHeader } from "@/components/ui";
+import { Badge, BreadcrumbNav, PageHeader } from "@/components/ui";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -24,7 +24,6 @@ import { createBooking } from "./actions";
 
 type BookingPageProps = {
   params: Promise<{ date: string; vehicleId: string }>;
-  searchParams?: Promise<{ error?: string; success?: string }>;
 };
 
 type VehicleRecord = {
@@ -169,11 +168,9 @@ async function getBookingPageData(input: {
 
 export default async function BookingPage({
   params,
-  searchParams,
 }: BookingPageProps) {
   const currentUser = await requireCurrentAppUser();
   const { date, vehicleId } = await params;
-  const resolvedSearchParams = searchParams ? await searchParams : {};
 
   if (!parseIsoDate(date)) {
     notFound();
@@ -190,9 +187,6 @@ export default async function BookingPage({
     maxDaysInFuture: config.max_days_in_future,
     today,
   });
-  const statusMessage =
-    resolvedSearchParams.success ?? resolvedSearchParams.error ?? null;
-  const statusTone = resolvedSearchParams.error ? "error" : "success";
   const createBookingAction = createBooking.bind(null, vehicle.id, date);
   const bookingStatus = getBookingStatusForFreedom(
     config.allow_booking_freedom
@@ -232,12 +226,6 @@ export default async function BookingPage({
             title="Booking"
           />
         </div>
-
-        {statusMessage ? (
-          <Notice tone={statusTone === "error" ? "danger" : "success"}>
-            {statusMessage}
-          </Notice>
-        ) : null}
 
         <BookingWorkspace
           allDayDisabled={config.time_limit_minutes !== null}

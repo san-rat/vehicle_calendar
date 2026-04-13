@@ -117,3 +117,22 @@ export function ChevronRightIcon(props: IconProps) {
     </IconBase>
   );
 }
+
+export function CheckCircleIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" />
+      <path d="m8.5 12 2.3 2.3 4.7-4.8" />
+    </IconBase>
+  );
+}
+
+export function AlertTriangleIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M12 4.5 20 18.5H4L12 4.5Z" />
+      <path d="M12 9v4.5" />
+      <path d="M12 16.5h.01" />
+    </IconBase>
+  );
+}

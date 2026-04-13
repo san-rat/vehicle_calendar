@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
+import { Suspense } from "react";
+import { ToastViewport } from "@/components/ToastViewport";
 import "./globals.css";
 
 const inter = Inter({
@@ -28,6 +30,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${montserrat.variable} antialiased`}>
         {children}
+        <Suspense fallback={null}>
+          <ToastViewport />
+        </Suspense>
       </body>
     </html>
   );
