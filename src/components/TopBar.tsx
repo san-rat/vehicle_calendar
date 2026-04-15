@@ -4,8 +4,8 @@ import Link from "next/link";
 import { type AppUser } from "@/lib/auth/user";
 import { Button, ButtonLink, buttonClassName } from "@/components/ui";
 import {
+  CalendarIcon,
   CloseIcon,
-  FleetIcon,
   LogIcon,
   LogoutIcon,
   MenuIcon,
@@ -67,14 +67,11 @@ function MobileNavDrawer({
       >
         <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
           <Link
-            className="inline-flex min-h-11 items-center gap-3 rounded-xl px-1 text-lg font-semibold tracking-[-0.02em] text-[var(--text)]"
+            className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-xl font-bold tracking-tight text-[var(--text)] transition-all hover:opacity-80"
             href="/vehicles"
             onClick={onClose}
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--primary)]/12 bg-white/80 text-[var(--primary)] shadow-sm shadow-blue-100/40">
-              <FleetIcon className="h-5 w-5" />
-            </span>
-            FleetTime
+            <span className="text-[var(--primary)] mr-[2px]">Fleet</span>Time
           </Link>
 
           <button
@@ -104,7 +101,7 @@ function MobileNavDrawer({
             href="/vehicles"
             onClick={onClose}
           >
-            <FleetIcon className="h-4 w-4" />
+            <CalendarIcon className="h-4 w-4" />
             Vehicles
           </Link>
           <Link
@@ -152,7 +149,7 @@ export function TopBar({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border)]/60 bg-[var(--bg)]/95 shadow-sm shadow-slate-200/30 transition-colors duration-300 supports-[backdrop-filter]:bg-[var(--bg)]/75 supports-[backdrop-filter]:backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-[var(--border)]/60 bg-white/75 shadow-[0_4px_30px_rgb(0,0,0,0.03)] backdrop-blur-xl transition-all duration-300 ease-out">
       <div className="app-container py-3">
         <div className="grid min-h-12 grid-cols-[44px_1fr_44px] items-center sm:hidden">
           <button
@@ -168,13 +165,10 @@ export function TopBar({
           </button>
 
           <Link
-            className="mx-auto inline-flex min-h-11 items-center gap-3 rounded-xl px-1 text-lg font-semibold tracking-[-0.02em] text-[var(--text)]"
+            className="mx-auto inline-flex min-h-11 items-center rounded-xl px-2 text-xl font-bold tracking-tight text-[var(--text)] transition-all hover:opacity-80"
             href="/vehicles"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--primary)]/12 bg-white/80 text-[var(--primary)] shadow-sm shadow-blue-100/40">
-              <FleetIcon className="h-5 w-5" />
-            </span>
-            FleetTime
+            <span className="text-[var(--primary)] mr-[2px]">Fleet</span>Time
           </Link>
 
           <span aria-hidden="true" className="block h-11 w-11" />
@@ -183,12 +177,9 @@ export function TopBar({
         <div className="hidden min-h-16 items-center justify-between gap-3 sm:flex">
           <Link
             href="/vehicles"
-            className="inline-flex min-h-11 items-center gap-3 rounded-xl px-1 text-lg font-semibold tracking-[-0.02em] text-[var(--text)] transition [@media(hover:hover)]:hover:text-[var(--primary)]"
+            className="inline-flex min-h-11 items-center rounded-xl px-2 text-[22px] font-bold tracking-tight text-[var(--text)] transition-all hover:-translate-y-[1px] hover:text-[var(--primary)] active:scale-[0.98]"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--primary)]/12 bg-white/80 text-[var(--primary)] shadow-sm shadow-blue-100/40">
-              <FleetIcon className="h-5 w-5" />
-            </span>
-            <span>FleetTime</span>
+            <span className="text-[var(--primary)] font-extrabold mr-[2px]">Fleet</span>Time
           </Link>
 
           <div className="flex flex-wrap items-center gap-2">

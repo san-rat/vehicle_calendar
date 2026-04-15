@@ -65,7 +65,7 @@ function joinClasses(...classes: Array<string | false | null | undefined>) {
 }
 
 const buttonBaseClass =
-  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition duration-200 ease-out active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-300 ease-out active:scale-[0.97] hover:-translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:active:scale-100 disabled:hover:shadow-none";
 
 const inputBaseClass =
   "min-h-12 w-full rounded-xl border border-[var(--border)] bg-white/95 px-4 py-3 text-sm text-[var(--text)] outline-none transition duration-200 ease-out placeholder:text-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60";
@@ -77,21 +77,21 @@ const buttonSizeClasses: Record<UiSize, string> = {
 
 const buttonToneClasses: Record<UiTone, string> = {
   danger:
-    "border border-[var(--danger)]/25 bg-white text-[var(--danger)] shadow-sm shadow-red-100/30 [@media(hover:hover)]:hover:border-[var(--danger)] [@media(hover:hover)]:hover:bg-[var(--danger)]/8",
+    "border border-[var(--danger)]/20 bg-red-50 text-[var(--danger)] shadow-sm shadow-red-100/30 hover:border-[var(--danger)] hover:bg-[var(--danger)] hover:text-white hover:shadow-md hover:shadow-red-200/50",
   ghost:
-    "border border-transparent bg-transparent text-[var(--muted)] [@media(hover:hover)]:hover:bg-white/80 [@media(hover:hover)]:hover:text-[var(--text)]",
+    "border border-transparent bg-transparent text-[var(--muted)] hover:bg-[var(--surface-muted)]/80 hover:text-[var(--text)]",
   info:
-    "border border-[var(--info)]/30 bg-[var(--info)]/10 text-[var(--info-text)] [@media(hover:hover)]:hover:border-[var(--info)]",
+    "border border-[var(--info)]/20 bg-sky-50 text-[var(--info-text)] hover:border-[var(--info)] hover:bg-[var(--info)] hover:text-white hover:shadow-md hover:shadow-sky-100/50",
   neutral:
-    "border border-[var(--border)] bg-white/80 text-[var(--muted)] [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:text-[var(--text)]",
+    "border border-[var(--border)] bg-white text-[var(--muted)] shadow-sm hover:border-[var(--primary)]/60 hover:text-[var(--text)] hover:shadow-md hover:shadow-slate-200/50",
   primary:
-    "bg-[var(--primary)] text-white shadow-sm shadow-blue-200/60 [@media(hover:hover)]:hover:bg-[var(--primary-hover)]",
+    "bg-[var(--primary)] text-white shadow-[0_2px_10px_rgba(13,148,136,0.3)] hover:bg-[var(--primary-hover)] hover:shadow-[0_4px_16px_rgba(13,148,136,0.4)]",
   secondary:
-    "border border-[var(--border)] bg-white/90 text-[var(--text)] shadow-sm shadow-slate-200/30 [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:bg-white [@media(hover:hover)]:hover:text-[var(--primary)]",
+    "border border-[var(--border)] bg-white/95 text-[var(--text)] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:border-[var(--primary)]/40 hover:bg-white hover:text-[var(--primary)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.08)]",
   success:
-    "border border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success-text)] [@media(hover:hover)]:hover:border-[var(--success)]",
+    "border border-[var(--success)]/20 bg-emerald-50 text-[var(--success-text)] hover:border-[var(--success)] hover:bg-[var(--success)] hover:text-white hover:shadow-md hover:shadow-emerald-100/50",
   warning:
-    "border border-[var(--warning)]/40 bg-[var(--warning)]/10 text-[var(--warning-text)] [@media(hover:hover)]:hover:border-[var(--warning)]",
+    "border border-[var(--warning)]/20 bg-amber-50 text-[var(--warning-text)] hover:border-[var(--warning)] hover:bg-[var(--warning)] hover:text-white hover:shadow-md hover:shadow-amber-100/50",
 };
 
 const badgeToneClasses: Record<UiTone, string> = {
@@ -141,14 +141,14 @@ export function buttonClassName({
 
 export function panelClassName(className?: string) {
   return joinClasses(
-    "rounded-2xl border border-[var(--border)] bg-[var(--card)]/95 p-5 shadow-sm shadow-slate-200/50 backdrop-blur-[1px]",
+    "rounded-2xl border border-[var(--border)] bg-white/80 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl transition duration-300",
     className
   );
 }
 
 export function interactiveCardClassName(className?: string) {
   return joinClasses(
-    "rounded-2xl border border-[var(--border)] bg-[var(--card)]/96 p-5 shadow-sm shadow-slate-200/50 transform-gpu transition-all duration-300 ease-out [@media(hover:hover)]:hover:-translate-y-[2px] [@media(hover:hover)]:hover:border-[var(--primary)] [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:shadow-slate-200/70 active:scale-[0.98] active:shadow-sm",
+    "rounded-2xl border border-transparent bg-white/80 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl transform-gpu transition-all duration-300 ease-out [@media(hover:hover)]:hover:-translate-y-[2px] [@media(hover:hover)]:hover:border-[var(--primary)]/40 [@media(hover:hover)]:hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] active:scale-[0.98]",
     className
   );
 }
@@ -156,7 +156,7 @@ export function interactiveCardClassName(className?: string) {
 export function inputClassName(className?: string) {
   return joinClasses(
     inputBaseClass,
-    "focus:border-[var(--primary)] focus:ring-[3px] focus:ring-[var(--primary)]/15",
+    "hover:border-[var(--muted)]/50 focus:border-[var(--primary)] focus:bg-white focus:ring-[3px] focus:ring-[var(--primary)]/20 focus:shadow-[0_2px_12px_rgba(13,148,136,0.12)]",
     className
   );
 }
@@ -370,12 +370,12 @@ export function EmptyState({
   title,
 }: EmptyStateProps) {
   return (
-    <div className="flex min-h-[240px] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)]/96 px-6 py-12 text-center shadow-sm shadow-slate-200/40 motion-safe:animate-[empty-state-fade_500ms_ease-out]">
+    <div className="flex min-h-[240px] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border)] bg-white/60 px-6 py-12 text-center shadow-[0_8px_30px_rgb(0,0,0,0.03)] backdrop-blur-sm motion-safe:animate-[empty-state-fade_500ms_ease-out]">
       {Icon ? (
-        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted)]">
+        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--primary)] shadow-sm">
           <Icon
             aria-hidden="true"
-            className="h-8 w-8 opacity-80 [stroke-width:1.5]"
+            className="h-8 w-8 opacity-90 [stroke-width:1.5]"
           />
         </div>
       ) : null}

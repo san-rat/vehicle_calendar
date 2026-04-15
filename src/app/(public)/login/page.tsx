@@ -6,7 +6,6 @@ import {
 } from "@/lib/auth/user";
 import { RouteTransition } from "@/components/RouteTransition";
 import { Button, Field, Notice, Panel, inputClassName } from "@/components/ui";
-import { FleetIcon } from "@/components/ui/icons";
 import { logInWithName } from "./actions";
 
 type LoginPageProps = {
@@ -31,21 +30,21 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <div className="relative flex min-h-screen items-center overflow-hidden bg-[var(--bg)] py-12">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -left-24 top-16 h-64 w-64 rounded-full border border-[var(--border)]/80 bg-white/35"
+        className="pointer-events-none absolute -left-20 top-20 h-72 w-72 rounded-full bg-[var(--primary)]/10 blur-3xl"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-20 bottom-12 h-72 w-72 rounded-full border border-[var(--border)]/70 bg-white/25"
+        className="pointer-events-none absolute -right-20 bottom-12 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl"
       />
       <div className="app-container">
         <RouteTransition className="mx-auto max-w-md" transitionKey="login">
-          <Panel className="overflow-hidden border-white/70 bg-white/92 p-6 shadow-md shadow-slate-200/70 sm:p-8">
+          <Panel className="overflow-hidden border-white/60 bg-white/80 p-8 shadow-[0_8px_40px_rgb(0,0,0,0.06)] backdrop-blur-2xl sm:p-10">
             <div className="flex flex-col items-center text-center">
-              <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--primary)]/15 bg-[var(--primary)]/10 text-[var(--primary)] shadow-sm shadow-blue-100/50">
-                <FleetIcon className="h-7 w-7" />
-              </span>
-              <p className="mt-4 text-2xl font-semibold tracking-[-0.02em] text-[var(--text)]">
-                FleetTime
+              <p className="text-3xl font-extrabold tracking-tight text-[var(--text)]">
+                <span className="text-[var(--primary)]">Fleet</span>Time
+              </p>
+              <p className="mt-2 text-sm font-medium text-[var(--muted)]">
+                Sign in to manage your vehicles
               </p>
             </div>
 

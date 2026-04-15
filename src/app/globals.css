@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f5f5f7;
-  --card: #ffffff;
-  --text: #111827;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --success: #22c55e;
-  --success-text: #15803d;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --warning-text: #92400e;
-  --info: #0ea5e9;
-  --info-text: #0369a1;
-  --surface-muted: #f9fafb;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --text: #0F172A;
+  --muted: #64748B;
+  --border: #E2E8F0;
+  --primary: #0D9488;
+  --primary-hover: #0F766E;
+  --success: #10B981;
+  --success-text: #065F46;
+  --danger: #EF4444;
+  --warning: #F59E0B;
+  --warning-text: #92400E;
+  --info: #0EA5E9;
+  --info-text: #0369A1;
+  --surface-muted: #F1F5F9;
 }
 
 @theme inline {
@@ -32,30 +32,32 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
-  line-height: 1.5;
+  line-height: 1.6;
   min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .page-enter {
-  animation: page-enter 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: page-enter 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes empty-state-fade {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(8px) scale(0.98);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
   }
 
   to {
@@ -64,9 +66,24 @@ body {
   }
 }
 
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .page-enter {
-    animation: none;
+  .page-enter, .animate-scale-in, .motion-safe\:animate-\[empty-state-fade_500ms_ease-out\] {
+    animation: none !important;
   }
 }
 
@@ -78,6 +95,7 @@ h5,
 h6,
 button {
   font-family: var(--font-heading);
+  letter-spacing: -0.01em;
 }
 
 .app-container {

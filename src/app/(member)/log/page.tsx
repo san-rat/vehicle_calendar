@@ -99,9 +99,7 @@ async function getLogPageData(
     .gte("created_at", getLogRetentionCutoffIso());
 
   if (searchPattern) {
-    request = request.or(
-      `description.ilike.${searchPattern},action_type.ilike.${searchPattern}`
-    );
+    request = request.ilike("description", searchPattern);
   }
 
   const { count, data, error } = await request
@@ -110,7 +108,8 @@ async function getLogPageData(
     .range(from, to);
 
   if (error) {
-    throw new Error("Unable to load system log.");
+    console.error("[getLogPageData] Supabase Error:", error);
+    throw new Error("Unable to load system log. " + error.message);
   }
 
   const entries = (data ?? []) as LogEntryRecord[];

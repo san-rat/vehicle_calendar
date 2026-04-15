@@ -47,12 +47,12 @@ type BookingWorkspaceProps = {
 };
 
 const bookingColorClasses: Record<string, string> = {
-  "#10B981": "border-[#10B981] bg-[#10B981]/10 text-[#065F46]",
-  "#14B8A6": "border-[#14B8A6] bg-[#14B8A6]/10 text-[#0F766E]",
-  "#3B82F6": "border-[#3B82F6] bg-[#3B82F6]/10 text-[#1D4ED8]",
-  "#6366F1": "border-[#6366F1] bg-[#6366F1]/10 text-[#4338CA]",
-  "#EC4899": "border-[#EC4899] bg-[#EC4899]/10 text-[#BE185D]",
-  "#F97316": "border-[#F97316] bg-[#F97316]/10 text-[#C2410C]",
+  "#10B981": "border-[#10B981]/40 bg-[#10B981]/10 text-[#065F46]",
+  "#14B8A6": "border-[#14B8A6]/40 bg-[#14B8A6]/10 text-[#0F766E]",
+  "#3B82F6": "border-[#3B82F6]/40 bg-[#3B82F6]/10 text-[#1D4ED8]",
+  "#6366F1": "border-[#6366F1]/40 bg-[#6366F1]/10 text-[#4338CA]",
+  "#EC4899": "border-[#EC4899]/40 bg-[#EC4899]/10 text-[#BE185D]",
+  "#F97316": "border-[#F97316]/40 bg-[#F97316]/10 text-[#C2410C]",
 };
 
 const bookingDotClasses: Record<string, string> = {
@@ -116,7 +116,7 @@ function TimelineDetailCard({
 }) {
   return (
     <article
-      className={`rounded-lg border px-3 py-3 text-sm shadow-sm ${getBookingSurfaceClass(
+      className={`rounded-xl border px-4 py-3 text-sm shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:-translate-y-[2px] hover:shadow-[0_8px_20px_rgba(0,0,0,0.04)] ${getBookingSurfaceClass(
         booking
       )}`}
     >
@@ -257,7 +257,7 @@ function TimelinePanel({
                 Only all-day bookings are scheduled for this date.
               </Notice>
             ) : (
-              <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-white">
+              <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
                 <div className="max-h-[680px] overflow-y-auto">
                   <div
                     className="grid min-w-0"
@@ -337,7 +337,7 @@ function TimelinePanel({
 
                         return (
                           <article
-                            className={`absolute z-10 overflow-hidden rounded-lg border-l-4 px-3 py-2 text-xs shadow-sm ${getBookingSurfaceClass(
+                            className={`absolute z-10 overflow-hidden rounded-xl border-l-4 border-t border-r border-b px-3 py-2 text-xs shadow-sm transition-all hover:scale-[1.02] hover:z-20 hover:shadow-md cursor-pointer ${getBookingSurfaceClass(
                               layout.booking
                             )}`}
                             key={layout.booking.id}

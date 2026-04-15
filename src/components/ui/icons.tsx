@@ -21,17 +21,7 @@ function IconBase({ children, className, ...props }: IconProps) {
   );
 }
 
-export function FleetIcon(props: IconProps) {
-  return (
-    <IconBase {...props}>
-      <path d="M6.5 16.5h11" />
-      <path d="M7.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
-      <path d="M16.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
-      <path d="M4.5 16.5l1.2-5.2A3 3 0 0 1 8.6 9h5.8a3 3 0 0 1 2.7 1.7l2.4 5.8" />
-      <path d="M8 9V6.5h7V9" />
-    </IconBase>
-  );
-}
+
 
 export function LogIcon(props: IconProps) {
   return (

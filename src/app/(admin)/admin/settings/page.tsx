@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PageHeader, interactiveCardClassName } from "@/components/ui";
 import {
-  FleetIcon,
+  ManageIcon,
   LogIcon,
   SettingsIcon,
   UserIcon,
@@ -15,7 +15,7 @@ const settingsLinks = [
   },
   {
     href: "/admin/vehicles",
-    icon: FleetIcon,
+    icon: ManageIcon,
     title: "Vehicles",
   },
   {

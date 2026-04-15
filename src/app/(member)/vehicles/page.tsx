@@ -5,7 +5,7 @@ import {
   PageHeader,
   interactiveCardClassName,
 } from "@/components/ui";
-import { EmptyStateIcon, FleetIcon } from "@/components/ui/icons";
+import { EmptyStateIcon, ManageIcon } from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -78,7 +78,7 @@ export default async function VehiclesPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex gap-3">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[var(--primary)]/15 bg-[var(--primary)]/10 text-[var(--primary)]">
-                    <FleetIcon className="h-6 w-6" />
+                    <ManageIcon className="h-6 w-6" />
                   </span>
                   <div>
                     <h2 className="text-lg font-semibold text-[var(--text)]">

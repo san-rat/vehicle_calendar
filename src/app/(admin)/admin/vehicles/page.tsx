@@ -10,7 +10,7 @@ import {
   inputClassName,
 } from "@/components/ui";
 import { VehicleManagerList } from "@/components/admin/VehicleManagerList";
-import { EmptyStateIcon, FleetIcon } from "@/components/ui/icons";
+import { EmptyStateIcon, ManageIcon } from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
   VEHICLE_TYPES,
@@ -65,7 +65,7 @@ export default async function AdminVehiclesPage() {
       <Panel className="overflow-hidden border-white/70 bg-white/92">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--primary)]/15 bg-[var(--primary)]/10 text-[var(--primary)]">
-            <FleetIcon className="h-5 w-5" />
+            <ManageIcon className="h-5 w-5" />
           </span>
           <h2 className="text-lg font-semibold">Add Vehicle</h2>
         </div>
