@@ -17,10 +17,11 @@ export type UiTone =
   | "success"
   | "warning";
 
-export type UiSize = "md" | "sm";
+export type UiSize = "lg" | "md" | "sm";
 
 type ButtonStyleInput = {
   className?: string;
+  loading?: boolean;
   size?: UiSize;
   tone?: UiTone;
 };
@@ -28,7 +29,7 @@ type ButtonStyleInput = {
 type ButtonProps = ComponentPropsWithoutRef<"button"> & ButtonStyleInput;
 
 type ButtonLinkProps = ComponentPropsWithoutRef<typeof Link> &
-  ButtonStyleInput;
+  Omit<ButtonStyleInput, "loading">;
 
 type BadgeProps = ComponentPropsWithoutRef<"span"> & {
   tone?: UiTone;
@@ -36,24 +37,32 @@ type BadgeProps = ComponentPropsWithoutRef<"span"> & {
 
 type FieldProps = {
   children: ReactNode;
-  hint?: string;
+  description?: ReactNode;
+  error?: ReactNode;
+  hint?: ReactNode;
   htmlFor?: string;
   label: string;
+  optionalLabel?: ReactNode;
 };
 
 type PageHeaderProps = {
   action?: ReactNode;
   description?: ReactNode;
   eyebrow?: ReactNode;
+  meta?: ReactNode;
   title: string;
+  toolbar?: ReactNode;
 };
 
 type EmptyStateProps = {
   action?: ReactNode;
   description: string;
   icon?: ElementType<ComponentPropsWithoutRef<"svg">>;
+  supportingCopy?: ReactNode;
   title: string;
 };
+
+type PanelVariant = "base" | "danger" | "elevated" | "interactive" | "inset";
 
 export type BreadcrumbItem = {
   href?: string | null;
@@ -65,65 +74,89 @@ function joinClasses(...classes: Array<string | false | null | undefined>) {
 }
 
 const buttonBaseClass =
-  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-300 ease-out active:scale-[0.97] hover:-translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:active:scale-100 disabled:hover:shadow-none";
+  "inline-flex items-center justify-center gap-2 rounded-[14px] font-semibold transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-55";
 
 const inputBaseClass =
-  "min-h-12 w-full rounded-xl border border-[var(--border)] bg-white/95 px-4 py-3 text-sm text-[var(--text)] outline-none transition duration-200 ease-out placeholder:text-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60";
+  "min-h-12 w-full rounded-[14px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 text-sm font-medium text-[var(--text-primary)] shadow-[0_1px_2px_rgba(15,23,42,0.04)] outline-none transition duration-200 ease-out placeholder:text-[var(--text-muted)] disabled:cursor-not-allowed disabled:bg-[var(--bg-surface-inset)] disabled:text-[var(--text-muted)]";
 
 const buttonSizeClasses: Record<UiSize, string> = {
+  lg: "min-h-14 px-5 py-3.5 text-[15px]",
   md: "min-h-12 px-4 py-3 text-sm",
-  sm: "min-h-11 px-3 py-2 text-sm",
+  sm: "min-h-11 px-3.5 py-2.5 text-sm",
 };
 
 const buttonToneClasses: Record<UiTone, string> = {
   danger:
-    "border border-[var(--danger)]/20 bg-red-50 text-[var(--danger)] shadow-sm shadow-red-100/30 hover:border-[var(--danger)] hover:bg-[var(--danger)] hover:text-white hover:shadow-md hover:shadow-red-200/50",
+    "border border-[var(--danger)]/25 bg-[var(--danger-soft)] text-[var(--danger)] hover:border-[var(--danger)]/45 hover:bg-[var(--danger)] hover:text-white hover:shadow-[0_10px_24px_rgba(199,59,55,0.2)]",
   ghost:
-    "border border-transparent bg-transparent text-[var(--muted)] hover:bg-[var(--surface-muted)]/80 hover:text-[var(--text)]",
+    "border border-transparent bg-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]",
   info:
-    "border border-[var(--info)]/20 bg-sky-50 text-[var(--info-text)] hover:border-[var(--info)] hover:bg-[var(--info)] hover:text-white hover:shadow-md hover:shadow-sky-100/50",
+    "border border-[var(--info)]/20 bg-[var(--info-soft)] text-[var(--info)] hover:border-[var(--info)]/35 hover:bg-[var(--info)] hover:text-white hover:shadow-[0_10px_24px_rgba(42,111,170,0.18)]",
   neutral:
-    "border border-[var(--border)] bg-white text-[var(--muted)] shadow-sm hover:border-[var(--primary)]/60 hover:text-[var(--text)] hover:shadow-md hover:shadow-slate-200/50",
+    "border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]",
   primary:
-    "bg-[var(--primary)] text-white shadow-[0_2px_10px_rgba(13,148,136,0.3)] hover:bg-[var(--primary-hover)] hover:shadow-[0_4px_16px_rgba(13,148,136,0.4)]",
+    "border border-[var(--brand-500)] bg-[var(--brand-500)] text-white shadow-[0_14px_32px_rgba(17,122,108,0.22)] hover:border-[var(--brand-600)] hover:bg-[var(--brand-600)] hover:shadow-[0_18px_36px_rgba(17,122,108,0.28)]",
   secondary:
-    "border border-[var(--border)] bg-white/95 text-[var(--text)] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:border-[var(--primary)]/40 hover:bg-white hover:text-[var(--primary)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.08)]",
+    "border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface-elevated)] hover:shadow-[0_12px_28px_rgba(15,23,42,0.09)]",
   success:
-    "border border-[var(--success)]/20 bg-emerald-50 text-[var(--success-text)] hover:border-[var(--success)] hover:bg-[var(--success)] hover:text-white hover:shadow-md hover:shadow-emerald-100/50",
+    "border border-[var(--success)]/20 bg-[var(--success-soft)] text-[var(--success)] hover:border-[var(--success)]/35 hover:bg-[var(--success)] hover:text-white hover:shadow-[0_10px_24px_rgba(25,135,84,0.18)]",
   warning:
-    "border border-[var(--warning)]/20 bg-amber-50 text-[var(--warning-text)] hover:border-[var(--warning)] hover:bg-[var(--warning)] hover:text-white hover:shadow-md hover:shadow-amber-100/50",
+    "border border-[var(--warning)]/25 bg-[var(--warning-soft)] text-[var(--warning)] hover:border-[var(--warning)]/45 hover:bg-[var(--warning)] hover:text-white hover:shadow-[0_10px_24px_rgba(180,116,46,0.18)]",
 };
 
 const badgeToneClasses: Record<UiTone, string> = {
-  danger: "bg-[var(--danger)]/10 text-[var(--danger)]",
-  ghost: "bg-transparent text-[var(--muted)]",
-  info: "bg-[var(--info)]/10 text-[var(--info-text)]",
-  neutral: "border border-[var(--border)] bg-white text-[var(--muted)]",
-  primary: "bg-[var(--primary)]/10 text-[var(--primary)]",
-  secondary: "border border-[var(--border)] bg-white text-[var(--text)]",
-  success: "bg-[var(--success)]/10 text-[var(--success-text)]",
-  warning: "bg-[var(--warning)]/10 text-[var(--warning-text)]",
+  danger:
+    "border border-[var(--danger)]/16 bg-[var(--danger-soft)] text-[var(--danger)]",
+  ghost: "border border-transparent bg-transparent text-[var(--text-muted)]",
+  info: "border border-[var(--info)]/16 bg-[var(--info-soft)] text-[var(--info)]",
+  neutral:
+    "border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-secondary)]",
+  primary:
+    "border border-[var(--brand-500)]/14 bg-[var(--brand-100)] text-[var(--brand-600)]",
+  secondary:
+    "border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] text-[var(--text-primary)]",
+  success:
+    "border border-[var(--success)]/16 bg-[var(--success-soft)] text-[var(--success)]",
+  warning:
+    "border border-[var(--warning)]/16 bg-[var(--warning-soft)] text-[var(--warning)]",
 };
 
 const statusBadgeClasses: Record<BookingStatus, string> = {
   cancelled:
-    "bg-gray-100 text-gray-600 ring-1 ring-inset ring-gray-500/20",
+    "border border-slate-300/70 bg-slate-100 text-slate-600",
   confirmed:
-    "bg-green-100/50 text-green-700 ring-1 ring-inset ring-green-600/20",
+    "border border-emerald-200 bg-emerald-50 text-emerald-700",
   overridden:
-    "bg-amber-100/50 text-amber-700 ring-1 ring-inset ring-amber-600/20",
-  rejected: "bg-red-100/50 text-red-700 ring-1 ring-inset ring-red-600/20",
+    "border border-amber-200 bg-amber-50 text-amber-700",
+  rejected: "border border-rose-200 bg-rose-50 text-rose-700",
   requested:
-    "bg-blue-100/50 text-blue-700 ring-1 ring-inset ring-blue-600/20",
+    "border border-sky-200 bg-sky-50 text-sky-700",
 };
 
-const noticeToneClasses: Record<Extract<UiTone, "danger" | "info" | "success" | "warning">, string> = {
-  danger: "border-[var(--danger)]/30 bg-[var(--danger)]/10 text-[var(--danger)]",
-  info: "border-[var(--info)]/30 bg-[var(--info)]/10 text-[var(--info-text)]",
+const noticeToneClasses: Record<
+  Extract<UiTone, "danger" | "info" | "success" | "warning">,
+  string
+> = {
+  danger:
+    "border-[var(--danger)]/20 bg-[var(--danger-soft)] text-[var(--danger)]",
+  info: "border-[var(--info)]/20 bg-[var(--info-soft)] text-[var(--info)]",
   success:
-    "border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success-text)]",
+    "border-[var(--success)]/20 bg-[var(--success-soft)] text-[var(--success)]",
   warning:
-    "border-[var(--warning)]/40 bg-[var(--warning)]/10 text-[var(--warning-text)]",
+    "border-[var(--warning)]/20 bg-[var(--warning-soft)] text-[var(--warning)]",
+};
+
+const panelVariantClasses: Record<PanelVariant, string> = {
+  base:
+    "border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] shadow-[0_12px_32px_rgba(15,23,42,0.06)]",
+  danger:
+    "border border-[var(--danger)]/16 bg-[var(--danger-soft)] shadow-[0_12px_30px_rgba(199,59,55,0.08)]",
+  elevated:
+    "border border-white/75 bg-[var(--bg-surface)] shadow-[0_20px_48px_rgba(15,23,42,0.1)]",
+  interactive:
+    "border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[0_14px_32px_rgba(15,23,42,0.08)]",
+  inset:
+    "border border-[var(--border-subtle)] bg-[var(--bg-surface-inset)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]",
 };
 
 export function buttonClassName({
@@ -139,16 +172,21 @@ export function buttonClassName({
   );
 }
 
-export function panelClassName(className?: string) {
+export function panelClassName(
+  className?: string,
+  variant: PanelVariant = "base"
+) {
   return joinClasses(
-    "rounded-2xl border border-[var(--border)] bg-white/80 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl transition duration-300",
+    "rounded-[22px] p-5 backdrop-blur-xl transition duration-300 sm:p-6",
+    panelVariantClasses[variant],
     className
   );
 }
 
 export function interactiveCardClassName(className?: string) {
   return joinClasses(
-    "rounded-2xl border border-transparent bg-white/80 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl transform-gpu transition-all duration-300 ease-out [@media(hover:hover)]:hover:-translate-y-[2px] [@media(hover:hover)]:hover:border-[var(--primary)]/40 [@media(hover:hover)]:hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] active:scale-[0.98]",
+    panelClassName(undefined, "interactive"),
+    "transform-gpu transition-all duration-200 ease-out [@media(hover:hover)]:hover:-translate-y-[2px] [@media(hover:hover)]:hover:border-[var(--brand-500)]/25 [@media(hover:hover)]:hover:shadow-[0_20px_44px_rgba(15,23,42,0.12)] active:scale-[0.99]",
     className
   );
 }
@@ -156,7 +194,7 @@ export function interactiveCardClassName(className?: string) {
 export function inputClassName(className?: string) {
   return joinClasses(
     inputBaseClass,
-    "hover:border-[var(--muted)]/50 focus:border-[var(--primary)] focus:bg-white focus:ring-[3px] focus:ring-[var(--primary)]/20 focus:shadow-[0_2px_12px_rgba(13,148,136,0.12)]",
+    "hover:border-[var(--border-strong)] focus:border-[var(--brand-500)] focus:bg-white focus:ring-4 focus:ring-[var(--brand-500)]/12",
     className
   );
 }
@@ -164,17 +202,32 @@ export function inputClassName(className?: string) {
 export function warningInputClassName(className?: string) {
   return joinClasses(
     inputBaseClass,
-    "focus:border-[var(--warning)] focus:ring-[3px] focus:ring-[var(--warning)]/15",
+    "hover:border-[var(--warning)]/40 focus:border-[var(--warning)] focus:ring-4 focus:ring-[var(--warning)]/12",
     className
   );
 }
 
 export function labelClassName(className?: string) {
-  return joinClasses("text-sm font-medium text-[var(--text)]", className);
+  return joinClasses(
+    "text-sm font-semibold tracking-[-0.01em] text-[var(--text-primary)]",
+    className
+  );
+}
+
+function ButtonSpinner() {
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+    />
+  );
 }
 
 export function Button({
+  children,
   className,
+  disabled,
+  loading = false,
   size = "md",
   tone = "secondary",
   type = "button",
@@ -183,9 +236,13 @@ export function Button({
   return (
     <button
       className={buttonClassName({ className, size, tone })}
+      disabled={disabled || loading}
       type={type}
       {...props}
-    />
+    >
+      {loading ? <ButtonSpinner /> : null}
+      {children}
+    </button>
   );
 }
 
@@ -196,37 +253,29 @@ export function ButtonLink({
   ...props
 }: ButtonLinkProps) {
   return (
-    <Link
-      className={buttonClassName({ className, size, tone })}
-      {...props}
-    />
+    <Link className={buttonClassName({ className, size, tone })} {...props} />
   );
 }
 
 export function Panel({
   as,
   className,
+  variant = "base",
   ...props
-}: ComponentPropsWithoutRef<"section"> & { as?: ElementType }) {
+}: ComponentPropsWithoutRef<"section"> & {
+  as?: ElementType;
+  variant?: PanelVariant;
+}) {
   const Component = as ?? "section";
 
-  return (
-    <Component
-      className={panelClassName(className)}
-      {...props}
-    />
-  );
+  return <Component className={panelClassName(className, variant)} {...props} />;
 }
 
-export function Badge({
-  className,
-  tone = "neutral",
-  ...props
-}: BadgeProps) {
+export function Badge({ className, tone = "neutral", ...props }: BadgeProps) {
   return (
     <span
       className={joinClasses(
-        "inline-flex min-h-7 items-center rounded-full px-3 py-1 text-xs font-semibold",
+        "inline-flex min-h-7 items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em]",
         badgeToneClasses[tone],
         className
       )}
@@ -245,9 +294,9 @@ export function StatusBadge({
   return (
     <span
       className={joinClasses(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize",
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold capitalize",
         statusBadgeClasses[status] ??
-          "bg-gray-100 text-gray-500 ring-1 ring-inset ring-gray-200",
+          "border border-slate-200 bg-slate-100 text-slate-600",
         className
       )}
       {...props}
@@ -257,14 +306,37 @@ export function StatusBadge({
   );
 }
 
-export function Field({ children, hint, htmlFor, label }: FieldProps) {
+export function Field({
+  children,
+  description,
+  error,
+  hint,
+  htmlFor,
+  label,
+  optionalLabel,
+}: FieldProps) {
   return (
-    <div className="space-y-2">
-      <label className={labelClassName()} htmlFor={htmlFor}>
-        {label}
-      </label>
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between gap-3">
+        <label className={labelClassName()} htmlFor={htmlFor}>
+          {label}
+        </label>
+        {optionalLabel ? (
+          <span className="text-xs font-medium text-[var(--text-muted)]">
+            {optionalLabel}
+          </span>
+        ) : null}
+      </div>
       {children}
-      {hint ? <p className="text-xs text-[var(--muted)]">{hint}</p> : null}
+      {error ? (
+        <p className="text-xs font-medium text-[var(--danger)]" role="alert">
+          {error}
+        </p>
+      ) : description || hint ? (
+        <p className="text-xs leading-5 text-[var(--text-muted)]">
+          {description ?? hint}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -279,7 +351,7 @@ export function Notice({
   return (
     <p
       className={joinClasses(
-        "rounded-md border px-4 py-3 text-sm font-medium",
+        "rounded-[18px] border px-4 py-3 text-sm font-medium leading-6 shadow-[0_10px_24px_rgba(15,23,42,0.04)]",
         noticeToneClasses[tone],
         className
       )}
@@ -293,43 +365,42 @@ export function PageHeader({
   action,
   description,
   eyebrow,
+  meta,
   title,
+  toolbar,
 }: PageHeaderProps) {
   return (
-    <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-      <div>
-        {eyebrow ? (
-          <div className="text-sm font-semibold tracking-[0.02em] text-[var(--primary)]">
-            {eyebrow}
+    <header className={toolbar ? "space-y-4" : "space-y-0"}>
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <div className="space-y-2.5">
+          {eyebrow ? (
+            <div className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--brand-600)]">
+              {eyebrow}
+            </div>
+          ) : null}
+          <div className={description ? "space-y-2" : "space-y-0"}>
+            <h1 className="text-[2rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] sm:text-[2.5rem]">
+              {title}
+            </h1>
+            {description ? (
+              <p className="max-w-3xl text-[15px] leading-6 text-[var(--text-secondary)]">
+                {description}
+              </p>
+            ) : null}
           </div>
-        ) : null}
-        <h1
-          className={joinClasses(
-            "text-3xl font-semibold tracking-[-0.02em] text-[var(--text)] sm:text-[2rem]",
-            eyebrow ? "mt-1" : undefined
-          )}
-        >
-          {title}
-        </h1>
-        {description ? (
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-            {description}
-          </p>
-        ) : null}
+          {meta ? <div className="flex flex-wrap gap-2">{meta}</div> : null}
+        </div>
+        {action ? <div className="shrink-0">{action}</div> : null}
       </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
+      {toolbar ? <div className="flex flex-wrap gap-3">{toolbar}</div> : null}
     </header>
   );
 }
 
-export function BreadcrumbNav({
-  items,
-}: {
-  items: BreadcrumbItem[];
-}) {
+export function BreadcrumbNav({ items }: { items: BreadcrumbItem[] }) {
   return (
     <nav aria-label="Breadcrumb" className="w-full overflow-hidden">
-      <ol className="flex flex-wrap items-center gap-y-2 text-sm text-[var(--muted)]">
+      <ol className="flex flex-wrap items-center gap-y-2 text-sm text-[var(--text-muted)]">
         {items.map((item, index) => {
           const href = item.href;
           const labelClassName =
@@ -338,18 +409,18 @@ export function BreadcrumbNav({
           return (
             <li className="flex min-w-0 items-center" key={`${index}-${item.label}`}>
               {index > 0 ? (
-                <ChevronRightIcon className="mx-1 h-4 w-4 shrink-0 text-[var(--muted)]/70" />
+                <ChevronRightIcon className="mx-1 h-4 w-4 shrink-0 text-[var(--text-muted)]/70" />
               ) : null}
               {index === items.length - 1 || !href ? (
                 <span
                   aria-current="page"
-                  className={`${labelClassName} font-medium text-[var(--text)]`}
+                  className={`${labelClassName} font-semibold text-[var(--text-primary)]`}
                 >
                   {item.label}
                 </span>
               ) : (
                 <Link
-                  className={`${labelClassName} transition-colors duration-200 ease-in-out [@media(hover:hover)]:hover:text-[var(--primary)] [@media(hover:hover)]:hover:underline active:scale-[0.98]`}
+                  className={`${labelClassName} font-medium transition-colors duration-200 ease-in-out [@media(hover:hover)]:hover:text-[var(--brand-600)] active:scale-[0.98]`}
                   href={href}
                 >
                   {item.label}
@@ -367,23 +438,83 @@ export function EmptyState({
   action,
   description,
   icon: Icon,
+  supportingCopy,
   title,
 }: EmptyStateProps) {
   return (
-    <div className="flex min-h-[240px] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border)] bg-white/60 px-6 py-12 text-center shadow-[0_8px_30px_rgb(0,0,0,0.03)] backdrop-blur-sm motion-safe:animate-[empty-state-fade_500ms_ease-out]">
+    <div className="flex min-h-[240px] w-full flex-col items-center justify-center rounded-[28px] border border-dashed border-[var(--border-strong)]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(244,248,250,0.92))] px-6 py-10 text-center shadow-[0_20px_46px_rgba(15,23,42,0.05)] motion-safe:animate-[empty-state-fade_500ms_ease-out]">
       {Icon ? (
-        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--primary)] shadow-sm">
+        <div className="mx-auto mb-4 flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-full border border-[var(--border-subtle)] bg-white text-[var(--brand-500)] shadow-[0_16px_34px_rgba(15,23,42,0.08)]">
           <Icon
             aria-hidden="true"
             className="h-8 w-8 opacity-90 [stroke-width:1.5]"
           />
         </div>
       ) : null}
-      <h2 className="text-lg font-semibold text-[var(--text)]">{title}</h2>
-      <p className="mx-auto mt-2 max-w-sm text-sm text-[var(--muted)]">
+      <h2 className="text-xl font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
+        {title}
+      </h2>
+      <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[var(--text-secondary)]">
         {description}
       </p>
-      {action ? <div className="mt-6">{action}</div> : null}
+      {supportingCopy ? (
+        <p className="mx-auto mt-1 max-w-lg text-sm leading-6 text-[var(--text-muted)]">
+          {supportingCopy}
+        </p>
+      ) : null}
+      {action ? <div className="mt-5">{action}</div> : null}
     </div>
+  );
+}
+
+export function StatCard({
+  detail,
+  icon: Icon,
+  label,
+  tone = "neutral",
+  value,
+}: {
+  detail?: ReactNode;
+  icon?: ElementType<ComponentPropsWithoutRef<"svg">>;
+  label: string;
+  tone?: Extract<UiTone, "info" | "neutral" | "primary" | "success" | "warning">;
+  value: ReactNode;
+}) {
+  const accentClass = {
+    info: "bg-[var(--info-soft)] text-[var(--info)]",
+    neutral: "bg-[var(--bg-surface-inset)] text-[var(--text-secondary)]",
+    primary: "bg-[var(--brand-100)] text-[var(--brand-600)]",
+    success: "bg-[var(--success-soft)] text-[var(--success)]",
+    warning: "bg-[var(--warning-soft)] text-[var(--warning)]",
+  }[tone];
+
+  return (
+    <Panel className="h-full p-4 sm:p-5" variant="elevated">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+            {label}
+          </p>
+          <p className="mt-2.5 text-2xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+            {value}
+          </p>
+        </div>
+        {Icon ? (
+          <span
+            className={joinClasses(
+              "flex h-10 w-10 items-center justify-center rounded-2xl",
+              accentClass
+            )}
+          >
+            <Icon className="h-5 w-5" />
+          </span>
+        ) : null}
+      </div>
+      {detail ? (
+        <p className="mt-2.5 text-sm leading-6 text-[var(--text-secondary)]">
+          {detail}
+        </p>
+      ) : null}
+    </Panel>
   );
 }

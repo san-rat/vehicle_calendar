@@ -16,8 +16,10 @@ export default async function MemberLayout({
         currentUser={currentUser}
         showAdminActions={currentUser.role === "super_admin"}
       />
-      <main className="app-container pb-10 pt-6 sm:pt-8">
-        <RouteTransition>{children}</RouteTransition>
+      <main className="app-container pb-12 pt-6 sm:pt-8">
+        <div className="content-container">
+          <RouteTransition>{children}</RouteTransition>
+        </div>
       </main>
     </div>
   );

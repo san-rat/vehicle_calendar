@@ -166,6 +166,21 @@ async function getBookingPageData(input: {
   };
 }
 
+function getPolicySummary(config: PrivilegeConfigRecord) {
+  const bookingMode = config.allow_booking_freedom
+    ? "Auto-confirm."
+    : "Approval required.";
+  const reasonMode = config.require_reason
+    ? "Reason required."
+    : "Reason optional.";
+  const timeLimit =
+    config.time_limit_minutes === null
+      ? "All-day allowed."
+      : `${config.time_limit_minutes}-minute limit.`;
+
+  return `${bookingMode} ${reasonMode} ${timeLimit}`;
+}
+
 export default async function BookingPage({
   params,
 }: BookingPageProps) {
@@ -191,6 +206,8 @@ export default async function BookingPage({
   const bookingStatus = getBookingStatusForFreedom(
     config.allow_booking_freedom
   );
+  const bookingModeLabel =
+    bookingStatus === "confirmed" ? "Auto-confirm" : "Requires approval";
   const formDisabledMessage = isInsideBookingWindow
     ? null
     : "This date is outside the allowed booking window.";
@@ -215,31 +232,47 @@ export default async function BookingPage({
                 className="w-fit"
                 tone={bookingStatus === "confirmed" ? "success" : "warning"}
               >
-                {bookingStatus === "confirmed"
-                  ? "Auto-confirm"
-                  : "Requires approval"}
+                {bookingModeLabel}
               </Badge>
             }
             description={`${vehicle.name} · ${getVehicleTypeLabel(
               vehicle.type
             )} · ${getDateLabel(date)}`}
+            eyebrow="Booking"
+            meta={
+              <>
+                <Badge tone="secondary">{getDateLabel(date)}</Badge>
+                <Badge tone="neutral">
+                  Window: {config.max_days_in_future} days
+                </Badge>
+                {config.time_limit_minutes !== null ? (
+                  <Badge tone="neutral">
+                    Limit: {config.time_limit_minutes} min
+                  </Badge>
+                ) : null}
+              </>
+            }
             title="Booking"
           />
         </div>
 
         <BookingWorkspace
           allDayDisabled={config.time_limit_minutes !== null}
+          bookingModeLabel={bookingModeLabel}
           bookings={bookings}
           formAction={createBookingAction}
           formDisabledMessage={formDisabledMessage}
+          policySummary={getPolicySummary(config)}
           reasonRequired={config.require_reason}
           selectedDate={date}
+          selectedDateLabel={getDateLabel(date)}
           submitLabel={
-            bookingStatus === "confirmed" ? "Book Trip" : "Request Booking"
+            bookingStatus === "confirmed" ? "Confirm booking" : "Submit request"
           }
           timeLimitMinutes={config.time_limit_minutes}
           timeOptions={getThirtyMinuteTimeOptions()}
           today={today}
+          vehicleLabel={`${vehicle.name} · ${getVehicleTypeLabel(vehicle.type)}`}
         />
       </div>
     </>

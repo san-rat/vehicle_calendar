@@ -32,7 +32,7 @@ export function getPostLoginPath(role: AppUserRole) {
 export function getLoginErrorMessage(error?: string) {
   switch (error) {
     case "inactive-user":
-      return "Your account is inactive. Contact a super admin.";
+      return "Your account is inactive. Contact an admin.";
     case "invalid-credentials":
       return "Invalid name or password.";
     case "invalid-name":
@@ -40,7 +40,7 @@ export function getLoginErrorMessage(error?: string) {
     case "missing-credentials":
       return "Enter both your name and password.";
     case "profile-missing":
-      return "Your auth account is missing a linked profile row.";
+      return "Your account profile is missing.";
     default:
       return null;
   }

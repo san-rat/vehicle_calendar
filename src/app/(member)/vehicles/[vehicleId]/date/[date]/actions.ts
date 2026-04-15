@@ -82,7 +82,7 @@ export async function createBooking(
     .maybeSingle<VehicleRecord>();
 
   if (vehicleError || !vehicle) {
-    redirectWithMessage(vehicleId, date, "error", "Vehicle is not available.");
+    redirectWithMessage(vehicleId, date, "error", "Vehicle unavailable.");
   }
 
   const { data: config, error: configError } = await supabase
@@ -97,7 +97,7 @@ export async function createBooking(
       vehicleId,
       date,
       "error",
-      "Privilege configuration is missing."
+      "Booking policy is missing."
     );
   }
 
@@ -177,7 +177,7 @@ export async function createBooking(
       vehicleId,
       date,
       "error",
-      "Booking saved, but the audit log entry could not be written."
+      "Booking saved, but the audit log could not be written."
     );
   }
 

@@ -2,13 +2,13 @@
 
 Date: 2026-02-03
 
-## Current Status (as of 2026-04-13)
-- **Core product**: Phases 0 through 7 are complete in the repo, followed by a premium refinement pass and a subsequent clutter-reduction/mobile-navigation pass across the shell, login, vehicle list, admin settings flows, request review, and log surfaces.
-- **UI system**: The app now uses a local Tailwind-only design system in `src/components/ui` with shared buttons, links, panels, badges, fields, notices, page headers, empty states, inline icons, a responsive overlay pattern for compact admin record management, and a mobile drawer navigation shell.
+## Current Status (as of 2026-04-15)
+- **Core product**: Phases 0 through 7 are complete in the repo, followed by a larger premium UI upgrade pass that rebuilt the theme system, authenticated shell, login experience, vehicle dashboard, vehicle calendar/day booking flow, and all major admin settings surfaces.
+- **UI system**: The app now uses a richer local Tailwind-only design system in `src/components/ui` with semantic tokens, upgraded buttons/inputs/panels/badges/page headers/stat cards, a stronger overlay pattern, improved motion, and a hybrid admin shell with desktop sidebar plus mobile drawer navigation.
 - **Security and platform**: `next` and `eslint-config-next` are on `16.2.3`; the app uses Supabase Auth as the credential source of truth; the current known data-integrity caveat is the deferred non-transactional request approval/override flow.
 - **Database and logging**: The initial Supabase migration and seed remain in place, with audit-safe logging via nullable foreign keys and snapshot JSON; the current UI now keeps those snapshots out of the primary log surface while retaining the 30-day filtered audit trail and documented manual Supabase cron setup.
-- **Verification status**: The latest clutter-reduction/mobile-nav checkpoint passed `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`. A production-build route smoke also confirmed `/login` returns `200` and unauthenticated `/vehicles`, `/admin/settings`, and `/log?q=member` redirect to `/login` with `307`. A fresh authenticated visual desktop/mobile review was not rerun during this checkpoint.
-- **Next work**: Run the final localhost visual signoff for the cleaned-up mobile/header/modal behavior on Super Admin and Member flows, then continue with Phase 8 testing/deployment tasks or separately requested hardening work.
+- **Verification status**: The latest premium UI pass passed `npm test`, `npm run lint`, and `npm run build`. A fresh authenticated visual desktop/mobile review was not rerun during this checkpoint, so manual UI signoff is still the next validation step.
+- **Next work**: Run a full localhost visual QA pass on desktop and mobile for Super Admin and Member flows, then continue with any remaining polish requests, Phase 8 testing/deployment tasks, or separately requested hardening work.
 
 ## Resources Read
 - `README.md`
@@ -28,6 +28,26 @@ Date: 2026-02-03
 
 ## Limitations Encountered
 - `document/ui_wireframes/ui_wireframe_handsketch.pdf` could not be read due to missing PDF rendering tools; file appears to be image-only.
+
+## Update
+Timestamp: 2026-04-15 17:40:31 +0530
+
+- Rebuilt the global visual system in `src/app/globals.css` and `src/app/layout.tsx` with new semantic color tokens, refined surface hierarchy, larger spacing/radius/shadow rhythm, and a typography upgrade from Montserrat to Plus Jakarta Sans for headings/buttons.
+- Expanded `src/components/ui/index.tsx` into a stronger design system layer with upgraded buttons, panels, fields, notices, page headers, empty states, stat cards, and premium badge/status styling; also refreshed the shared responsive overlay and toast presentation.
+- Reworked the authenticated shell with a redesigned `TopBar`, a new desktop `AdminSidebar`, and tighter content-width handling in member/admin layouts so the app reads more like a premium product shell and less like floating utility screens.
+- Rebuilt the login experience with a branded split layout, richer messaging, improved depth, and a client-side password visibility toggle via the new `src/components/LoginForm.tsx`.
+- Upgraded the member-facing booking flow: the vehicle dashboard now includes KPI cards and richer vehicle summaries; the monthly calendar now shows stronger hierarchy plus confirmed/requested occupancy signals; and the day booking workspace now has a denser timeline surface, a better form hierarchy, and a visible booking summary card.
+- Reworked admin settings surfaces for Requests, Vehicles, Privileges, Members, and the Settings overview with higher information density, KPI cards, better structure, searchable management lists, and more deliberate overlay/danger-zone presentation.
+- Verified this UI pass with `npm test`, `npm run lint`, and `npm run build`.
+
+## Update
+Timestamp: 2026-04-15 18:24:10 +0530
+
+- Ran a full user-facing copy-tightening pass across the premium UI refresh in `src/app`, `src/components`, and the main auth/booking/admin server actions to remove filler phrasing, repeated explanations, and overly decorative helper text.
+- Updated shared primitives in `src/components/ui/index.tsx` and `src/components/ui/ResponsiveOverlay.tsx` so headers, fields, empty states, stat cards, and overlays collapse spacing cleanly when descriptions are shortened or removed.
+- Shortened the login hero and sign-in panel, compressed the vehicle dashboard, calendar, booking workspace, admin settings, requests, vehicles, privileges, members, and log page copy, and rebalanced panel spacing so the UI stays dense and intentional after text removal.
+- Tightened user-visible action and error messages in the booking, vehicle, member, privilege, request, and auth flows so toasts and redirects match the sharper UI tone.
+- Verified the filler-copy pass with `npm test`, `npm run lint`, and `npm run build`.
 
 ## Update
 Timestamp: 2026-02-03 15:15:37 +0530

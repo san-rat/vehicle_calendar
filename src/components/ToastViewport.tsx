@@ -50,10 +50,10 @@ function ToastCard({
 
   return (
     <div
-      className={`relative mt-2 flex w-full max-w-sm items-center gap-3 overflow-hidden rounded-2xl px-4 py-4 shadow-md shadow-slate-200/60 ring-1 transition-all duration-300 ease-out pointer-events-auto ${
+      className={`pointer-events-auto relative mt-2 flex w-full max-w-sm items-center gap-3 overflow-hidden rounded-[22px] border px-4 py-4 shadow-[0_18px_42px_rgba(15,23,42,0.14)] transition-all duration-300 ease-out ${
         isError
-          ? "bg-red-50 ring-red-900/10"
-          : "bg-white ring-black/5"
+          ? "border-[var(--danger)]/18 bg-[var(--danger-soft)]"
+          : "border-white/80 bg-[var(--bg-surface)]"
       } ${
         isVisible && !isLeaving
           ? "translate-y-0 opacity-100"
@@ -64,16 +64,18 @@ function ToastCard({
       <span
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
           isError
-            ? "bg-red-100 text-red-700"
-            : "bg-green-100 text-green-700"
+            ? "bg-[var(--danger)]/12 text-[var(--danger)]"
+            : "bg-[var(--success)]/12 text-[var(--success)]"
         }`}
       >
         <Icon className="h-5 w-5" />
       </span>
-      <p className="pr-2 text-sm font-medium text-[var(--text)]">{message}</p>
+      <p className="pr-2 text-sm font-medium text-[var(--text-primary)]">
+        {message}
+      </p>
       <div
         className={`absolute bottom-0 left-0 h-1 ${
-          isError ? "bg-red-500" : "bg-green-500"
+          isError ? "bg-[var(--danger)]" : "bg-[var(--success)]"
         }`}
         style={{
           transition: `width ${TOAST_DURATION_MS}ms linear`,

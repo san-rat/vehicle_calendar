@@ -1,43 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #F8FAFC;
-  --card: #FFFFFF;
-  --text: #0F172A;
-  --muted: #64748B;
-  --border: #E2E8F0;
-  --primary: #0D9488;
-  --primary-hover: #0F766E;
-  --success: #10B981;
-  --success-text: #065F46;
-  --danger: #EF4444;
-  --warning: #F59E0B;
-  --warning-text: #92400E;
-  --info: #0EA5E9;
-  --info-text: #0369A1;
-  --surface-muted: #F1F5F9;
+  --bg-app: #f3f5f7;
+  --bg-app-strong: #ebf0f3;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: rgba(255, 255, 255, 0.92);
+  --bg-surface-inset: #edf2f1;
+  --bg-surface-tint: #f6fbfa;
+  --border-subtle: #d8e1e7;
+  --border-strong: #bcc9d1;
+  --text-primary: #10212b;
+  --text-secondary: #485c67;
+  --text-muted: #70818b;
+  --brand-100: #d9f2ec;
+  --brand-500: #117a6c;
+  --brand-600: #0d6459;
+  --success: #198754;
+  --success-soft: #e6f5ed;
+  --danger: #c73b37;
+  --danger-soft: #faebea;
+  --warning: #b4742e;
+  --warning-soft: #fcf1e4;
+  --info: #2a6faa;
+  --info-soft: #e9f2fb;
+  --surface-muted: var(--bg-surface-inset);
+
+  /* Backward-compatible aliases for existing markup */
+  --bg: var(--bg-app);
+  --card: var(--bg-surface);
+  --text: var(--text-primary);
+  --muted: var(--text-muted);
+  --border: var(--border-subtle);
+  --primary: var(--brand-500);
+  --primary-hover: var(--brand-600);
+  --success-text: var(--success);
+  --warning-text: var(--warning);
+  --info-text: var(--info);
 }
 
 @theme inline {
-  --color-background: var(--bg);
-  --color-foreground: var(--text);
+  --color-background: var(--bg-app);
+  --color-foreground: var(--text-primary);
   --font-sans: var(--font-body);
 }
 
 html {
-  background: var(--bg);
+  background: var(--bg-app);
 }
 
 body {
-  background-color: var(--bg);
-  background-image: radial-gradient(var(--border) 1px, transparent 0);
-  background-size: 32px 32px;
-  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(17, 122, 108, 0.08), transparent 32%),
+    radial-gradient(circle at top right, rgba(42, 111, 170, 0.08), transparent 26%),
+    linear-gradient(180deg, #f7f8fa 0%, var(--bg-app) 100%);
+  color: var(--text-primary);
   font-family: var(--font-body);
   line-height: 1.6;
   min-height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  scrollbar-color: rgba(112, 129, 139, 0.55) transparent;
+}
+
+::selection {
+  background: rgba(17, 122, 108, 0.16);
 }
 
 .page-enter {
@@ -71,30 +100,63 @@ body {
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
 }
 
-.animate-scale-in {
-  animation: scale-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+@keyframes pulse-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes blob-drift-1 {
-  0% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
-  100% { transform: translate(0px, 0px) scale(1); }
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+
+  33% {
+    transform: translate(26px, -42px) scale(1.08);
+  }
+
+  66% {
+    transform: translate(-18px, 16px) scale(0.92);
+  }
+
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
 }
 
 @keyframes blob-drift-2 {
-  0% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(-30px, 50px) scale(1.2); }
-  66% { transform: translate(20px, -20px) scale(0.8); }
-  100% { transform: translate(0px, 0px) scale(1); }
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+
+  33% {
+    transform: translate(-28px, 46px) scale(1.14);
+  }
+
+  66% {
+    transform: translate(16px, -20px) scale(0.88);
+  }
+
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-blob-1 {
@@ -105,8 +167,23 @@ body {
   animation: blob-drift-2 18s infinite ease-in-out alternate-reverse;
 }
 
+.skeleton-block {
+  background: linear-gradient(
+    90deg,
+    rgba(216, 225, 231, 0.45) 20%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(216, 225, 231, 0.45) 80%
+  );
+  background-size: 200% 100%;
+  animation: pulse-shimmer 1.4s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .page-enter, .animate-scale-in, .animate-blob-1, .animate-blob-2, .motion-safe\:animate-\[empty-state-fade_500ms_ease-out\] {
+  .page-enter,
+  .animate-scale-in,
+  .animate-blob-1,
+  .animate-blob-2,
+  .motion-safe\:animate-\[empty-state-fade_500ms_ease-out\] {
     animation: none !important;
   }
 }
@@ -119,18 +196,66 @@ h5,
 h6,
 button {
   font-family: var(--font-heading);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+}
+
+:focus-visible {
+  outline: none;
 }
 
 .app-container {
   margin: 0 auto;
-  max-width: 1240px;
+  max-width: 1440px;
   padding: 0 1rem;
   width: 100%;
+}
+
+.content-container {
+  width: 100%;
+  max-width: 1240px;
+}
+
+.page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.page-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.surface-outline {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
 }
 
 @media (min-width: 640px) {
   .app-container {
     padding: 0 1.5rem;
+  }
+
+  .page-stack {
+    gap: 2rem;
+  }
+
+  .page-section {
+    gap: 1.25rem;
   }
 }

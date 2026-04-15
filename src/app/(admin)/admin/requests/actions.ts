@@ -268,14 +268,14 @@ export async function approveBookingRequest(formData: FormData) {
   if (logError) {
     redirectWithMessage(
       "error",
-      "Booking request approved, but the audit log entry could not be written."
+      "Request approved, but the audit log could not be written."
     );
   }
 
   revalidatePath("/admin/requests");
   revalidatePath(`/vehicles/${updated.vehicle_id}/date/${updated.date}`);
   revalidatePath(`/vehicles/${updated.vehicle_id}/calendar`);
-  redirectWithMessage("success", "Booking request approved.");
+  redirectWithMessage("success", "Request approved.");
 }
 
 export async function rejectBookingRequest(formData: FormData) {
@@ -340,12 +340,12 @@ export async function rejectBookingRequest(formData: FormData) {
   if (logError) {
     redirectWithMessage(
       "error",
-      "Booking request rejected, but the audit log entry could not be written."
+      "Request rejected, but the audit log could not be written."
     );
   }
 
   revalidatePath("/admin/requests");
   revalidatePath(`/vehicles/${updated.vehicle_id}/date/${updated.date}`);
   revalidatePath(`/vehicles/${updated.vehicle_id}/calendar`);
-  redirectWithMessage("success", "Booking request rejected.");
+  redirectWithMessage("success", "Request rejected.");
 }

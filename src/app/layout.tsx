@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Montserrat } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { ToastViewport } from "@/components/ToastViewport";
 import "./globals.css";
@@ -10,7 +10,7 @@ const inter = Inter({
   display: "swap",
 });
 
-const montserrat = Montserrat({
+const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-heading",
   subsets: ["latin"],
   display: "swap",
@@ -18,7 +18,7 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: "FleetTime",
-  description: "Vehicle scheduling for teams and families.",
+  description: "Premium vehicle scheduling, approvals, and fleet coordination.",
 };
 
 export default function RootLayout({
@@ -28,7 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${montserrat.variable} antialiased`}>
+      <body
+        className={`${inter.variable} ${plusJakartaSans.variable} antialiased`}
+      >
         {children}
         <Suspense fallback={null}>
           <ToastViewport />

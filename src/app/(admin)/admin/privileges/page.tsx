@@ -6,6 +6,7 @@ import {
   Field,
   PageHeader,
   Panel,
+  StatCard,
   inputClassName,
 } from "@/components/ui";
 import { SettingsIcon } from "@/components/ui/icons";
@@ -46,122 +47,175 @@ function getTimeLimitSummary(minutes: number | null) {
   return minutes === null ? "No time limit" : `${minutes} minutes`;
 }
 
+function getPrivilegePreview(config: PrivilegeConfigRecord) {
+  const approval = config.allow_booking_freedom
+    ? "Bookings auto-confirm."
+    : "Bookings require approval.";
+  const windowLabel = `Members can book up to ${config.max_days_in_future} days ahead.`;
+  const reason = config.require_reason
+    ? "Reason required."
+    : "Reason optional.";
+  const duration =
+    config.time_limit_minutes === null
+      ? "All-day allowed."
+      : `${config.time_limit_minutes}-minute limit.`;
+
+  return `${approval} ${windowLabel} ${reason} ${duration}`;
+}
+
 export default async function AdminPrivilegesPage() {
   const config = await getPrivilegeConfig();
 
   return (
-    <div className="space-y-8">
+    <div className="page-stack">
       <BreadcrumbNav
         items={[
           { href: "/admin/settings", label: "Settings" },
           { label: "Privileges" },
         ]}
       />
+
       <PageHeader
+        action={<Badge tone="primary">Global policy</Badge>}
+        description="Set the booking rules used across the app."
         eyebrow="Settings"
-        title="Admin Privileges"
+        meta={
+          <>
+            <Badge tone={config.allow_booking_freedom ? "success" : "warning"}>
+              {config.allow_booking_freedom ? "Auto-confirm" : "Approval required"}
+            </Badge>
+            <Badge tone="neutral">
+              Window: {config.max_days_in_future} days
+            </Badge>
+          </>
+        }
+        title="Booking Privileges"
       />
 
-      <section className="grid gap-4 md:grid-cols-4">
-        <Panel as="div">
-          <p className="text-sm font-medium text-[var(--muted)]">
-            Booking Freedom
-          </p>
-          <p className="mt-2 text-lg font-semibold">
-            {config.allow_booking_freedom ? "Auto-confirm" : "Requires approval"}
-          </p>
-        </Panel>
-        <Panel as="div">
-          <p className="text-sm font-medium text-[var(--muted)]">Time Limit</p>
-          <p className="mt-2 text-lg font-semibold">
-            {getTimeLimitSummary(config.time_limit_minutes)}
-          </p>
-        </Panel>
-        <Panel as="div">
-          <p className="text-sm font-medium text-[var(--muted)]">
-            Future Window
-          </p>
-          <p className="mt-2 text-lg font-semibold">
-            {config.max_days_in_future} days
-          </p>
-        </Panel>
-        <Panel as="div">
-          <p className="text-sm font-medium text-[var(--muted)]">Reason</p>
-          <p className="mt-2 text-lg font-semibold">
-            {config.require_reason ? "Required" : "Optional"}
-          </p>
-        </Panel>
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          icon={SettingsIcon}
+          label="Booking freedom"
+          tone={config.allow_booking_freedom ? "success" : "warning"}
+          value={config.allow_booking_freedom ? "Auto-confirm" : "Approval"}
+        />
+        <StatCard
+          icon={SettingsIcon}
+          label="Time limit"
+          tone="info"
+          value={getTimeLimitSummary(config.time_limit_minutes)}
+        />
+        <StatCard
+          icon={SettingsIcon}
+          label="Future window"
+          tone="primary"
+          value={`${config.max_days_in_future} days`}
+        />
+        <StatCard
+          icon={SettingsIcon}
+          label="Reason"
+          tone="neutral"
+          value={config.require_reason ? "Required" : "Optional"}
+        />
       </section>
 
-      <Panel className="overflow-hidden border-white/70 bg-white/92">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--primary)]/15 bg-[var(--primary)]/10 text-[var(--primary)]">
-              <SettingsIcon className="h-5 w-5" />
-            </span>
-            <h2 className="text-lg font-semibold">Update Privileges</h2>
+      <Panel className="overflow-hidden" variant="elevated">
+        <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-5 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
+                <SettingsIcon className="h-5 w-5" />
+              </span>
+              <div>
+                <h2 className="text-[1.45rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
+                  Update privileges
+                </h2>
+                <p className="text-sm leading-6 text-[var(--text-secondary)]">
+                  Applies to all members and vehicles.
+                </p>
+              </div>
+            </div>
           </div>
-          <Badge tone="neutral">Global</Badge>
+          <Badge tone="secondary">Global scope</Badge>
         </div>
-        <form action={updatePrivileges} className="mt-4 grid gap-4 md:grid-cols-2">
-          <input name="id" type="hidden" value={config.id} />
 
-          <Field htmlFor="allow-booking-freedom" label="Booking Freedom">
-            <select
-              className={inputClass}
-              defaultValue={String(config.allow_booking_freedom)}
-              id="allow-booking-freedom"
-              name="allow_booking_freedom"
+        <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+          <form action={updatePrivileges} className="grid gap-4 md:grid-cols-2">
+            <input name="id" type="hidden" value={config.id} />
+
+            <Field htmlFor="allow-booking-freedom" label="Booking freedom">
+              <select
+                className={inputClass}
+                defaultValue={String(config.allow_booking_freedom)}
+                id="allow-booking-freedom"
+                name="allow_booking_freedom"
+              >
+                <option value="true">Auto-confirm bookings</option>
+                <option value="false">Require admin approval</option>
+              </select>
+            </Field>
+
+            <Field htmlFor="require-reason" label="Reason requirement">
+              <select
+                className={inputClass}
+                defaultValue={String(config.require_reason)}
+                id="require-reason"
+                name="require_reason"
+              >
+                <option value="true">Reason required</option>
+                <option value="false">Reason optional</option>
+              </select>
+            </Field>
+
+            <Field
+              description="Leave empty for no limit."
+              htmlFor="time-limit-minutes"
+              label="Time limit"
             >
-              <option value="true">Auto-confirm bookings</option>
-              <option value="false">Require admin approval</option>
-            </select>
-          </Field>
+              <input
+                className={inputClass}
+                defaultValue={config.time_limit_minutes ?? ""}
+                id="time-limit-minutes"
+                max={1440}
+                min={1}
+                name="time_limit_minutes"
+                placeholder="No limit"
+                type="number"
+              />
+            </Field>
 
-          <Field htmlFor="require-reason" label="Require Reason">
-            <select
-              className={inputClass}
-              defaultValue={String(config.require_reason)}
-              id="require-reason"
-              name="require_reason"
-            >
-              <option value="true">Reason required</option>
-              <option value="false">Reason optional</option>
-            </select>
-          </Field>
+            <Field htmlFor="max-days-in-future" label="Future booking window">
+              <input
+                className={inputClass}
+                defaultValue={config.max_days_in_future}
+                id="max-days-in-future"
+                max={365}
+                min={0}
+                name="max_days_in_future"
+                required
+                type="number"
+              />
+            </Field>
 
-          <Field htmlFor="time-limit-minutes" label="Time Limit Minutes">
-            <input
-              className={inputClass}
-              defaultValue={config.time_limit_minutes ?? ""}
-              id="time-limit-minutes"
-              max={1440}
-              min={1}
-              name="time_limit_minutes"
-              placeholder="No limit"
-              type="number"
-            />
-          </Field>
+            <div className="md:col-span-2">
+              <Button size="lg" type="submit" tone="primary">
+                Save privileges
+              </Button>
+            </div>
+          </form>
 
-          <Field htmlFor="max-days-in-future" label="Future Booking Window">
-            <input
-              className={inputClass}
-              defaultValue={config.max_days_in_future}
-              id="max-days-in-future"
-              max={365}
-              min={0}
-              name="max_days_in_future"
-              required
-              type="number"
-            />
-          </Field>
-
-          <div className="md:col-span-2">
-            <Button type="submit" tone="primary">
-              Save Privileges
-            </Button>
+          <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--brand-600)]">
+              Live preview
+            </p>
+            <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+              Policy preview
+            </p>
+            <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
+              {getPrivilegePreview(config)}
+            </p>
           </div>
-        </form>
+        </div>
       </Panel>
     </div>
   );

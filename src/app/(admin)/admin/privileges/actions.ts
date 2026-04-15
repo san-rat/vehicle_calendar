@@ -78,7 +78,7 @@ export async function updatePrivileges(formData: FormData) {
   };
 
   if (!hasPrivilegeConfigChanged(before, after)) {
-    redirectWithMessage("success", "No privilege changes to save.");
+    redirectWithMessage("success", "No privilege changes.");
   }
 
   const { data: updated, error } = await supabase
@@ -89,7 +89,7 @@ export async function updatePrivileges(formData: FormData) {
     .single<PrivilegeConfigRecord>();
 
   if (error || !updated) {
-    redirectWithMessage("error", "Privileges could not be saved. Try again.");
+    redirectWithMessage("error", "Privileges could not be saved.");
   }
 
   const { error: logError } = await supabase.from("log_entries").insert({
@@ -102,7 +102,7 @@ export async function updatePrivileges(formData: FormData) {
   if (logError) {
     redirectWithMessage(
       "error",
-      "Privileges updated, but the audit log entry could not be written."
+      "Privileges updated, but the audit log could not be written."
     );
   }
 

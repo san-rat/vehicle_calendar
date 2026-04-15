@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Badge,
   Button,
@@ -8,7 +8,7 @@ import {
   Panel,
   inputClassName,
 } from "@/components/ui";
-import { ManageIcon } from "@/components/ui/icons";
+import { ManageIcon, SearchIcon } from "@/components/ui/icons";
 import { ResponsiveOverlay } from "@/components/ui/ResponsiveOverlay";
 import {
   getMemberRoleLabel,
@@ -46,7 +46,15 @@ const memberColorClasses: Record<string, string> = {
 const inputClass = inputClassName();
 
 function getMemberColorClass(colorHex: string) {
-  return memberColorClasses[colorHex.toUpperCase()] ?? "bg-[var(--primary)]";
+  return memberColorClasses[colorHex.toUpperCase()] ?? "bg-[var(--brand-500)]";
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
 }
 
 export function MemberManagerList({
@@ -57,41 +65,97 @@ export function MemberManagerList({
   updateMemberAction,
 }: MemberManagerListProps) {
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"active" | "all" | "inactive">(
+    "all"
+  );
   const activeMember =
     members.find((member) => member.id === activeMemberId) ?? null;
 
+  const filteredMembers = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return members.filter((member) => {
+      const matchesQuery =
+        !normalizedQuery ||
+        member.name.toLowerCase().includes(normalizedQuery) ||
+        getMemberRoleLabel(member.role).toLowerCase().includes(normalizedQuery);
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "active" ? member.is_active : !member.is_active);
+
+      return matchesQuery && matchesStatus;
+    });
+  }, [members, query, statusFilter]);
+
   return (
     <>
+      <Panel className="p-4 sm:p-5" variant="inset">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px]">
+          <div className="relative">
+            <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />
+            <input
+              className={inputClassName("pl-11")}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search by member name or role"
+              type="search"
+              value={query}
+            />
+          </div>
+          <select
+            className={inputClass}
+            onChange={(event) =>
+              setStatusFilter(event.target.value as "active" | "all" | "inactive")
+            }
+            value={statusFilter}
+          >
+            <option value="all">All statuses</option>
+            <option value="active">Active only</option>
+            <option value="inactive">Inactive only</option>
+          </select>
+        </div>
+      </Panel>
+
       <div className="space-y-3">
-        {members.map((member) => {
+        {filteredMembers.map((member) => {
           const isSelf = member.id === currentUserId;
 
           return (
-            <Panel as="article" className="p-3 sm:p-4" key={member.id}>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Panel as="article" className="p-4 sm:p-5" key={member.id} variant="elevated">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-start gap-3">
                     <span
                       aria-hidden="true"
-                      className={`h-3 w-3 rounded-full ${getMemberColorClass(
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white ${getMemberColorClass(
                         member.color_hex
                       )}`}
-                    />
-                    <h3 className="text-base font-semibold text-[var(--text)]">
-                      {member.name}
-                    </h3>
-                    {isSelf ? <Badge tone="info">You</Badge> : null}
-                    <Badge tone={member.is_active ? "success" : "neutral"}>
-                      {member.is_active ? "Active" : "Inactive"}
-                    </Badge>
+                    >
+                      {member.name
+                        .split(" ")
+                        .slice(0, 2)
+                        .map((part) => part.charAt(0).toUpperCase())
+                        .join("")}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                          {member.name}
+                        </h3>
+                        {isSelf ? <Badge tone="info">You</Badge> : null}
+                        <Badge tone={member.is_active ? "success" : "neutral"}>
+                          {member.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                        {getMemberRoleLabel(member.role)}
+                      </p>
+                    </div>
                   </div>
-                  <p className="mt-2 text-sm text-[var(--muted)]">
-                    {getMemberRoleLabel(member.role)}
-                  </p>
                 </div>
 
                 <Button
-                  className="sm:self-center"
+                  className="xl:self-start"
                   onClick={() => setActiveMemberId(member.id)}
                   size="sm"
                   tone="secondary"
@@ -101,12 +165,46 @@ export function MemberManagerList({
                   Manage
                 </Button>
               </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                    Role
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                    {getMemberRoleLabel(member.role)}
+                  </p>
+                </div>
+                <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                    Created
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                    {formatDate(member.created_at)}
+                  </p>
+                </div>
+                <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                    Updated
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                    {formatDate(member.updated_at)}
+                  </p>
+                </div>
+              </div>
             </Panel>
           );
         })}
       </div>
 
       <ResponsiveOverlay
+        description={
+          activeMember
+            ? `${getMemberRoleLabel(activeMember.role)} account created ${formatDate(
+                activeMember.created_at
+              )}.`
+            : undefined
+        }
         onClose={() => setActiveMemberId(null)}
         open={activeMember !== null}
         title={activeMember ? `Manage ${activeMember.name}` : "Manage member"}
@@ -114,7 +212,7 @@ export function MemberManagerList({
         {activeMember ? (
           <div className="space-y-6">
             <section className="space-y-4">
-              <h3 className="text-base font-semibold text-[var(--text)]">
+              <h3 className="text-base font-semibold text-[var(--text-primary)]">
                 Account details
               </h3>
 
@@ -170,10 +268,13 @@ export function MemberManagerList({
               </form>
             </section>
 
-            <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-muted)]/75 p-4">
-              <h3 className="text-base font-semibold text-[var(--text)]">
+            <section className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] p-5">
+              <h3 className="text-base font-semibold text-[var(--text-primary)]">
                 Reset password
               </h3>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+                Reset the password only.
+              </p>
 
               <form
                 action={resetMemberPasswordAction}
@@ -182,8 +283,9 @@ export function MemberManagerList({
                 <input name="id" type="hidden" value={activeMember.id} />
 
                 <Field
+                  description="At least 8 characters."
                   htmlFor={`member-password-${activeMember.id}`}
-                  label="New Password"
+                  label="New password"
                 >
                   <input
                     className={inputClass}
@@ -196,8 +298,9 @@ export function MemberManagerList({
                 </Field>
 
                 <Field
+                  description="Repeat the password."
                   htmlFor={`member-password-confirmation-${activeMember.id}`}
-                  label="Confirm Password"
+                  label="Confirm password"
                 >
                   <input
                     className={inputClass}
@@ -210,15 +313,18 @@ export function MemberManagerList({
                 </Field>
 
                 <Button type="submit" tone="secondary">
-                  Reset Password
+                  Reset password
                 </Button>
               </form>
             </section>
 
-            <section className="rounded-2xl border border-[var(--danger)]/15 bg-[var(--danger)]/5 p-4">
-              <h3 className="text-base font-semibold text-[var(--text)]">
+            <section className="rounded-[24px] border border-[var(--danger)]/16 bg-[var(--danger-soft)] p-5">
+              <h3 className="text-base font-semibold text-[var(--text-primary)]">
                 Delete member
               </h3>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+                This permanently removes the account. Audit logs remain.
+              </p>
 
               <form
                 action={deleteMemberAction}
@@ -227,8 +333,9 @@ export function MemberManagerList({
                 <input name="id" type="hidden" value={activeMember.id} />
 
                 <Field
+                  description="Type the exact member name."
                   htmlFor={`member-delete-${activeMember.id}`}
-                  label="Type member name to hard delete"
+                  label="Confirmation"
                 >
                   <input
                     className={inputClass}

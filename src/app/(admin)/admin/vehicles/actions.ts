@@ -102,7 +102,7 @@ export async function createVehicle(formData: FormData) {
   if (logError) {
     redirectWithMessage(
       "error",
-      "Vehicle created, but the audit log entry could not be written."
+      "Vehicle created, but the audit log could not be written."
     );
   }
 
@@ -144,7 +144,7 @@ export async function updateVehicle(formData: FormData) {
   };
 
   if (!hasVehicleChanged(before, after)) {
-    redirectWithMessage("success", "No vehicle changes to save.");
+    redirectWithMessage("success", "No vehicle changes.");
   }
 
   const { data: updated, error } = await supabase
@@ -169,7 +169,7 @@ export async function updateVehicle(formData: FormData) {
   if (logError) {
     redirectWithMessage(
       "error",
-      "Vehicle updated, but the audit log entry could not be written."
+      "Vehicle updated, but the audit log could not be written."
     );
   }
 
@@ -200,7 +200,7 @@ export async function deleteVehicle(formData: FormData) {
   if (confirmation !== vehicle.name) {
     redirectWithMessage(
       "error",
-      `Type "${vehicle.name}" exactly before deleting this vehicle.`
+      `Type "${vehicle.name}" exactly to delete this vehicle.`
     );
   }
 
@@ -217,7 +217,7 @@ export async function deleteVehicle(formData: FormData) {
   if (bookingRows && bookingRows.length > 0) {
     redirectWithMessage(
       "error",
-      "This vehicle has bookings and cannot be hard-deleted. Set it inactive instead."
+      "This vehicle has bookings. Set it inactive instead."
     );
   }
 
@@ -227,7 +227,7 @@ export async function deleteVehicle(formData: FormData) {
     .eq("id", id);
 
   if (deleteError) {
-    redirectWithMessage("error", "The vehicle could not be deleted.");
+    redirectWithMessage("error", "Vehicle could not be deleted.");
   }
 
   const logError = await writeVehicleLog(supabase, {
@@ -240,7 +240,7 @@ export async function deleteVehicle(formData: FormData) {
   if (logError) {
     redirectWithMessage(
       "error",
-      "Vehicle deleted, but the audit log entry could not be written."
+      "Vehicle deleted, but the audit log could not be written."
     );
   }
 

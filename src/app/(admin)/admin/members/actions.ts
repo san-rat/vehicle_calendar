@@ -103,7 +103,7 @@ export async function createMember(formData: FormData) {
     .select("color_hex");
 
   if (existingUsersError) {
-    redirectWithMessage("error", "Could not load existing member colors.");
+    redirectWithMessage("error", "Could not load member colors.");
   }
 
   const validation = validateMemberCreateInput({
@@ -136,7 +136,7 @@ export async function createMember(formData: FormData) {
   });
 
   if (authError || !authUser) {
-    redirectWithMessage("error", "The Supabase Auth account could not be created.");
+    redirectWithMessage("error", "Auth account could not be created.");
   }
 
   const { data: createdProfile, error: profileError } = await supabase
@@ -170,7 +170,7 @@ export async function createMember(formData: FormData) {
   if (logError) {
     redirectWithMessage(
       "error",
-      "Member created, but the audit log entry could not be written."
+      "Member created, but the audit log could not be written."
     );
   }
 
@@ -219,7 +219,7 @@ export async function updateMember(formData: FormData) {
   };
 
   if (!hasMemberChanged(before, after)) {
-    redirectWithMessage("success", "No member changes to save.");
+    redirectWithMessage("success", "No member changes.");
   }
 
   const { data: updated, error } = await supabase
@@ -247,7 +247,7 @@ export async function updateMember(formData: FormData) {
   if (logError) {
     redirectWithMessage(
       "error",
-      "Member updated, but the audit log entry could not be written."
+      "Member updated, but the audit log could not be written."
     );
   }
 
@@ -283,7 +283,7 @@ export async function resetMemberPassword(formData: FormData) {
   });
 
   if (authError) {
-    redirectWithMessage("error", "The member password could not be reset.");
+    redirectWithMessage("error", "Password could not be reset.");
   }
 
   const logError = await writeMemberLog(supabase, {
@@ -297,7 +297,7 @@ export async function resetMemberPassword(formData: FormData) {
   if (logError) {
     redirectWithMessage(
       "error",
-      "Password reset, but the audit log entry could not be written."
+      "Password reset, but the audit log could not be written."
     );
   }
 
@@ -334,7 +334,7 @@ export async function deleteMember(formData: FormData) {
   if (confirmation !== member.name) {
     redirectWithMessage(
       "error",
-      `Type "${member.name}" exactly before deleting this member.`
+      `Type "${member.name}" exactly to delete this member.`
     );
   }
 
@@ -351,14 +351,14 @@ export async function deleteMember(formData: FormData) {
   if (bookingRows && bookingRows.length > 0) {
     redirectWithMessage(
       "error",
-      "This member has bookings and cannot be hard-deleted. Set them inactive instead."
+      "This member has bookings. Set them inactive instead."
     );
   }
 
   const { error: authDeleteError } = await supabase.auth.admin.deleteUser(id);
 
   if (authDeleteError) {
-    redirectWithMessage("error", "The Supabase Auth account could not be deleted.");
+    redirectWithMessage("error", "Auth account could not be deleted.");
   }
 
   const logError = await writeMemberLog(supabase, {
@@ -371,7 +371,7 @@ export async function deleteMember(formData: FormData) {
   if (logError) {
     redirectWithMessage(
       "error",
-      "Member deleted, but the audit log entry could not be written."
+      "Member deleted, but the audit log could not be written."
     );
   }
 

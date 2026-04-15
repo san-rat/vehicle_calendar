@@ -9,6 +9,7 @@ import { CloseIcon } from "./icons";
 type ResponsiveOverlayProps = {
   children: ReactNode;
   description?: string;
+  footer?: ReactNode;
   onClose: () => void;
   open: boolean;
   title: string;
@@ -21,6 +22,7 @@ function joinClasses(...classes: Array<string | null | undefined | false>) {
 export function ResponsiveOverlay({
   children,
   description,
+  footer,
   onClose,
   open,
   title,
@@ -69,7 +71,7 @@ export function ResponsiveOverlay({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[140] flex items-end justify-center bg-[var(--text)]/40 px-2 pt-8 backdrop-blur-xl sm:px-4 md:items-center md:px-6 md:py-8"
+      className="fixed inset-0 z-[140] flex items-end justify-center bg-[var(--text-primary)]/28 px-2 pt-8 backdrop-blur-xl sm:px-4 md:items-center md:px-6 md:py-8"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -81,7 +83,7 @@ export function ResponsiveOverlay({
         aria-labelledby={titleId}
         aria-modal="true"
         className={joinClasses(
-          "flex w-full max-w-3xl flex-col overflow-hidden border border-[var(--border)] bg-[var(--card)] shadow-md shadow-slate-900/10",
+          "flex w-full max-w-[980px] flex-col overflow-hidden border border-white/80 bg-[var(--bg-surface)] shadow-[0_28px_80px_rgba(15,23,42,0.2)]",
           "max-h-[88vh] rounded-t-[1.75rem] md:max-h-[82vh] md:rounded-3xl"
         )}
         onMouseDown={(event) => {
@@ -90,42 +92,49 @@ export function ResponsiveOverlay({
         role="dialog"
       >
         <div className="px-5 pt-3 md:hidden">
-          <div className="mx-auto h-1.5 w-12 rounded-full bg-[var(--border)]" />
+          <div className="mx-auto h-1.5 w-12 rounded-full bg-[var(--border-strong)]/70" />
         </div>
 
-        <div className="flex items-start justify-between gap-4 border-b border-[var(--border)]/80 px-5 py-4 md:px-6">
-          <div className="min-w-0">
-            <h2
-              className="text-xl font-semibold tracking-[-0.02em] text-[var(--text)]"
-              id={titleId}
-            >
-              {title}
-            </h2>
-            {description ? (
-              <p
-                className="mt-1 text-sm leading-6 text-[var(--muted)]"
-                id={descriptionId}
+        <div className="bg-[linear-gradient(180deg,rgba(246,251,250,0.96),rgba(255,255,255,0.92))] px-5 py-5 md:px-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h2
+                className="text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]"
+                id={titleId}
               >
-                {description}
-              </p>
-            ) : null}
-          </div>
+                {title}
+              </h2>
+              {description ? (
+                <p
+                  className="mt-1 text-sm leading-6 text-[var(--text-secondary)]"
+                  id={descriptionId}
+                >
+                  {description}
+                </p>
+              ) : null}
+            </div>
 
-          <button
-            aria-label={`Close ${title}`}
-            className={buttonClassName({
-              className: "mt-0.5 h-11 w-11 shrink-0 p-0",
-              tone: "ghost",
-            })}
-            onClick={onClose}
-            ref={closeButtonRef}
-            type="button"
-          >
-            <CloseIcon className="h-5 w-5" />
-          </button>
+            <button
+              aria-label={`Close ${title}`}
+              className={buttonClassName({
+                className: "mt-0.5 h-11 w-11 shrink-0 p-0",
+                tone: "ghost",
+              })}
+              onClick={onClose}
+              ref={closeButtonRef}
+              type="button"
+            >
+              <CloseIcon className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
-        <div className="overflow-y-auto px-5 pb-6 pt-5 md:px-6">{children}</div>
+        <div className="overflow-y-auto px-5 pb-6 pt-4 md:px-6">{children}</div>
+        {footer ? (
+          <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-5 py-4 md:px-6">
+            {footer}
+          </div>
+        ) : null}
       </div>
     </div>,
     document.body

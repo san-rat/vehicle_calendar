@@ -138,12 +138,16 @@ export default async function LogPage({ searchParams }: LogPageProps) {
   } = await getLogPageData(resolvedSearchParams.page, resolvedSearchParams.q);
   const emptyDescription = query
     ? `No system actions matched "${query}" in the last ${LOG_RETENTION_DAYS} days.`
-    : "No system actions were recorded in the current retention window.";
+    : "No system actions were recorded in the current window.";
 
   return (
     <RouteTransition transitionKey={`log-page-${currentPage}-${query || "all"}`}>
       <div className="space-y-6 sm:space-y-8">
-        <PageHeader eyebrow="Log" title="System Log" />
+        <PageHeader
+          description="Recent activity and audit events."
+          eyebrow="Log"
+          title="System Log"
+        />
 
         <Panel className="sticky top-20 z-20 border-white/75 bg-[var(--bg)]/90 p-4 backdrop-blur-xl">
           <form
@@ -165,7 +169,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
                   defaultValue={query}
                   id="log-search"
                   name="q"
-                  placeholder="Search descriptions or action types"
+                  placeholder="Search descriptions or actions"
                   type="search"
                 />
               </div>
@@ -178,7 +182,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
               })}
               type="submit"
             >
-              Apply filter
+              Filter
             </button>
 
             {query ? (
@@ -259,7 +263,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
           className="flex flex-col gap-3 border-t border-[var(--border)] pt-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <p className="text-sm text-[var(--muted)]">
-            Showing up to {LOG_PAGE_SIZE} entries per page.
+            Up to {LOG_PAGE_SIZE} entries per page.
           </p>
           <div className="flex gap-2">
             {hasPreviousPage ? (

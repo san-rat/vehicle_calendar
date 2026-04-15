@@ -12,6 +12,7 @@ import {
   Field,
   PageHeader,
   Panel,
+  StatCard,
   inputClassName,
 } from "@/components/ui";
 import { MemberManagerList } from "@/components/admin/MemberManagerList";
@@ -56,9 +57,13 @@ async function getMembers() {
 
 export default async function AdminMembersPage() {
   const { currentUser, members } = await getMembers();
+  const activeMembers = members.filter((member) => member.is_active).length;
+  const superAdmins = members.filter(
+    (member) => member.role === "super_admin"
+  ).length;
 
   return (
-    <div className="space-y-8">
+    <div className="page-stack">
       <BreadcrumbNav
         items={[
           { href: "/admin/settings", label: "Settings" },
@@ -66,20 +71,56 @@ export default async function AdminMembersPage() {
         ]}
       />
       <PageHeader
+        action={<Badge tone="primary">Access management</Badge>}
+        description="Manage sign-in access, roles, and approvals."
         eyebrow="Settings"
         title="Admin Members"
       />
 
-      <Panel className="overflow-hidden border-white/70 bg-white/92">
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--primary)]/15 bg-[var(--primary)]/10 text-[var(--primary)]">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          icon={UserIcon}
+          label="Active members"
+          tone="primary"
+          value={activeMembers}
+        />
+        <StatCard
+          icon={UserIcon}
+          label="Total members"
+          tone="neutral"
+          value={members.length}
+        />
+        <StatCard
+          icon={UserIcon}
+          label="Super admins"
+          tone="info"
+          value={superAdmins}
+        />
+        <StatCard
+          icon={UserIcon}
+          label="Current user"
+          tone="success"
+          value={currentUser.name}
+        />
+      </section>
+
+      <Panel className="overflow-hidden" variant="elevated">
+        <div className="flex items-center gap-3 border-b border-[var(--border-subtle)] pb-5">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
             <UserIcon className="h-5 w-5" />
           </span>
-          <h2 className="text-lg font-semibold">Add Member</h2>
+          <div>
+            <h2 className="text-[1.4rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
+              Add member
+            </h2>
+            <p className="text-sm leading-6 text-[var(--text-secondary)]">
+              Create an account before first sign-in.
+            </p>
+          </div>
         </div>
         <form
           action={createMember}
-          className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-[1fr_170px_150px_1fr_1fr_auto] lg:items-end"
+          className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-[1fr_170px_150px_1fr_1fr_auto] xl:items-end"
         >
           <Field htmlFor="member-create-name" label="Name">
             <input
@@ -120,7 +161,11 @@ export default async function AdminMembersPage() {
             </select>
           </Field>
 
-          <Field htmlFor="member-create-password" label="Password">
+          <Field
+            description="At least 8 characters."
+            htmlFor="member-create-password"
+            label="Password"
+          >
             <input
               className={inputClass}
               id="member-create-password"
@@ -133,8 +178,9 @@ export default async function AdminMembersPage() {
           </Field>
 
           <Field
+            description="Repeat the password."
             htmlFor="member-create-password-confirmation"
-            label="Confirm Password"
+            label="Confirm password"
           >
             <input
               className={inputClass}
@@ -148,37 +194,39 @@ export default async function AdminMembersPage() {
           </Field>
 
           <Button type="submit" tone="primary">
-            Add Member
+            Add member
           </Button>
         </form>
       </Panel>
 
-      <section>
+      <section className="page-section">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold">Members</h2>
-          <Badge tone="neutral">
-            {members.length} total
-          </Badge>
+          <div>
+            <h2 className="text-[1.3rem] font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+              Member directory
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
+              Search members and open the manage overlay when needed.
+            </p>
+          </div>
+          <Badge tone="neutral">{members.length} total</Badge>
         </div>
 
         {members.length === 0 ? (
-          <div className="mt-4">
-            <EmptyState
-              description="Add the first member to give someone access to FleetTime."
-              icon={EmptyStateIcon}
-              title="No members yet"
-            />
-          </div>
+        <EmptyState
+          description="Add the first member to give someone access to FleetTime."
+          icon={EmptyStateIcon}
+          supportingCopy="New accounts appear here."
+          title="No members yet"
+        />
         ) : (
-          <div className="mt-4">
-            <MemberManagerList
-              currentUserId={currentUser.id}
-              deleteMemberAction={deleteMember}
-              members={members}
-              resetMemberPasswordAction={resetMemberPassword}
-              updateMemberAction={updateMember}
-            />
-          </div>
+          <MemberManagerList
+            currentUserId={currentUser.id}
+            deleteMemberAction={deleteMember}
+            members={members}
+            resetMemberPasswordAction={resetMemberPassword}
+            updateMemberAction={updateMember}
+          />
         )}
       </section>
     </div>

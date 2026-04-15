@@ -8,10 +8,11 @@ import {
   Notice,
   PageHeader,
   Panel,
+  StatCard,
   StatusBadge,
   warningInputClassName,
 } from "@/components/ui";
-import { CalendarIcon, EmptyStateIcon } from "@/components/ui/icons";
+import { CalendarIcon, EmptyStateIcon, LogIcon } from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -53,7 +54,10 @@ type RequestedBookingRecord = BookingTimeWindow & {
 };
 
 type ConfirmedBookingRecord = BookingTimeWindow & {
-  booking_user: Pick<JoinedUser, "color_hex" | "name"> | Pick<JoinedUser, "color_hex" | "name">[] | null;
+  booking_user:
+    | Pick<JoinedUser, "color_hex" | "name">
+    | Pick<JoinedUser, "color_hex" | "name">[]
+    | null;
   date: string;
   id: string;
   is_all_day: boolean;
@@ -120,7 +124,7 @@ function getTimeLabel(booking: BookingTimeWindow & { is_all_day: boolean }) {
 }
 
 function getUserColorDotClass(colorHex: string) {
-  return userColorDotClasses[colorHex.toUpperCase()] ?? "bg-[var(--primary)]";
+  return userColorDotClasses[colorHex.toUpperCase()] ?? "bg-[var(--brand-500)]";
 }
 
 function compareRequests(
@@ -212,11 +216,34 @@ async function getRequestReviewData() {
   return requestsWithReviewState;
 }
 
+function groupRequestsByDate(requests: RequestWithReviewState[]) {
+  const groups = new Map<string, RequestWithReviewState[]>();
+
+  for (const request of requests) {
+    const current = groups.get(request.date) ?? [];
+    current.push(request);
+    groups.set(request.date, current);
+  }
+
+  return Array.from(groups.entries()).map(([date, items]) => ({
+    date,
+    items,
+  }));
+}
+
 export default async function AdminRequestsPage() {
   const requests = await getRequestReviewData();
+  const groupedRequests = groupRequestsByDate(requests);
+  const blockedRequests = requests.filter((request) => request.approvalProblem).length;
+  const conflictRequests = requests.filter(
+    (request) => request.conflicts.length > 0
+  ).length;
+  const readyRequests = requests.filter(
+    (request) => !request.approvalProblem && request.conflicts.length === 0
+  ).length;
 
   return (
-    <div className="space-y-8">
+    <div className="page-stack">
       <BreadcrumbNav
         items={[
           { href: "/admin/settings", label: "Settings" },
@@ -224,268 +251,297 @@ export default async function AdminRequestsPage() {
         ]}
       />
       <PageHeader
+        action={<Badge tone="primary">Approval queue</Badge>}
+        description="Review and resolve booking requests."
         eyebrow="Admin"
         title="Booking Requests"
       />
 
-      <section>
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold">Pending Requests</h2>
-          <Badge tone="neutral">
-            {requests.length} total
-          </Badge>
-        </div>
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          icon={LogIcon}
+          label="Pending"
+          tone={requests.length > 0 ? "warning" : "success"}
+          value={requests.length}
+        />
+        <StatCard
+          icon={LogIcon}
+          label="Ready"
+          tone="success"
+          value={readyRequests}
+        />
+        <StatCard
+          icon={LogIcon}
+          label="Conflicts"
+          tone="warning"
+          value={conflictRequests}
+        />
+        <StatCard
+          icon={LogIcon}
+          label="Blocked"
+          tone="info"
+          value={blockedRequests}
+        />
+      </section>
 
-        {requests.length === 0 ? (
-          <div className="mt-4">
-            <EmptyState
-              description="No booking requests are waiting for review."
-              icon={EmptyStateIcon}
-              title="No pending requests"
-            />
-          </div>
-        ) : (
-          <div className="mt-4 space-y-4">
-            {requests.map((request) => {
-              const member = getJoinedOne(request.booking_user);
-              const vehicle = getJoinedOne(request.booking_vehicle);
-              const isMemberInactive = member?.is_active === false;
-              const isVehicleInactive = vehicle?.is_active === false;
-              const approveBlockReason =
-                isMemberInactive
-                  ? "Approval is blocked because this member is inactive."
-                  : isVehicleInactive
-                    ? "Approval is blocked because this vehicle is inactive."
-                    : request.approvalProblem
-                      ? request.approvalProblem
-                      : request.conflicts.length > 0
-                        ? "Approval needs override review because this request conflicts with confirmed bookings."
-                        : null;
-              const canApprove = approveBlockReason === null;
-              const canOverride =
-                !isMemberInactive &&
-                !isVehicleInactive &&
-                !request.approvalProblem &&
-                request.conflicts.length > 0;
+      {requests.length === 0 ? (
+        <EmptyState
+          action={
+            <ButtonLink href="/admin/privileges" tone="secondary">
+              Review privilege settings
+            </ButtonLink>
+          }
+          description="No booking requests are waiting for review."
+          icon={EmptyStateIcon}
+          supportingCopy="New requests appear here."
+          title="No pending requests"
+        />
+      ) : (
+        <div className="space-y-6">
+          {groupedRequests.map((group) => (
+            <section className="space-y-4" key={group.date}>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-[1.25rem] font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                    {getDateLabel(group.date)}
+                  </h2>
+                  <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
+                    {group.items.length} request{group.items.length === 1 ? "" : "s"}
+                  </p>
+                </div>
+                <Badge tone="neutral">{group.items.length} item{group.items.length === 1 ? "" : "s"}</Badge>
+              </div>
 
-              return (
-                <Panel as="article" className="p-4 sm:p-5" key={request.id}>
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className={`h-3 w-3 rounded-full ${getUserColorDotClass(
-                            member?.color_hex ?? "#3B82F6"
-                          )}`}
-                        />
-                        <h3 className="text-lg font-semibold">
-                          {member?.name ?? "Unknown member"}
-                        </h3>
-                        {isMemberInactive ? (
-                          <Badge tone="neutral">
-                            Member inactive
-                          </Badge>
-                        ) : null}
+              <div className="space-y-4">
+                {group.items.map((request) => {
+                  const member = getJoinedOne(request.booking_user);
+                  const vehicle = getJoinedOne(request.booking_vehicle);
+                  const isMemberInactive = member?.is_active === false;
+                  const isVehicleInactive = vehicle?.is_active === false;
+                  const approveBlockReason =
+                    isMemberInactive
+                      ? "This member is inactive."
+                      : isVehicleInactive
+                        ? "This vehicle is inactive."
+                        : request.approvalProblem
+                          ? request.approvalProblem
+                          : request.conflicts.length > 0
+                            ? "Override required because this request conflicts with confirmed bookings."
+                            : null;
+                  const canApprove = approveBlockReason === null;
+                  const canOverride =
+                    !isMemberInactive &&
+                    !isVehicleInactive &&
+                    !request.approvalProblem &&
+                    request.conflicts.length > 0;
+
+                  return (
+                    <Panel as="article" className="p-5 sm:p-6" key={request.id} variant="elevated">
+                      <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span
+                              className={`h-3 w-3 rounded-full ${getUserColorDotClass(
+                                member?.color_hex ?? "#3B82F6"
+                              )}`}
+                            />
+                            <h3 className="text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                              {member?.name ?? "Unknown member"}
+                            </h3>
+                            <StatusBadge status="requested" />
+                            {isMemberInactive ? <Badge tone="neutral">Member inactive</Badge> : null}
+                            {isVehicleInactive ? <Badge tone="neutral">Vehicle inactive</Badge> : null}
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+                            Requested {getRequestedAtLabel(request.created_at)}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          {request.conflicts.length > 0 ? (
+                            <Badge tone="warning">
+                              {request.conflicts.length} conflict
+                              {request.conflicts.length === 1 ? "" : "s"}
+                            </Badge>
+                          ) : (
+                            <Badge tone="success">No conflict</Badge>
+                          )}
+                          {request.approvalProblem ? (
+                            <Badge tone="danger">Approval blocked</Badge>
+                          ) : null}
+                        </div>
                       </div>
-                      <p className="mt-2 text-sm text-[var(--muted)]">
-                        Requested at {getRequestedAtLabel(request.created_at)}
-                      </p>
-                    </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      <StatusBadge status="requested" />
+                      <div className="mt-5 grid gap-3 md:grid-cols-3">
+                        <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-4">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                            Vehicle
+                          </p>
+                          <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                            {vehicle?.name ?? "Unknown vehicle"}
+                          </p>
+                          {vehicle ? (
+                            <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                              {getVehicleTypeLabel(vehicle.type)}
+                            </p>
+                          ) : null}
+                        </div>
+                        <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-4">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                            Date and time
+                          </p>
+                          <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                            {getDateLabel(request.date)}
+                          </p>
+                          <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                            {getTimeLabel(request)}
+                          </p>
+                        </div>
+                        <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-4">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                            Reason
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">
+                            {request.reason ?? "No reason provided."}
+                          </p>
+                        </div>
+                      </div>
+
+                      {approveBlockReason ? (
+                        <Notice className="mt-4" tone={request.approvalProblem ? "danger" : "warning"}>
+                          {approveBlockReason}
+                        </Notice>
+                      ) : null}
+
                       {request.conflicts.length > 0 ? (
-                        <Badge tone="warning">
-                          {request.conflicts.length} conflict
-                          {request.conflicts.length === 1 ? "" : "s"}
-                        </Badge>
-                      ) : (
-                        <Badge tone="success">
-                          No conflict
-                        </Badge>
-                      )}
-                      {request.approvalProblem ? (
-                        <Badge tone="danger">
-                          Approval blocked
-                        </Badge>
-                      ) : null}
-                      {isVehicleInactive ? (
-                        <Badge tone="neutral">
-                          Vehicle inactive
-                        </Badge>
-                      ) : null}
-                    </div>
-                  </div>
+                        <div className="mt-4 rounded-[22px] border border-[var(--warning)]/26 bg-[var(--warning-soft)] px-4 py-4">
+                          <p className="text-sm font-semibold text-[var(--warning)]">
+                            Confirmed bookings overlap this request.
+                          </p>
+                          <div className="mt-3 space-y-2">
+                            {request.conflicts.map((conflict) => {
+                              const conflictUser = getJoinedOne(conflict.booking_user);
 
-                  <div className="mt-4 grid gap-4 md:grid-cols-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase text-[var(--muted)]">
-                        Vehicle
-                      </p>
-                      <p className="mt-1 text-sm font-semibold">
-                        {vehicle?.name ?? "Unknown vehicle"}
-                      </p>
-                      {vehicle ? (
-                        <p className="mt-1 text-sm text-[var(--muted)]">
-                          {getVehicleTypeLabel(vehicle.type)}
-                        </p>
-                      ) : null}
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase text-[var(--muted)]">
-                        Date
-                      </p>
-                      <p className="mt-1 text-sm font-semibold">
-                        {getDateLabel(request.date)}
-                      </p>
-                      <p className="mt-1 text-sm text-[var(--muted)]">
-                        {getTimeLabel(request)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase text-[var(--muted)]">
-                        Reason
-                      </p>
-                      <p className="mt-1 text-sm text-[var(--text)]">
-                        {request.reason ?? "No reason provided."}
-                      </p>
-                    </div>
-                  </div>
-
-                  {request.approvalProblem ? (
-                    <Notice className="mt-4" tone="danger">
-                      {request.approvalProblem}
-                    </Notice>
-                  ) : null}
-
-                  {request.conflicts.length > 0 ? (
-                    <div className="mt-4 rounded-2xl border border-[var(--warning)]/35 bg-[var(--warning)]/10 px-4 py-4">
-                      <p className="text-sm font-semibold text-[var(--warning-text)]">
-                        Confirmed bookings overlap this request.
-                      </p>
-                      <div className="mt-3 space-y-2">
-                        {request.conflicts.map((conflict) => {
-                          const conflictUser = getJoinedOne(conflict.booking_user);
-
-                          return (
-                            <div
-                              className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 text-sm"
-                              key={conflict.id}
+                              return (
+                                <div
+                                  className="flex flex-wrap items-center justify-between gap-2 rounded-[18px] bg-white px-3 py-3 shadow-[0_10px_24px_rgba(15,23,42,0.06)]"
+                                  key={conflict.id}
+                                >
+                                  <span className="font-medium text-[var(--text-primary)]">
+                                    {conflictUser?.name ?? "Unknown member"}
+                                  </span>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <StatusBadge status="confirmed" />
+                                    <span className="text-sm text-[var(--text-secondary)]">
+                                      {getTimeLabel(conflict)}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {canOverride ? (
+                            <form
+                              action={approveBookingRequest}
+                              className="mt-4 space-y-3 border-t border-[var(--warning)]/30 pt-4"
                             >
-                              <span className="font-medium text-[var(--text)]">
-                                {conflictUser?.name ?? "Unknown member"}
-                              </span>
-                              <div className="flex flex-wrap items-center gap-2">
-                                <StatusBadge status="confirmed" />
-                                <span className="text-[var(--muted)]">
-                                  {getTimeLabel(conflict)}
+                              <input name="id" type="hidden" value={request.id} />
+                              <label className="flex gap-3 text-sm text-[var(--warning)]">
+                                <input
+                                  className="mt-1 h-4 w-4 rounded border-[var(--warning)]"
+                                  name="override_confirmation"
+                                  required
+                                  type="checkbox"
+                                  value="override"
+                                />
+                                <span>
+                                  Approve and mark overlapping confirmed bookings
+                                  as overridden.
                                 </span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      {canOverride ? (
-                        <form
-                          action={approveBookingRequest}
-                          className="mt-4 space-y-3 border-t border-[var(--warning)]/40 pt-4"
-                        >
-                          <input name="id" type="hidden" value={request.id} />
-                          <label className="flex gap-3 text-sm text-[var(--warning-text)]">
-                            <input
-                              className="mt-1 h-4 w-4 rounded border-[var(--warning)]"
-                              name="override_confirmation"
-                              required
-                              type="checkbox"
-                              value="override"
-                            />
-                            <span>
-                              Approve this request and mark every overlapping
-                              confirmed booking as overridden.
-                            </span>
-                          </label>
-                          <Field
-                            htmlFor={`override-note-${request.id}`}
-                            label="Optional override note"
-                          >
-                            <textarea
-                              className={warningInputClassName(
-                                "min-h-20 border-[var(--warning)]/50"
-                              )}
-                              id={`override-note-${request.id}`}
-                              maxLength={500}
-                              name="override_note"
-                              placeholder="Note stored in audit log only"
-                            />
-                          </Field>
-                          <Button type="submit" tone="warning">
-                            Approve with override
-                          </Button>
-                        </form>
-                      ) : (
-                        <p className="mt-4 border-t border-[var(--warning)]/40 pt-4 text-sm text-[var(--warning-text)]">
-                          Override approval is unavailable until the request is
-                          active and has not already started.
-                        </p>
-                      )}
-                    </div>
-                  ) : null}
+                              </label>
+                              <Field
+                                description="Saved to the audit log."
+                                htmlFor={`override-note-${request.id}`}
+                                label="Override note"
+                                optionalLabel="Optional"
+                              >
+                                <textarea
+                                  className={warningInputClassName(
+                                    "min-h-20 border-[var(--warning)]/35"
+                                  )}
+                                  id={`override-note-${request.id}`}
+                                  maxLength={500}
+                                  name="override_note"
+                                  placeholder="Why override"
+                                />
+                              </Field>
+                              <Button type="submit" tone="warning">
+                                Approve with override
+                              </Button>
+                            </form>
+                          ) : null}
+                        </div>
+                      ) : null}
 
-                  <div className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 lg:grid-cols-[1fr_auto] lg:items-center">
-                    <div className="flex flex-wrap gap-2">
-                      <ButtonLink
-                        href={`/vehicles/${request.vehicle_id}/date/${request.date}`}
-                        size="sm"
-                        tone="neutral"
+                      <div className="mt-4 grid gap-3 border-t border-[var(--border-subtle)] pt-4 xl:grid-cols-[1fr_auto] xl:items-center">
+                        <div className="flex flex-wrap gap-2">
+                          <ButtonLink
+                            href={`/vehicles/${request.vehicle_id}/date/${request.date}`}
+                            size="sm"
+                            tone="neutral"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                            Open booking day
+                          </ButtonLink>
+                          <form action={approveBookingRequest}>
+                            <input name="id" type="hidden" value={request.id} />
+                            <Button
+                              disabled={!canApprove}
+                              size="sm"
+                              tone="primary"
+                              type="submit"
+                            >
+                              Approve
+                            </Button>
+                          </form>
+                        </div>
+                        <p className="text-sm leading-6 text-[var(--text-secondary)] xl:text-right">
+                          {approveBlockReason ??
+                            "Ready to approve."}
+                        </p>
+                      </div>
+
+                      <form
+                        action={rejectBookingRequest}
+                        className="mt-4 grid gap-3 border-t border-[var(--border-subtle)] pt-4 md:grid-cols-[1fr_auto] md:items-end"
                       >
-                        <CalendarIcon className="h-4 w-4" />
-                        Open booking day
-                      </ButtonLink>
-                      <form action={approveBookingRequest}>
                         <input name="id" type="hidden" value={request.id} />
-                        <Button
-                          disabled={!canApprove}
-                          size="sm"
-                          tone="primary"
-                          type="submit"
+                        <Field
+                          description="Saved to the audit log."
+                          htmlFor={`rejection-reason-${request.id}`}
+                          label="Rejection reason"
+                          optionalLabel="Optional"
                         >
-                          Approve
+                          <textarea
+                            className={warningInputClassName("min-h-20")}
+                            id={`rejection-reason-${request.id}`}
+                            maxLength={500}
+                            name="rejection_reason"
+                            placeholder="Why reject"
+                          />
+                        </Field>
+                        <Button type="submit" tone="danger">
+                          Reject
                         </Button>
                       </form>
-                    </div>
-                    <p className="text-sm text-[var(--muted)] lg:text-right">
-                      {approveBlockReason ??
-                        "No conflicts found. This request can be approved."}
-                    </p>
-                  </div>
-
-                  <form
-                    action={rejectBookingRequest}
-                    className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 md:grid-cols-[1fr_auto] md:items-end"
-                  >
-                    <input name="id" type="hidden" value={request.id} />
-                    <Field
-                      htmlFor={`rejection-reason-${request.id}`}
-                      label="Optional rejection reason"
-                    >
-                      <textarea
-                        className={warningInputClassName("min-h-20")}
-                        id={`rejection-reason-${request.id}`}
-                        maxLength={500}
-                        name="rejection_reason"
-                        placeholder="Reason shown in audit log only"
-                      />
-                    </Field>
-                    <Button type="submit" tone="danger">
-                      Reject
-                    </Button>
-                  </form>
-                </Panel>
-              );
-            })}
-          </div>
-        )}
-      </section>
+                    </Panel>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

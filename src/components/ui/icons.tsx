@@ -167,3 +167,23 @@ export function AlertTriangleIcon(props: IconProps) {
     </IconBase>
   );
 }
+
+export function EyeIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+      <circle cx="12" cy="12" r="3" />
+    </IconBase>
+  );
+}
+
+export function EyeOffIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M4 4 20 20" />
+      <path d="M10.6 6.2A10.2 10.2 0 0 1 12 6c6 0 9.5 6 9.5 6a16.5 16.5 0 0 1-4.1 4.6" />
+      <path d="M6.2 8A16.6 16.6 0 0 0 2.5 12S6 18 12 18c1 0 1.9-.2 2.8-.5" />
+      <path d="M9.9 9.9A3 3 0 0 0 14.1 14.1" />
+    </IconBase>
+  );
+}
