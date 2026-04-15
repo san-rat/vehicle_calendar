@@ -29,12 +29,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <div className="relative flex min-h-screen items-center overflow-hidden bg-[var(--bg)] py-12">
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-20 top-20 h-72 w-72 rounded-full bg-[var(--primary)]/10 blur-3xl"
+        className="pointer-events-none absolute -left-20 top-20 h-72 w-72 rounded-full bg-[var(--primary)]/10 blur-3xl animate-blob-1"
       />
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-20 bottom-12 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl"
+        className="pointer-events-none absolute -right-20 bottom-12 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl animate-blob-2"
       />
       <div className="app-container">
         <RouteTransition className="mx-auto max-w-md" transitionKey="login">
