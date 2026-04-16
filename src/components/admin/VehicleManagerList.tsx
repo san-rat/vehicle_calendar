@@ -186,15 +186,6 @@ export function VehicleManagerList({
       </div>
 
       <ResponsiveOverlay
-        description={
-          activeVehicle
-            ? `${activeVehicle.is_active ? "Active" : "Inactive"} ${getVehicleTypeLabel(
-                activeVehicle.type
-              )} · ${activeVehicle.confirmedTripCount} confirmed trip${
-                activeVehicle.confirmedTripCount === 1 ? "" : "s"
-              }.`
-            : undefined
-        }
         onClose={() => setActiveVehicleId(null)}
         open={activeVehicle !== null}
         title={activeVehicle ? `Manage ${activeVehicle.name}` : "Manage vehicle"}

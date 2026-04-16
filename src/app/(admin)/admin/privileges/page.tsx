@@ -77,7 +77,6 @@ export default async function AdminPrivilegesPage() {
 
       <PageHeader
         action={<Badge tone="primary">Global policy</Badge>}
-        description="Set the booking rules used across the app."
         eyebrow="Settings"
         meta={
           <>
@@ -126,14 +125,9 @@ export default async function AdminPrivilegesPage() {
               <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
                 <SettingsIcon className="h-5 w-5" />
               </span>
-              <div>
-                <h2 className="text-[1.45rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
-                  Update privileges
-                </h2>
-                <p className="text-sm leading-6 text-[var(--text-secondary)]">
-                  Applies to all members and vehicles.
-                </p>
-              </div>
+              <h2 className="text-[1.45rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
+                Update privileges
+              </h2>
             </div>
           </div>
           <Badge tone="secondary">Global scope</Badge>
@@ -167,11 +161,7 @@ export default async function AdminPrivilegesPage() {
               </select>
             </Field>
 
-            <Field
-              description="Leave empty for no limit."
-              htmlFor="time-limit-minutes"
-              label="Time limit"
-            >
+            <Field htmlFor="time-limit-minutes" label="Time limit">
               <input
                 className={inputClass}
                 defaultValue={config.time_limit_minutes ?? ""}

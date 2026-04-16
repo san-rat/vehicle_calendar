@@ -252,7 +252,6 @@ export default async function AdminRequestsPage() {
       />
       <PageHeader
         action={<Badge tone="primary">Approval queue</Badge>}
-        description="Review and resolve booking requests."
         eyebrow="Admin"
         title="Booking Requests"
       />
@@ -293,7 +292,6 @@ export default async function AdminRequestsPage() {
           }
           description="No booking requests are waiting for review."
           icon={EmptyStateIcon}
-          supportingCopy="New requests appear here."
           title="No pending requests"
         />
       ) : (
@@ -460,7 +458,6 @@ export default async function AdminRequestsPage() {
                                 </span>
                               </label>
                               <Field
-                                description="Saved to the audit log."
                                 htmlFor={`override-note-${request.id}`}
                                 label="Override note"
                                 optionalLabel="Optional"
@@ -517,7 +514,6 @@ export default async function AdminRequestsPage() {
                       >
                         <input name="id" type="hidden" value={request.id} />
                         <Field
-                          description="Saved to the audit log."
                           htmlFor={`rejection-reason-${request.id}`}
                           label="Rejection reason"
                           optionalLabel="Optional"

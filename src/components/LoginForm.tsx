@@ -62,12 +62,6 @@ export function LoginForm({
         </div>
       </Field>
 
-      <div className="rounded-[20px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3.5">
-        <p className="text-sm font-medium text-[var(--text-secondary)]">
-          Scheduling, requests, and admin tools.
-        </p>
-      </div>
-
       <LoginSubmitButton />
     </form>
   );

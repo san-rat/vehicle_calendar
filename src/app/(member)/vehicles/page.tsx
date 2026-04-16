@@ -218,8 +218,6 @@ export default async function VehiclesPage() {
             {vehicles.length} vehicle{vehicles.length === 1 ? "" : "s"} ready
           </Badge>
         }
-        description="Pick a vehicle and open its schedule."
-        eyebrow="Fleet"
         title={greetingLabel}
       />
 
@@ -257,14 +255,9 @@ export default async function VehiclesPage() {
       {currentUser.role === "super_admin" && pendingRequestCount !== null ? (
         <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-5 py-4 shadow-[0_16px_38px_rgba(15,23,42,0.06)]">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-[var(--text-primary)]">
-                Approval queue
-              </p>
-              <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
-                Pending requests stay visible here.
-              </p>
-            </div>
+            <p className="text-sm font-semibold text-[var(--text-primary)]">
+              Approval queue
+            </p>
             <Badge tone={pendingRequestCount > 0 ? "warning" : "success"}>
               {pendingRequestCount} pending request
               {pendingRequestCount === 1 ? "" : "s"}
@@ -287,7 +280,6 @@ export default async function VehiclesPage() {
           }
           description="No active vehicles are available yet."
           icon={EmptyStateIcon}
-          supportingCopy="Active vehicles will appear here."
           title="No vehicles ready"
         />
       ) : (
@@ -324,23 +316,23 @@ export default async function VehiclesPage() {
               <div className="space-y-4 px-5 py-5">
                 <div className="grid grid-cols-3 gap-3">
                   <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
-                      This week
+                    <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                      Week
                     </p>
                     <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
                       {vehicle.confirmedThisWeek}
                     </p>
                   </div>
                   <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
-                      This month
+                    <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                      Month
                     </p>
                     <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
                       {vehicle.confirmedThisMonth}
                     </p>
                   </div>
                   <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                    <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
                       Requests
                     </p>
                     <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">

@@ -235,12 +235,10 @@ export default async function BookingPage({
                 {bookingModeLabel}
               </Badge>
             }
-            description={`${vehicle.name} · ${getVehicleTypeLabel(
-              vehicle.type
-            )} · ${getDateLabel(date)}`}
             eyebrow="Booking"
             meta={
               <>
+                <Badge tone="secondary">{getVehicleTypeLabel(vehicle.type)}</Badge>
                 <Badge tone="secondary">{getDateLabel(date)}</Badge>
                 <Badge tone="neutral">
                   Window: {config.max_days_in_future} days

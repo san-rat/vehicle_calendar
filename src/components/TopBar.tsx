@@ -39,10 +39,6 @@ function joinClasses(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-function getRoleLabel(role: AppUser["role"]) {
-  return role === "super_admin" ? "Super admin" : "Member";
-}
-
 function useIsActivePath() {
   const pathname = usePathname();
 
@@ -164,19 +160,14 @@ function MobileNavDrawer({
           </button>
         </div>
 
-        <div className="rounded-[24px] border border-[var(--border-subtle)] bg-white/92 p-4 shadow-[0_16px_38px_rgba(15,23,42,0.08)]">
-          <div className="flex items-start gap-3">
+        <div className="rounded-[24px] border border-[var(--border-subtle)] bg-white/92 px-4 py-3.5 shadow-[0_16px_38px_rgba(15,23,42,0.08)]">
+          <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
               <UserIcon className="h-5 w-5" />
             </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-[var(--text-primary)]">
-                {currentUser.name}
-              </p>
-              <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--text-muted)]">
-                {getRoleLabel(currentUser.role)}
-              </p>
-            </div>
+            <p className="min-w-0 truncate text-sm font-semibold text-[var(--text-primary)]">
+              {currentUser.name}
+            </p>
           </div>
         </div>
 
@@ -285,25 +276,18 @@ export function TopBar({
           </nav>
 
           <div className="hidden items-center gap-2 sm:flex">
-            <div className="rounded-full border border-[var(--border-subtle)] bg-white/88 px-4 py-2 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
-              <div className="flex items-center gap-2">
-                <span
-                  className={joinClasses(
-                    "h-2.5 w-2.5 rounded-full",
-                    currentUser.role === "super_admin"
-                      ? "bg-[var(--brand-500)]"
-                      : "bg-[var(--info)]"
-                  )}
-                />
-                <div className="min-w-0">
-                  <p className="max-w-44 truncate text-sm font-semibold text-[var(--text-primary)]">
-                    {currentUser.name}
-                  </p>
-                  <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-muted)]">
-                    {getRoleLabel(currentUser.role)}
-                  </p>
-                </div>
-              </div>
+            <div className="flex h-11 items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-white/88 px-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
+              <span
+                className={joinClasses(
+                  "h-2.5 w-2.5 rounded-full",
+                  currentUser.role === "super_admin"
+                    ? "bg-[var(--brand-500)]"
+                    : "bg-[var(--info)]"
+                )}
+              />
+              <p className="max-w-44 truncate text-sm font-semibold text-[var(--text-primary)]">
+                {currentUser.name}
+              </p>
             </div>
 
             <form action="/auth/logout" method="post">

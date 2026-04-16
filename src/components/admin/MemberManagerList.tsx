@@ -198,13 +198,6 @@ export function MemberManagerList({
       </div>
 
       <ResponsiveOverlay
-        description={
-          activeMember
-            ? `${getMemberRoleLabel(activeMember.role)} account created ${formatDate(
-                activeMember.created_at
-              )}.`
-            : undefined
-        }
         onClose={() => setActiveMemberId(null)}
         open={activeMember !== null}
         title={activeMember ? `Manage ${activeMember.name}` : "Manage member"}
@@ -272,9 +265,6 @@ export function MemberManagerList({
               <h3 className="text-base font-semibold text-[var(--text-primary)]">
                 Reset password
               </h3>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
-                Reset the password only.
-              </p>
 
               <form
                 action={resetMemberPasswordAction}
@@ -283,7 +273,6 @@ export function MemberManagerList({
                 <input name="id" type="hidden" value={activeMember.id} />
 
                 <Field
-                  description="At least 8 characters."
                   htmlFor={`member-password-${activeMember.id}`}
                   label="New password"
                 >
@@ -292,13 +281,12 @@ export function MemberManagerList({
                     id={`member-password-${activeMember.id}`}
                     minLength={8}
                     name="password"
-                    placeholder="Minimum 8 characters"
+                    placeholder="Min 8 characters"
                     type="password"
                   />
                 </Field>
 
                 <Field
-                  description="Repeat the password."
                   htmlFor={`member-password-confirmation-${activeMember.id}`}
                   label="Confirm password"
                 >

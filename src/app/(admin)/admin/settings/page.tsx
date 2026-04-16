@@ -16,8 +16,6 @@ import { requireAdminAppUser } from "@/lib/auth/user";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type SettingsCard = {
-  description: string;
-  detail: string;
   href: string;
   icon: typeof ManageIcon;
   metadata: string;
@@ -82,43 +80,30 @@ export default async function AdminSettingsPage() {
       href: "/admin/requests",
       icon: LogIcon,
       title: "Requests",
-      description: "Review pending requests.",
       metadata: `${pendingRequestCount} pending approvals`,
-      detail:
-        pendingRequestCount > 0
-          ? "Needs review."
-          : "Queue clear.",
       tone: pendingRequestCount > 0 ? "warning" : "success",
     },
     {
       href: "/admin/vehicles",
       icon: ManageIcon,
       title: "Vehicles",
-      description: "Manage fleet records.",
       metadata: `${activeVehicleCount} active vehicles`,
-      detail: "Edit status and inventory.",
       tone: "primary",
     },
     {
       href: "/admin/privileges",
       icon: SettingsIcon,
       title: "Privileges",
-      description: "Set booking policy.",
       metadata: privilegeConfig.allow_booking_freedom
         ? "Auto-confirm enabled"
         : "Approval required",
-      detail: `${privilegeConfig.max_days_in_future}-day window · ${
-        privilegeConfig.require_reason ? "reason required" : "reason optional"
-      }`,
       tone: "info",
     },
     {
       href: "/admin/members",
       icon: UserIcon,
       title: "Members",
-      description: "Manage access and roles.",
       metadata: `${activeMemberCount} active accounts`,
-      detail: "Reset passwords and status.",
       tone: "primary",
     },
   ];
@@ -127,7 +112,6 @@ export default async function AdminSettingsPage() {
     <div className="page-stack">
       <PageHeader
         action={<Badge tone="primary">Admin controls</Badge>}
-        description="Approvals, policy, fleet, and access."
         eyebrow="Settings"
         title="Admin Settings"
       />
@@ -172,28 +156,20 @@ export default async function AdminSettingsPage() {
               key={item.href}
             >
               <div className="border-b border-[var(--border-subtle)] bg-[linear-gradient(180deg,rgba(246,251,250,0.96),rgba(255,255,255,0.92))] px-6 py-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
                     <span className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[var(--brand-100)] text-[var(--brand-600)]">
                       <Icon className="h-6 w-6" />
                     </span>
-                    <div>
-                      <h2 className="text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-                        {item.title}
-                      </h2>
-                      <p className="mt-1.5 max-w-xl text-sm leading-6 text-[var(--text-secondary)]">
-                        {item.description}
-                      </p>
-                    </div>
+                    <h2 className="text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                      {item.title}
+                    </h2>
                   </div>
                   <Badge tone={item.tone}>{item.metadata}</Badge>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-4 px-6 py-5">
-                <p className="text-sm leading-6 text-[var(--text-secondary)]">
-                  {item.detail}
-                </p>
+              <div className="flex justify-end px-6 py-4">
                 <span className="rounded-full bg-[var(--brand-100)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand-600)]">
                   Open
                 </span>

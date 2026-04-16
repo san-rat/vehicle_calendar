@@ -118,7 +118,6 @@ export default async function AdminVehiclesPage() {
       />
       <PageHeader
         action={<Badge tone="primary">Fleet controls</Badge>}
-        description="Manage fleet records and availability."
         eyebrow="Settings"
         title="Admin Vehicles"
       />
@@ -155,14 +154,9 @@ export default async function AdminVehiclesPage() {
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
             <ManageIcon className="h-5 w-5" />
           </span>
-          <div>
-            <h2 className="text-[1.4rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
-              Add vehicle
-            </h2>
-            <p className="text-sm leading-6 text-[var(--text-secondary)]">
-              Active vehicles appear in booking views.
-            </p>
-          </div>
+          <h2 className="text-[1.4rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
+            Add vehicle
+          </h2>
         </div>
         <form
           action={createVehicle}
@@ -215,24 +209,18 @@ export default async function AdminVehiclesPage() {
 
       <section className="page-section">
         <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-[1.3rem] font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-              Fleet inventory
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
-              Search vehicles and open the manage overlay when needed.
-            </p>
-          </div>
+          <h2 className="text-[1.3rem] font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+            Fleet inventory
+          </h2>
           <Badge tone="neutral">{vehicles.length} total</Badge>
         </div>
 
         {vehicles.length === 0 ? (
-        <EmptyState
-          description="Add the first vehicle to make it available for booking."
-          icon={EmptyStateIcon}
-          supportingCopy="Active vehicles will appear on the member dashboard."
-          title="No vehicles yet"
-        />
+          <EmptyState
+            description="Add the first vehicle to make it available for booking."
+            icon={EmptyStateIcon}
+            title="No vehicles yet"
+          />
         ) : (
           <VehicleManagerList
             deleteVehicleAction={deleteVehicle}

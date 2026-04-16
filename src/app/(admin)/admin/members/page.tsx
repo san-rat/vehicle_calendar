@@ -72,7 +72,6 @@ export default async function AdminMembersPage() {
       />
       <PageHeader
         action={<Badge tone="primary">Access management</Badge>}
-        description="Manage sign-in access, roles, and approvals."
         eyebrow="Settings"
         title="Admin Members"
       />
@@ -109,14 +108,9 @@ export default async function AdminMembersPage() {
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
             <UserIcon className="h-5 w-5" />
           </span>
-          <div>
-            <h2 className="text-[1.4rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
-              Add member
-            </h2>
-            <p className="text-sm leading-6 text-[var(--text-secondary)]">
-              Create an account before first sign-in.
-            </p>
-          </div>
+          <h2 className="text-[1.4rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
+            Add member
+          </h2>
         </div>
         <form
           action={createMember}
@@ -161,24 +155,19 @@ export default async function AdminMembersPage() {
             </select>
           </Field>
 
-          <Field
-            description="At least 8 characters."
-            htmlFor="member-create-password"
-            label="Password"
-          >
+          <Field htmlFor="member-create-password" label="Password">
             <input
               className={inputClass}
               id="member-create-password"
               minLength={8}
               name="password"
-              placeholder="Minimum 8 characters"
+              placeholder="Min 8 characters"
               required
               type="password"
             />
           </Field>
 
           <Field
-            description="Repeat the password."
             htmlFor="member-create-password-confirmation"
             label="Confirm password"
           >
@@ -201,24 +190,18 @@ export default async function AdminMembersPage() {
 
       <section className="page-section">
         <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-[1.3rem] font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-              Member directory
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
-              Search members and open the manage overlay when needed.
-            </p>
-          </div>
+          <h2 className="text-[1.3rem] font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+            Member directory
+          </h2>
           <Badge tone="neutral">{members.length} total</Badge>
         </div>
 
         {members.length === 0 ? (
-        <EmptyState
-          description="Add the first member to give someone access to FleetTime."
-          icon={EmptyStateIcon}
-          supportingCopy="New accounts appear here."
-          title="No members yet"
-        />
+          <EmptyState
+            description="Add the first member to give someone access to FleetTime."
+            icon={EmptyStateIcon}
+            title="No members yet"
+          />
         ) : (
           <MemberManagerList
             currentUserId={currentUser.id}

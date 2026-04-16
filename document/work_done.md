@@ -30,26 +30,6 @@ Date: 2026-02-03
 - `document/ui_wireframes/ui_wireframe_handsketch.pdf` could not be read due to missing PDF rendering tools; file appears to be image-only.
 
 ## Update
-Timestamp: 2026-04-15 17:40:31 +0530
-
-- Rebuilt the global visual system in `src/app/globals.css` and `src/app/layout.tsx` with new semantic color tokens, refined surface hierarchy, larger spacing/radius/shadow rhythm, and a typography upgrade from Montserrat to Plus Jakarta Sans for headings/buttons.
-- Expanded `src/components/ui/index.tsx` into a stronger design system layer with upgraded buttons, panels, fields, notices, page headers, empty states, stat cards, and premium badge/status styling; also refreshed the shared responsive overlay and toast presentation.
-- Reworked the authenticated shell with a redesigned `TopBar`, a new desktop `AdminSidebar`, and tighter content-width handling in member/admin layouts so the app reads more like a premium product shell and less like floating utility screens.
-- Rebuilt the login experience with a branded split layout, richer messaging, improved depth, and a client-side password visibility toggle via the new `src/components/LoginForm.tsx`.
-- Upgraded the member-facing booking flow: the vehicle dashboard now includes KPI cards and richer vehicle summaries; the monthly calendar now shows stronger hierarchy plus confirmed/requested occupancy signals; and the day booking workspace now has a denser timeline surface, a better form hierarchy, and a visible booking summary card.
-- Reworked admin settings surfaces for Requests, Vehicles, Privileges, Members, and the Settings overview with higher information density, KPI cards, better structure, searchable management lists, and more deliberate overlay/danger-zone presentation.
-- Verified this UI pass with `npm test`, `npm run lint`, and `npm run build`.
-
-## Update
-Timestamp: 2026-04-15 18:24:10 +0530
-
-- Ran a full user-facing copy-tightening pass across the premium UI refresh in `src/app`, `src/components`, and the main auth/booking/admin server actions to remove filler phrasing, repeated explanations, and overly decorative helper text.
-- Updated shared primitives in `src/components/ui/index.tsx` and `src/components/ui/ResponsiveOverlay.tsx` so headers, fields, empty states, stat cards, and overlays collapse spacing cleanly when descriptions are shortened or removed.
-- Shortened the login hero and sign-in panel, compressed the vehicle dashboard, calendar, booking workspace, admin settings, requests, vehicles, privileges, members, and log page copy, and rebalanced panel spacing so the UI stays dense and intentional after text removal.
-- Tightened user-visible action and error messages in the booking, vehicle, member, privilege, request, and auth flows so toasts and redirects match the sharper UI tone.
-- Verified the filler-copy pass with `npm test`, `npm run lint`, and `npm run build`.
-
-## Update
 Timestamp: 2026-02-03 15:15:37 +0530
 
 - Confirmed git repo and checked status.
@@ -611,3 +591,42 @@ Timestamp: 2026-04-13 20:28:01 +0530
 - Updated `document/UI/UI_Guideline.md`, `document/UI/UI_Anti_Patterns.md`, `document/UX/UX_Guideline.md`, and `document/UX/UX_Anti_Patterns.md` to document the stripped-down login, mobile drawer navigation, true blurred management overlays, and simplified log behavior.
 - Verified the checkpoint with `npx tsc --noEmit --pretty false`, `npm test`, `npm run lint`, and `npm run build`.
 - Verified a production-build route smoke on `http://127.0.0.1:3001`: `/login` returned `200`, and unauthenticated `/vehicles`, `/admin/settings`, and `/log?q=member` redirected to `/login` with `307`.
+
+
+## Update
+Timestamp: 2026-04-15 17:40:31 +0530
+
+- Rebuilt the global visual system in `src/app/globals.css` and `src/app/layout.tsx` with new semantic color tokens, refined surface hierarchy, larger spacing/radius/shadow rhythm, and a typography upgrade from Montserrat to Plus Jakarta Sans for headings/buttons.
+- Expanded `src/components/ui/index.tsx` into a stronger design system layer with upgraded buttons, panels, fields, notices, page headers, empty states, stat cards, and premium badge/status styling; also refreshed the shared responsive overlay and toast presentation.
+- Reworked the authenticated shell with a redesigned `TopBar`, a new desktop `AdminSidebar`, and tighter content-width handling in member/admin layouts so the app reads more like a premium product shell and less like floating utility screens.
+- Rebuilt the login experience with a branded split layout, richer messaging, improved depth, and a client-side password visibility toggle via the new `src/components/LoginForm.tsx`.
+- Upgraded the member-facing booking flow: the vehicle dashboard now includes KPI cards and richer vehicle summaries; the monthly calendar now shows stronger hierarchy plus confirmed/requested occupancy signals; and the day booking workspace now has a denser timeline surface, a better form hierarchy, and a visible booking summary card.
+- Reworked admin settings surfaces for Requests, Vehicles, Privileges, Members, and the Settings overview with higher information density, KPI cards, better structure, searchable management lists, and more deliberate overlay/danger-zone presentation.
+- Verified this UI pass with `npm test`, `npm run lint`, and `npm run build`.
+
+## Update
+Timestamp: 2026-04-15 18:24:10 +0530
+
+- Ran a full user-facing copy-tightening pass across the premium UI refresh in `src/app`, `src/components`, and the main auth/booking/admin server actions to remove filler phrasing, repeated explanations, and overly decorative helper text.
+- Updated shared primitives in `src/components/ui/index.tsx` and `src/components/ui/ResponsiveOverlay.tsx` so headers, fields, empty states, stat cards, and overlays collapse spacing cleanly when descriptions are shortened or removed.
+- Shortened the login hero and sign-in panel, compressed the vehicle dashboard, calendar, booking workspace, admin settings, requests, vehicles, privileges, members, and log page copy, and rebalanced panel spacing so the UI stays dense and intentional after text removal.
+- Tightened user-visible action and error messages in the booking, vehicle, member, privilege, request, and auth flows so toasts and redirects match the sharper UI tone.
+- Verified the filler-copy pass with `npm test`, `npm run lint`, and `npm run build`.
+
+## Update
+Timestamp: 2026-04-16 01:23:59 +0530
+
+- Ran a balanced copy-cleanup and symmetry pass across `src/app` and `src/components`, removing repetitive filler from the login split layout, top bar identity chip, admin sidebar, member vehicle dashboard, booking calendar/day flow, log header, admin overview pages, create forms, and management overlays.
+- Simplified the login feature cards into icon-and-title tiles, collapsed the desktop/mobile user identity surfaces to one-line chips, removed redundant page-header/subtitle/helper copy, and tightened settings/sidebar card spacing so the UI stays aligned after the text reductions.
+- Kept empty states, destructive warnings, exact-name confirmations, policy constraints, and request/conflict guidance intact while removing duplicated supporting copy and low-value field descriptions such as audit-log reminders and password helper lines.
+- Dropped the now-unused `SidebarItem.description`, `SettingsCard.description`, `SettingsCard.detail`, and `TopBar` role-label helper so the code matches the trimmed UI surface.
+- Verified this pass with `npm test` and `npm run build`; attempted `npm run lint`, but `eslint` stalled in this WSL/Windows-mounted workspace and did not complete, so lint could not be fully confirmed in the current environment.
+
+## Update
+Timestamp: 2026-04-16 08:48:12 +0530
+
+- Implemented targeted UI polish based on latest review:
+  - Login Page: Replaced redundant "Secure sign in" badge with a properly centered header and cleaner subtitle "Welcome back! Please enter your details".
+  - Vehicles Dashboard: Removed the unnecessary "Fleet" eyebrow and relabeled vehicle card metrics cleanly to "Week" and "Month" instead of "This week / This month".
+  - Members Management: Shortened password parameter placeholders natively to "Min 8 characters".
+  - Forms / CSS System: Handled global constraints for standard `<select>` inputs by appending uniform right padding (`pr-10` equivalent), ensuring custom arrows don't collide with their container boundaries.

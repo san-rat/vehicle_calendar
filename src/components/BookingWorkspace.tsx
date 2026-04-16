@@ -205,9 +205,6 @@ function TimelinePanel({
                 </p>
               </div>
             </div>
-            <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
-              Confirmed bookings block time. Requests stay visible.
-            </p>
           </div>
 
           <Button
@@ -247,7 +244,6 @@ function TimelinePanel({
             }
             description="No bookings on this date."
             icon={EmptyStateIcon}
-            supportingCopy="Confirmed trips will block time here."
             title="No bookings scheduled"
           />
         </div>
@@ -496,9 +492,6 @@ function BookingFormPanel({
             <h2 className="text-[1.4rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
               New booking
             </h2>
-            <p className="text-sm leading-6 text-[var(--text-secondary)]">
-              Review the details and submit.
-            </p>
           </div>
         </div>
 

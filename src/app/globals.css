@@ -207,6 +207,10 @@ textarea {
   transition-property: color, background-color, border-color, box-shadow, transform, opacity;
 }
 
+select {
+  padding-right: 2.5rem !important;
+}
+
 :focus-visible {
   outline: none;
 }

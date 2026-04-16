@@ -208,7 +208,6 @@ export default async function VehicleCalendarPage({
                   {month.label}
                 </Badge>
               }
-              description={`Monthly view for ${vehicle.name}.`}
               eyebrow="Schedule"
               meta={
                 <>
@@ -250,14 +249,11 @@ export default async function VehicleCalendarPage({
           </section>
 
           <Panel className="overflow-hidden" variant="elevated">
-            <div className="flex flex-col gap-5 border-b border-[var(--border-subtle)] pb-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-[1.55rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
                   {month.label}
                 </h2>
-                <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
-                  Confirmed bars block time. Requests stay visible.
-                </p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <ButtonLink
@@ -357,43 +353,42 @@ export default async function VehicleCalendarPage({
                       ) : null}
                     </div>
 
-                    <div className="mt-auto space-y-2 pt-4">
-                      {summary.confirmedIndicators.length > 0 ? (
-                        <div className="space-y-1">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
-                            Confirmed
-                          </p>
-                          <div className="flex gap-1.5">
-                            {visibleIndicators.map((indicator) => (
-                              <span
-                                aria-label={`Confirmed booking for ${indicator.userName}`}
-                                className={`h-2.5 flex-1 rounded-full ${getUserColorDotClass(
-                                  indicator.colorHex
-                                )}`}
-                                key={indicator.id}
-                                title={`Confirmed booking for ${indicator.userName}`}
-                              />
-                            ))}
-                            {hiddenIndicatorCount > 0 ? (
-                              <span className="rounded-full bg-[var(--bg-surface-tint)] px-2 py-0.5 text-[11px] font-semibold text-[var(--text-secondary)]">
-                                +{hiddenIndicatorCount}
-                              </span>
-                            ) : null}
+                    {summary.confirmedIndicators.length > 0 ||
+                    summary.requestedCount > 0 ? (
+                      <div className="mt-auto space-y-2 pt-4">
+                        {summary.confirmedIndicators.length > 0 ? (
+                          <div className="space-y-1">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                              Confirmed
+                            </p>
+                            <div className="flex gap-1.5">
+                              {visibleIndicators.map((indicator) => (
+                                <span
+                                  aria-label={`Confirmed booking for ${indicator.userName}`}
+                                  className={`h-2.5 flex-1 rounded-full ${getUserColorDotClass(
+                                    indicator.colorHex
+                                  )}`}
+                                  key={indicator.id}
+                                  title={`Confirmed booking for ${indicator.userName}`}
+                                />
+                              ))}
+                              {hiddenIndicatorCount > 0 ? (
+                                <span className="rounded-full bg-[var(--bg-surface-tint)] px-2 py-0.5 text-[11px] font-semibold text-[var(--text-secondary)]">
+                                  +{hiddenIndicatorCount}
+                                </span>
+                              ) : null}
+                            </div>
                           </div>
-                        </div>
-                      ) : (
-                        <p className="text-xs text-[var(--text-muted)]">
-                          No confirmed trips
-                        </p>
-                      )}
+                        ) : null}
 
-                      {summary.requestedCount > 0 ? (
-                        <div className="rounded-full border border-dashed border-[var(--warning)]/50 bg-[var(--warning-soft)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--warning)]">
-                          {summary.requestedCount} request
-                          {summary.requestedCount === 1 ? "" : "s"}
-                        </div>
-                      ) : null}
-                    </div>
+                        {summary.requestedCount > 0 ? (
+                          <div className="rounded-full border border-dashed border-[var(--warning)]/50 bg-[var(--warning-soft)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--warning)]">
+                            {summary.requestedCount} request
+                            {summary.requestedCount === 1 ? "" : "s"}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
                   </>
                 );
 

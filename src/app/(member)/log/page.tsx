@@ -143,11 +143,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
   return (
     <RouteTransition transitionKey={`log-page-${currentPage}-${query || "all"}`}>
       <div className="space-y-6 sm:space-y-8">
-        <PageHeader
-          description="Recent activity and audit events."
-          eyebrow="Log"
-          title="System Log"
-        />
+        <PageHeader eyebrow="Log" title="System Log" />
 
         <Panel className="sticky top-20 z-20 border-white/75 bg-[var(--bg)]/90 p-4 backdrop-blur-xl">
           <form
