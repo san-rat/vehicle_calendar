@@ -630,3 +630,18 @@ Timestamp: 2026-04-16 08:48:12 +0530
   - Vehicles Dashboard: Removed the unnecessary "Fleet" eyebrow and relabeled vehicle card metrics cleanly to "Week" and "Month" instead of "This week / This month".
   - Members Management: Shortened password parameter placeholders natively to "Min 8 characters".
   - Forms / CSS System: Handled global constraints for standard `<select>` inputs by appending uniform right padding (`pr-10` equivalent), ensuring custom arrows don't collide with their container boundaries.
+
+## Update
+Timestamp: 2026-04-16 09:47:53 +0530
+
+### Mobile UI Optimization Pass
+
+- Reworked the shared mobile shell and UI system so phones now use a true centered 3-slot top bar, tighter page spacing, smaller badge/panel density, softer mobile shadow/blur treatment, a refined bottom-sheet overlay rhythm, and a reusable sticky mobile form-action pattern while keeping md-and-up layouts intact.
+- Refined `/login` for smaller phones by reducing the hero height, moving the sign-in card ahead of the branding panel on mobile only, tightening the feature tiles into shorter rows, and pulling the first input fields higher into the initial viewport.
+- Rebuilt the mobile hierarchy on `/vehicles`, `/admin/settings`, `/admin/requests`, `/admin/vehicles`, `/admin/privileges`, `/admin/members`, and `/log` so stat-card walls now hide below `md`, task content appears first, settings navigation becomes compact rows, request counts become a client-side chip filter bar, member/vehicle manager cards collapse to summary rows, privileges uses a compact current-policy summary plus sticky save action, and log rows/filtering render with tighter mobile spacing.
+- Added a new client `RequestReviewList` helper to keep the existing request data/query/action flow server-side while enabling mobile-only Pending/Ready/Conflicts/Blocked filtering without changing routes, server actions, auth guards, validation, field names, or database behavior.
+- Kept all Supabase queries, redirects, action payloads, overlay entry points, booking logic, and admin/member workflows unchanged; this checkpoint is presentation-only UI work.
+- Verified the pass with `npx tsc --noEmit --pretty false`, `npm test`, and `npm run build`.
+- Attempted `npm run lint`, but `eslint` stalled again in this WSL/Windows-mounted workspace and did not complete, so lint could not be fully confirmed in the current environment.
+- Verified a production-build route smoke on `http://127.0.0.1:3001`: `/login` returned `200`, and unauthenticated `/vehicles`, `/admin/settings`, and `/log?q=member` redirected to `/login` with `307`.
+- Full manual visual QA for authenticated mobile layouts at `360x800` / `390x844` and desktop regression at `1024px+` was not completed from this terminal-only environment and remains the next validation step.

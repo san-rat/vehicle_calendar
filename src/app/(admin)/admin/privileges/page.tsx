@@ -91,7 +91,7 @@ export default async function AdminPrivilegesPage() {
         title="Booking Privileges"
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={SettingsIcon}
           label="Booking freedom"
@@ -118,8 +118,24 @@ export default async function AdminPrivilegesPage() {
         />
       </section>
 
+      <Panel className="md:hidden" variant="inset">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--brand-600)]">
+              Current policy
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+              {getPrivilegePreview(config)}
+            </p>
+          </div>
+          <Badge tone={config.allow_booking_freedom ? "success" : "warning"}>
+            {config.allow_booking_freedom ? "Auto-confirm" : "Approval"}
+          </Badge>
+        </div>
+      </Panel>
+
       <Panel className="overflow-hidden" variant="elevated">
-        <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-4 md:pb-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <div className="flex items-center gap-2">
               <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
@@ -133,8 +149,8 @@ export default async function AdminPrivilegesPage() {
           <Badge tone="secondary">Global scope</Badge>
         </div>
 
-        <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-          <form action={updatePrivileges} className="grid gap-4 md:grid-cols-2">
+        <div className="mt-4 grid gap-5 md:mt-5 md:gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+          <form action={updatePrivileges} className="grid gap-3 md:grid-cols-2 md:gap-4">
             <input name="id" type="hidden" value={config.id} />
 
             <Field htmlFor="allow-booking-freedom" label="Booking freedom">
@@ -187,14 +203,14 @@ export default async function AdminPrivilegesPage() {
               />
             </Field>
 
-            <div className="md:col-span-2">
-              <Button size="lg" type="submit" tone="primary">
+            <div className="mobile-sticky-action md:col-span-2">
+              <Button className="w-full md:w-auto" size="lg" type="submit" tone="primary">
                 Save privileges
               </Button>
             </div>
           </form>
 
-          <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+          <div className="hidden rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] md:block">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--brand-600)]">
               Live preview
             </p>

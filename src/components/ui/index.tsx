@@ -148,13 +148,13 @@ const noticeToneClasses: Record<
 
 const panelVariantClasses: Record<PanelVariant, string> = {
   base:
-    "border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] shadow-[0_12px_32px_rgba(15,23,42,0.06)]",
+    "border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] shadow-[0_10px_24px_rgba(15,23,42,0.05)] md:shadow-[0_12px_32px_rgba(15,23,42,0.06)]",
   danger:
-    "border border-[var(--danger)]/16 bg-[var(--danger-soft)] shadow-[0_12px_30px_rgba(199,59,55,0.08)]",
+    "border border-[var(--danger)]/16 bg-[var(--danger-soft)] shadow-[0_10px_24px_rgba(199,59,55,0.07)] md:shadow-[0_12px_30px_rgba(199,59,55,0.08)]",
   elevated:
-    "border border-white/75 bg-[var(--bg-surface)] shadow-[0_20px_48px_rgba(15,23,42,0.1)]",
+    "border border-white/75 bg-[var(--bg-surface)] shadow-[0_14px_30px_rgba(15,23,42,0.08)] md:shadow-[0_20px_48px_rgba(15,23,42,0.1)]",
   interactive:
-    "border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[0_14px_32px_rgba(15,23,42,0.08)]",
+    "border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[0_12px_26px_rgba(15,23,42,0.07)] md:shadow-[0_14px_32px_rgba(15,23,42,0.08)]",
   inset:
     "border border-[var(--border-subtle)] bg-[var(--bg-surface-inset)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]",
 };
@@ -177,7 +177,7 @@ export function panelClassName(
   variant: PanelVariant = "base"
 ) {
   return joinClasses(
-    "rounded-[22px] p-5 backdrop-blur-xl transition duration-300 sm:p-6",
+    "rounded-[20px] p-4 backdrop-blur-lg transition duration-300 sm:p-5 md:rounded-[22px] md:p-6 md:backdrop-blur-xl",
     panelVariantClasses[variant],
     className
   );
@@ -275,7 +275,7 @@ export function Badge({ className, tone = "neutral", ...props }: BadgeProps) {
   return (
     <span
       className={joinClasses(
-        "inline-flex min-h-7 items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em]",
+        "inline-flex min-h-6 items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] md:min-h-7 md:px-3 md:text-[11px]",
         badgeToneClasses[tone],
         className
       )}
@@ -294,7 +294,7 @@ export function StatusBadge({
   return (
     <span
       className={joinClasses(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold capitalize",
+        "inline-flex items-center rounded-full px-2 py-1 text-[11px] font-semibold capitalize md:px-2.5 md:text-xs",
         statusBadgeClasses[status] ??
           "border border-slate-200 bg-slate-100 text-slate-600",
         className
@@ -351,7 +351,7 @@ export function Notice({
   return (
     <p
       className={joinClasses(
-        "rounded-[18px] border px-4 py-3 text-sm font-medium leading-6 shadow-[0_10px_24px_rgba(15,23,42,0.04)]",
+        "rounded-[16px] border px-3.5 py-3 text-sm font-medium leading-6 shadow-[0_8px_18px_rgba(15,23,42,0.04)] md:rounded-[18px] md:px-4 md:shadow-[0_10px_24px_rgba(15,23,42,0.04)]",
         noticeToneClasses[tone],
         className
       )}
@@ -372,14 +372,14 @@ export function PageHeader({
   return (
     <header className={toolbar ? "space-y-4" : "space-y-0"}>
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           {eyebrow ? (
             <div className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--brand-600)]">
               {eyebrow}
             </div>
           ) : null}
           <div className={description ? "space-y-2" : "space-y-0"}>
-            <h1 className="text-[2rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] sm:text-[2.5rem]">
+            <h1 className="text-[1.75rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] md:text-[2.5rem]">
               {title}
             </h1>
             {description ? (
@@ -442,12 +442,12 @@ export function EmptyState({
   title,
 }: EmptyStateProps) {
   return (
-    <div className="flex min-h-[240px] w-full flex-col items-center justify-center rounded-[28px] border border-dashed border-[var(--border-strong)]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(244,248,250,0.92))] px-6 py-10 text-center shadow-[0_20px_46px_rgba(15,23,42,0.05)] motion-safe:animate-[empty-state-fade_500ms_ease-out]">
+    <div className="flex min-h-[220px] w-full flex-col items-center justify-center rounded-[24px] border border-dashed border-[var(--border-strong)]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(244,248,250,0.92))] px-5 py-8 text-center shadow-[0_14px_30px_rgba(15,23,42,0.05)] motion-safe:animate-[empty-state-fade_500ms_ease-out] md:min-h-[240px] md:rounded-[28px] md:px-6 md:py-10 md:shadow-[0_20px_46px_rgba(15,23,42,0.05)]">
       {Icon ? (
-        <div className="mx-auto mb-4 flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-full border border-[var(--border-subtle)] bg-white text-[var(--brand-500)] shadow-[0_16px_34px_rgba(15,23,42,0.08)]">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-white text-[var(--brand-500)] shadow-[0_12px_24px_rgba(15,23,42,0.08)] md:h-[4.25rem] md:w-[4.25rem] md:shadow-[0_16px_34px_rgba(15,23,42,0.08)]">
           <Icon
             aria-hidden="true"
-            className="h-8 w-8 opacity-90 [stroke-width:1.5]"
+            className="h-7 w-7 opacity-90 [stroke-width:1.5] md:h-8 md:w-8"
           />
         </div>
       ) : null}
@@ -495,18 +495,18 @@ export function StatCard({
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
             {label}
           </p>
-          <p className="mt-2.5 text-2xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+          <p className="mt-2 text-[1.5rem] font-semibold tracking-[-0.03em] text-[var(--text-primary)] md:mt-2.5 md:text-2xl">
             {value}
           </p>
         </div>
         {Icon ? (
           <span
             className={joinClasses(
-              "flex h-10 w-10 items-center justify-center rounded-2xl",
+              "flex h-9 w-9 items-center justify-center rounded-[18px] md:h-10 md:w-10 md:rounded-2xl",
               accentClass
             )}
           >
-            <Icon className="h-5 w-5" />
+            <Icon className="h-[1.125rem] w-[1.125rem] md:h-5 md:w-5" />
           </span>
         ) : null}
       </div>

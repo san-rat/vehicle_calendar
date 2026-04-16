@@ -7,6 +7,7 @@ import {
 } from "@/components/ui";
 import {
   CalendarIcon,
+  ChevronRightIcon,
   LogIcon,
   ManageIcon,
   SettingsIcon,
@@ -116,7 +117,7 @@ export default async function AdminSettingsPage() {
         title="Admin Settings"
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={LogIcon}
           label="Pending"
@@ -155,24 +156,43 @@ export default async function AdminSettingsPage() {
               href={item.href}
               key={item.href}
             >
-              <div className="border-b border-[var(--border-subtle)] bg-[linear-gradient(180deg,rgba(246,251,250,0.96),rgba(255,255,255,0.92))] px-6 py-5">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[var(--brand-100)] text-[var(--brand-600)]">
-                      <Icon className="h-6 w-6" />
-                    </span>
-                    <h2 className="text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-                      {item.title}
-                    </h2>
-                  </div>
-                  <Badge tone={item.tone}>{item.metadata}</Badge>
+              <div className="flex items-center gap-3 px-4 py-4 md:hidden">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[16px] bg-[var(--brand-100)] text-[var(--brand-600)]">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+                    {item.title}
+                  </h2>
+                  <p className="mt-1 truncate text-sm text-[var(--text-secondary)]">
+                    {item.metadata}
+                  </p>
                 </div>
+                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-white text-[var(--text-secondary)]">
+                  <ChevronRightIcon className="h-4 w-4" />
+                </span>
               </div>
 
-              <div className="flex justify-end px-6 py-4">
-                <span className="rounded-full bg-[var(--brand-100)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand-600)]">
-                  Open
-                </span>
+              <div className="hidden md:block">
+                <div className="border-b border-[var(--border-subtle)] bg-[linear-gradient(180deg,rgba(246,251,250,0.96),rgba(255,255,255,0.92))] px-6 py-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[var(--brand-100)] text-[var(--brand-600)]">
+                        <Icon className="h-6 w-6" />
+                      </span>
+                      <h2 className="text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                        {item.title}
+                      </h2>
+                    </div>
+                    <Badge tone={item.tone}>{item.metadata}</Badge>
+                  </div>
+                </div>
+
+                <div className="flex justify-end px-6 py-4">
+                  <span className="rounded-full bg-[var(--brand-100)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand-600)]">
+                    Open
+                  </span>
+                </div>
               </div>
             </Link>
           );

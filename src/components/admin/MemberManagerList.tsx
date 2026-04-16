@@ -90,7 +90,7 @@ export function MemberManagerList({
 
   return (
     <>
-      <Panel className="p-4 sm:p-5" variant="inset">
+      <Panel className="p-3.5 md:p-5" variant="inset">
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px]">
           <div className="relative">
             <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />
@@ -121,7 +121,7 @@ export function MemberManagerList({
           const isSelf = member.id === currentUserId;
 
           return (
-            <Panel as="article" className="p-4 sm:p-5" key={member.id} variant="elevated">
+            <Panel as="article" className="p-4 md:p-5" key={member.id} variant="elevated">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0">
                   <div className="flex items-start gap-3">
@@ -155,7 +155,7 @@ export function MemberManagerList({
                 </div>
 
                 <Button
-                  className="xl:self-start"
+                  className="w-full justify-center md:w-auto xl:self-start"
                   onClick={() => setActiveMemberId(member.id)}
                   size="sm"
                   tone="secondary"
@@ -166,7 +166,7 @@ export function MemberManagerList({
                 </Button>
               </div>
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="mt-5 hidden gap-3 md:grid md:grid-cols-2 xl:grid-cols-3">
                 <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
                     Role
@@ -204,6 +204,33 @@ export function MemberManagerList({
       >
         {activeMember ? (
           <div className="space-y-6">
+            <section className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  Role
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                  {getMemberRoleLabel(activeMember.role)}
+                </p>
+              </div>
+              <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  Created
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                  {formatDate(activeMember.created_at)}
+                </p>
+              </div>
+              <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  Updated
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                  {formatDate(activeMember.updated_at)}
+                </p>
+              </div>
+            </section>
+
             <section className="space-y-4">
               <h3 className="text-base font-semibold text-[var(--text-primary)]">
                 Account details

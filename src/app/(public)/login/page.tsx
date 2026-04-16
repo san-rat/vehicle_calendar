@@ -29,7 +29,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = getLoginErrorMessage(resolvedSearchParams.error);
 
   return (
-    <div className="relative flex min-h-screen items-center overflow-hidden py-10 sm:py-14">
+    <div className="relative flex min-h-screen items-start overflow-hidden py-6 sm:py-10 md:items-center md:py-14">
       <div
         className="pointer-events-none absolute -left-20 top-14 h-72 w-72 rounded-full bg-[var(--brand-500)]/12 blur-3xl animate-blob-1"
       />
@@ -41,47 +41,47 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           className="mx-auto max-w-[1180px]"
           transitionKey="login"
         >
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,460px)] lg:items-stretch">
+          <div className="grid gap-5 md:gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,460px)] lg:items-stretch">
             <Panel
-              className="relative overflow-hidden border-white/65 p-8 sm:p-10 lg:p-12"
+              className="order-2 relative overflow-hidden border-white/65 p-6 sm:p-8 md:order-1 md:p-10 lg:p-12"
               variant="elevated"
             >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(17,122,108,0.12),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(42,111,170,0.08),transparent_28%)]" />
-              <div className="relative flex h-full flex-col justify-between gap-8">
-                <div className="space-y-4">
+              <div className="relative flex h-full flex-col justify-between gap-5 md:gap-8">
+                <div className="space-y-3 md:space-y-4">
                   <Badge tone="primary">FleetTime</Badge>
-                  <div className="space-y-2.5">
-                    <p className="text-4xl font-semibold tracking-[-0.05em] text-[var(--text-primary)] sm:text-[3.5rem]">
+                  <div className="space-y-2">
+                    <p className="text-[2.2rem] font-semibold tracking-[-0.05em] text-[var(--text-primary)] sm:text-[3rem] md:text-[3.5rem]">
                       <span className="text-[var(--brand-500)]">Fleet</span>Time
                     </p>
-                    <h1 className="max-w-2xl text-[2rem] font-semibold tracking-[-0.05em] text-[var(--text-primary)] sm:text-[3.2rem]">
+                    <h1 className="max-w-2xl text-[1.8rem] font-semibold tracking-[-0.05em] text-[var(--text-primary)] sm:text-[2.4rem] md:text-[3.2rem]">
                       Scheduling and approvals for shared vehicles.
                     </h1>
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="flex h-full items-center gap-3 rounded-[22px] border border-white/80 bg-white/80 p-4 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
+                <div className="grid gap-2.5 md:gap-4 md:grid-cols-3">
+                  <div className="flex h-full items-center gap-3 rounded-[18px] border border-white/80 bg-white/84 p-3 shadow-[0_12px_24px_rgba(15,23,42,0.08)] md:rounded-[22px] md:p-4 md:shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-[16px] bg-[var(--brand-100)] text-[var(--brand-600)] md:h-10 md:w-10 md:rounded-2xl">
                       <CalendarIcon className="h-5 w-5" />
                     </span>
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)] md:text-sm">
                       Clear schedule
                     </p>
                   </div>
-                  <div className="flex h-full items-center gap-3 rounded-[22px] border border-white/80 bg-white/80 p-4 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--info-soft)] text-[var(--info)]">
+                  <div className="flex h-full items-center gap-3 rounded-[18px] border border-white/80 bg-white/84 p-3 shadow-[0_12px_24px_rgba(15,23,42,0.08)] md:rounded-[22px] md:p-4 md:shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-[16px] bg-[var(--info-soft)] text-[var(--info)] md:h-10 md:w-10 md:rounded-2xl">
                       <ManageIcon className="h-5 w-5" />
                     </span>
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)] md:text-sm">
                       Faster approvals
                     </p>
                   </div>
-                  <div className="flex h-full items-center gap-3 rounded-[22px] border border-white/80 bg-white/80 p-4 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--success-soft)] text-[var(--success)]">
+                  <div className="flex h-full items-center gap-3 rounded-[18px] border border-white/80 bg-white/84 p-3 shadow-[0_12px_24px_rgba(15,23,42,0.08)] md:rounded-[22px] md:p-4 md:shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-[16px] bg-[var(--success-soft)] text-[var(--success)] md:h-10 md:w-10 md:rounded-2xl">
                       <LogIcon className="h-5 w-5" />
                     </span>
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)] md:text-sm">
                       Clear activity
                     </p>
                   </div>
@@ -90,10 +90,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </Panel>
 
             <Panel
-              className="overflow-hidden border-white/72 p-8 shadow-[0_26px_70px_rgba(15,23,42,0.12)] sm:p-10"
+              className="order-1 overflow-hidden border-white/72 p-6 shadow-[0_20px_48px_rgba(15,23,42,0.1)] md:order-2 md:p-10 md:shadow-[0_26px_70px_rgba(15,23,42,0.12)]"
               variant="elevated"
             >
-              <div className="mb-8 space-y-3">
+              <div className="mb-6 space-y-2.5 md:mb-8 md:space-y-3">
                 <Badge className="w-fit" tone="neutral">
                   Secure sign in
                 </Badge>

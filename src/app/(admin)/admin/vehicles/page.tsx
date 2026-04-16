@@ -122,7 +122,7 @@ export default async function AdminVehiclesPage() {
         title="Admin Vehicles"
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={ManageIcon}
           label="Active fleet"
@@ -150,7 +150,7 @@ export default async function AdminVehiclesPage() {
       </section>
 
       <Panel className="overflow-hidden" variant="elevated">
-        <div className="flex items-center gap-3 border-b border-[var(--border-subtle)] pb-5">
+        <div className="flex items-center gap-3 border-b border-[var(--border-subtle)] pb-4 md:pb-5">
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
             <ManageIcon className="h-5 w-5" />
           </span>
@@ -160,7 +160,7 @@ export default async function AdminVehiclesPage() {
         </div>
         <form
           action={createVehicle}
-          className="mt-5 grid gap-4 md:grid-cols-[1fr_180px_160px_auto] md:items-end"
+          className="mt-4 grid gap-3 md:mt-5 md:gap-4 md:grid-cols-[1fr_180px_160px_auto] md:items-end"
         >
           <Field htmlFor="vehicle-create-name" label="Name">
             <input
@@ -201,7 +201,7 @@ export default async function AdminVehiclesPage() {
             </select>
           </Field>
 
-          <Button type="submit" tone="primary">
+          <Button className="w-full md:w-auto" type="submit" tone="primary">
             Add vehicle
           </Button>
         </form>

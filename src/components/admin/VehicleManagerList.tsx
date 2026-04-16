@@ -81,7 +81,7 @@ export function VehicleManagerList({
 
   return (
     <>
-      <Panel className="p-4 sm:p-5" variant="inset">
+      <Panel className="p-3.5 md:p-5" variant="inset">
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px]">
           <div className="relative">
             <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />
@@ -109,7 +109,7 @@ export function VehicleManagerList({
 
       <div className="space-y-3">
         {filteredVehicles.map((vehicle) => (
-          <Panel as="article" className="p-4 sm:p-5" key={vehicle.id} variant="elevated">
+          <Panel as="article" className="p-4 md:p-5" key={vehicle.id} variant="elevated">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
@@ -128,10 +128,13 @@ export function VehicleManagerList({
                 <p className="mt-2 text-sm text-[var(--text-secondary)]">
                   {getVehicleTypeLabel(vehicle.type)}
                 </p>
+                <p className="mt-2 text-sm font-medium text-[var(--text-primary)] md:hidden">
+                  Next activity: {formatDate(vehicle.nextActivityDate)}
+                </p>
               </div>
 
               <Button
-                className="xl:self-start"
+                className="w-full justify-center md:w-auto xl:self-start"
                 onClick={() => setActiveVehicleId(vehicle.id)}
                 size="sm"
                 tone="secondary"
@@ -142,7 +145,7 @@ export function VehicleManagerList({
               </Button>
             </div>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-5 hidden gap-3 md:grid md:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
                   Confirmed trips
@@ -192,6 +195,54 @@ export function VehicleManagerList({
       >
         {activeVehicle ? (
           <div className="space-y-6">
+            <section className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  Confirmed trips
+                </p>
+                <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                  {activeVehicle.confirmedTripCount}
+                </p>
+              </div>
+              <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  Pending requests
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                  {activeVehicle.pendingRequestCount}
+                </p>
+              </div>
+              <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  Next activity
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                  {formatDate(activeVehicle.nextActivityDate)}
+                </p>
+              </div>
+              <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  Last confirmed
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                  {formatDate(activeVehicle.lastConfirmedDate)}
+                </p>
+              </div>
+              <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3 sm:col-span-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  Updated
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                  {new Intl.DateTimeFormat("en-US", {
+                    day: "numeric",
+                    month: "short",
+                    timeZone: "UTC",
+                    year: "numeric",
+                  }).format(new Date(activeVehicle.updated_at))}
+                </p>
+              </div>
+            </section>
+
             <section className="space-y-4">
               <h3 className="text-base font-semibold text-[var(--text-primary)]">
                 Vehicle details

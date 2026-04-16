@@ -125,7 +125,7 @@ function MobileNavDrawer({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[130] bg-[var(--text-primary)]/28 backdrop-blur-xl sm:hidden"
+      className="fixed inset-0 z-[130] bg-[var(--text-primary)]/28 backdrop-blur-xl md:hidden"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -133,7 +133,7 @@ function MobileNavDrawer({
       }}
     >
       <div
-        className="flex h-full w-[min(348px,calc(100%-1rem))] flex-col border-r border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(246,251,250,0.95))] px-4 py-4 shadow-[0_28px_80px_rgba(15,23,42,0.18)]"
+        className="flex h-full w-[min(348px,calc(100%-0.75rem))] flex-col border-r border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(246,251,250,0.95))] px-4 py-4 shadow-[0_24px_64px_rgba(15,23,42,0.18)]"
         onMouseDown={(event) => {
           event.stopPropagation();
         }}
@@ -240,20 +240,39 @@ export function TopBar({
   return (
     <header className="sticky top-0 z-50 border-b border-white/70 bg-[rgba(243,245,247,0.86)] backdrop-blur-xl shadow-[0_12px_34px_rgba(15,23,42,0.06)]">
       <div className="app-container">
-        <div className="flex min-h-[4.5rem] items-center justify-between gap-4 py-3 sm:min-h-20">
-          <div className="flex items-center gap-3">
-            <button
-              aria-label="Open navigation menu"
-              className={buttonClassName({
-                className: "h-11 w-11 p-0 sm:hidden",
-                tone: "ghost",
-              })}
-              onClick={() => setIsMenuOpen(true)}
-              type="button"
-            >
-              <MenuIcon className="h-5 w-5" />
-            </button>
+        <div className="safe-mobile-top grid min-h-[4.5rem] grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-2 py-2 md:hidden">
+          <button
+            aria-label="Open navigation menu"
+            className={buttonClassName({
+              className: "h-11 w-11 p-0",
+              tone: "ghost",
+            })}
+            onClick={() => setIsMenuOpen(true)}
+            type="button"
+          >
+            <MenuIcon className="h-5 w-5" />
+          </button>
 
+          <div className="flex min-w-0 justify-center">
+            <Link
+              className="inline-flex min-w-0 items-center justify-center rounded-xl px-2 text-[1.32rem] font-bold tracking-[-0.03em] text-[var(--text-primary)] transition-all hover:text-[var(--brand-600)]"
+              href="/vehicles"
+            >
+              <span className="mr-[2px] text-[var(--brand-500)]">Fleet</span>Time
+            </Link>
+          </div>
+
+          <Link
+            aria-current={isActive("/log") ? "page" : undefined}
+            className="inline-flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-[var(--border-subtle)] bg-white/90 text-[var(--text-secondary)] shadow-[0_8px_18px_rgba(15,23,42,0.05)] transition-all hover:text-[var(--text-primary)]"
+            href="/log"
+          >
+            <LogIcon className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <div className="hidden min-h-[4.5rem] items-center justify-between gap-4 py-3 md:flex md:min-h-20">
+          <div className="flex items-center gap-3">
             <Link
               className="inline-flex items-center rounded-xl px-2 text-[1.45rem] font-bold tracking-[-0.03em] text-[var(--text-primary)] transition-all hover:text-[var(--brand-600)]"
               href="/vehicles"
@@ -262,7 +281,7 @@ export function TopBar({
             </Link>
           </div>
 
-          <nav className="hidden flex-1 items-center justify-center gap-1 sm:flex">
+          <nav className="hidden flex-1 items-center justify-center gap-1 md:flex">
             {navItems.map((item) => (
               <DesktopNavLink key={item.href} {...item} />
             ))}
@@ -275,7 +294,7 @@ export function TopBar({
             ) : null}
           </nav>
 
-          <div className="hidden items-center gap-2 sm:flex">
+          <div className="hidden items-center gap-2 md:flex">
             <div className="flex h-11 items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-white/88 px-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
               <span
                 className={joinClasses(
@@ -297,14 +316,6 @@ export function TopBar({
               </Button>
             </form>
           </div>
-
-          <Link
-            aria-current={isActive("/log") ? "page" : undefined}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-white/90 text-[var(--text-secondary)] shadow-[0_10px_24px_rgba(15,23,42,0.05)] transition-all hover:text-[var(--text-primary)] sm:hidden"
-            href="/log"
-          >
-            <LogIcon className="h-4 w-4" />
-          </Link>
         </div>
       </div>
 

@@ -142,13 +142,13 @@ export default async function LogPage({ searchParams }: LogPageProps) {
 
   return (
     <RouteTransition transitionKey={`log-page-${currentPage}-${query || "all"}`}>
-      <div className="space-y-6 sm:space-y-8">
+      <div className="space-y-5 md:space-y-8">
         <PageHeader eyebrow="Log" title="System Log" />
 
-        <Panel className="sticky top-20 z-20 border-white/75 bg-[var(--bg)]/90 p-4 backdrop-blur-xl">
+        <Panel className="sticky top-[4.8rem] z-20 border-white/75 bg-[var(--bg)]/90 p-3.5 backdrop-blur-lg md:top-20 md:p-4 md:backdrop-blur-xl">
           <form
             action="/log"
-            className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-end"
+            className="grid gap-2.5 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-end md:gap-3"
             method="get"
           >
             <div className="space-y-2">
@@ -211,8 +211,8 @@ export default async function LogPage({ searchParams }: LogPageProps) {
                 const bookingStatus = getLogBookingStatus(entry.action_type);
 
                 return (
-                  <Panel as="article" className="p-4 sm:p-5" key={entry.id}>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <Panel as="article" className="p-3.5 md:p-5" key={entry.id}>
+                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div className="min-w-0 flex gap-3">
                         <span
                           aria-hidden="true"
@@ -232,7 +232,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
                             )}
                           </div>
 
-                          <p className="mt-2 text-sm font-medium text-[var(--text)] sm:text-[15px]">
+                          <p className="mt-1.5 text-sm font-medium text-[var(--text)] md:mt-2 md:text-[15px]">
                             {entry.description}
                           </p>
                         </div>
@@ -244,7 +244,7 @@ export default async function LogPage({ searchParams }: LogPageProps) {
                       </Badge>
                     </div>
 
-                    <div className="mt-3 border-t border-[var(--border)] pt-3 text-xs text-[var(--muted)]">
+                    <div className="mt-3 border-t border-[var(--border)] pt-3 text-[11px] text-[var(--muted)] md:text-xs">
                       {formatLogActionTime(entry.action_at)}
                     </div>
                   </Panel>

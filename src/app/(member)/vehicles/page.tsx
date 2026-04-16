@@ -11,6 +11,7 @@ import {
   EmptyStateIcon,
   LogIcon,
   ManageIcon,
+  SettingsIcon,
   UserIcon,
 } from "@/components/ui/icons";
 import {
@@ -209,6 +210,15 @@ export default async function VehiclesPage() {
     vehicles,
   } = await getVehicleDashboardData();
   const greetingLabel = getGreetingLabel(getBusinessHour(), currentUser.name);
+  const quickActions =
+    currentUser.role === "super_admin"
+      ? [
+          { href: "/admin/requests", icon: LogIcon, label: "Requests" },
+          { href: "/admin/vehicles", icon: ManageIcon, label: "Vehicles" },
+          { href: "/admin/members", icon: UserIcon, label: "Members" },
+          { href: "/admin/settings", icon: SettingsIcon, label: "Settings" },
+        ]
+      : [];
 
   return (
     <div className="page-stack">
@@ -221,7 +231,30 @@ export default async function VehiclesPage() {
         title={greetingLabel}
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {quickActions.length > 0 ? (
+        <section className="grid gap-2.5 md:hidden">
+          <div className="grid grid-cols-2 gap-2.5">
+            {quickActions.map((action) => {
+              const Icon = action.icon;
+
+              return (
+                <Link
+                  className="flex min-h-12 items-center gap-3 rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 text-sm font-semibold text-[var(--text-primary)] shadow-[0_10px_22px_rgba(15,23,42,0.05)] transition-all hover:border-[var(--brand-500)]/18 hover:bg-white"
+                  href={action.href}
+                  key={action.href}
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-[16px] bg-[var(--brand-100)] text-[var(--brand-600)]">
+                    <Icon className="h-[1.125rem] w-[1.125rem]" />
+                  </span>
+                  {action.label}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
+
+      <section className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={ManageIcon}
           label="Fleet ready"
@@ -253,7 +286,7 @@ export default async function VehiclesPage() {
       </section>
 
       {currentUser.role === "super_admin" && pendingRequestCount !== null ? (
-        <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-5 py-4 shadow-[0_16px_38px_rgba(15,23,42,0.06)]">
+        <div className="rounded-[20px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 shadow-[0_12px_26px_rgba(15,23,42,0.05)] md:rounded-[24px] md:px-5 md:py-4 md:shadow-[0_16px_38px_rgba(15,23,42,0.06)]">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm font-semibold text-[var(--text-primary)]">
               Approval queue
@@ -292,97 +325,147 @@ export default async function VehiclesPage() {
               href={`/vehicles/${vehicle.id}/calendar`}
               key={vehicle.id}
             >
-              <div className="border-b border-[var(--border-subtle)] bg-[linear-gradient(180deg,rgba(246,251,250,0.96),rgba(255,255,255,0.92))] px-5 py-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex gap-3">
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] bg-[var(--brand-100)] text-[var(--brand-600)]">
-                      <ManageIcon className="h-6 w-6" />
+              <div className="md:hidden">
+                <div className="space-y-3 px-4 py-4">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] bg-[var(--brand-100)] text-[var(--brand-600)]">
+                      <ManageIcon className="h-5 w-5" />
                     </span>
-                    <div>
-                      <h2 className="text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-                        {vehicle.name}
-                      </h2>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-base font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                          {vehicle.name}
+                        </h2>
+                        <Badge tone={vehicle.isAvailableToday ? "success" : "warning"}>
+                          {vehicle.isAvailableToday ? "Available" : "Busy today"}
+                        </Badge>
+                      </div>
                       <p className="mt-1 text-sm text-[var(--text-secondary)]">
                         {getVehicleTypeLabel(vehicle.type)}
                       </p>
                     </div>
                   </div>
-                  <Badge tone={vehicle.isAvailableToday ? "success" : "warning"}>
-                    {vehicle.isAvailableToday ? "Available" : "Busy today"}
-                  </Badge>
-                </div>
-              </div>
 
-              <div className="space-y-4 px-5 py-5">
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                    <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
-                      Week
+                  <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3.5 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                      Next activity
                     </p>
-                    <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-                      {vehicle.confirmedThisWeek}
-                    </p>
+                    {vehicle.nextBooking ? (
+                      <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
+                        {vehicle.nextBooking.status === "confirmed"
+                          ? "Confirmed booking"
+                          : "Pending request"}{" "}
+                        · {formatDateLabel(vehicle.nextBooking.date)}
+                      </p>
+                    ) : (
+                      <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                        No upcoming activity.
+                      </p>
+                    )}
                   </div>
-                  <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                    <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
-                      Month
-                    </p>
-                    <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-                      {vehicle.confirmedThisMonth}
-                    </p>
-                  </div>
-                  <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                    <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
-                      Requests
-                    </p>
-                    <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
-                      {vehicle.requestedCount}
-                    </p>
-                  </div>
-                </div>
 
-                <div className="rounded-[18px] border border-[var(--border-subtle)] bg-white px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
-                    Next activity
-                  </p>
-                  {vehicle.nextBooking ? (
-                    <div className="mt-2 flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-[var(--text-primary)]">
-                          {vehicle.nextBooking.status === "confirmed"
-                            ? "Confirmed booking"
-                            : "Pending request"}
-                        </p>
-                        <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                          {formatDateLabel(vehicle.nextBooking.date)}
-                        </p>
-                      </div>
-                      <Badge
-                        tone={
-                          vehicle.nextBooking.status === "confirmed"
-                            ? "success"
-                            : "warning"
-                        }
-                      >
-                        {vehicle.nextBooking.status}
-                      </Badge>
-                    </div>
-                  ) : (
-                    <p className="mt-2 text-sm text-[var(--text-secondary)]">
-                      No upcoming activity.
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between border-t border-[var(--border-subtle)] pt-4">
-                  <div>
+                  <div className="flex items-center justify-between border-t border-[var(--border-subtle)] pt-3">
                     <p className="text-sm font-semibold text-[var(--text-primary)]">
                       View schedule
                     </p>
+                    <span className="rounded-full bg-[var(--brand-100)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand-600)]">
+                      Open
+                    </span>
                   </div>
-                  <span className="rounded-full bg-[var(--brand-100)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand-600)]">
-                    Open
-                  </span>
+                </div>
+              </div>
+
+              <div className="hidden md:block">
+                <div className="border-b border-[var(--border-subtle)] bg-[linear-gradient(180deg,rgba(246,251,250,0.96),rgba(255,255,255,0.92))] px-5 py-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex gap-3">
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] bg-[var(--brand-100)] text-[var(--brand-600)]">
+                        <ManageIcon className="h-6 w-6" />
+                      </span>
+                      <div>
+                        <h2 className="text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                          {vehicle.name}
+                        </h2>
+                        <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                          {getVehicleTypeLabel(vehicle.type)}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge tone={vehicle.isAvailableToday ? "success" : "warning"}>
+                      {vehicle.isAvailableToday ? "Available" : "Busy today"}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="space-y-4 px-5 py-5">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
+                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                        Week
+                      </p>
+                      <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                        {vehicle.confirmedThisWeek}
+                      </p>
+                    </div>
+                    <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
+                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                        Month
+                      </p>
+                      <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                        {vehicle.confirmedThisMonth}
+                      </p>
+                    </div>
+                    <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
+                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                        Requests
+                      </p>
+                      <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                        {vehicle.requestedCount}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-[18px] border border-[var(--border-subtle)] bg-white px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                      Next activity
+                    </p>
+                    {vehicle.nextBooking ? (
+                      <div className="mt-2 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--text-primary)]">
+                            {vehicle.nextBooking.status === "confirmed"
+                              ? "Confirmed booking"
+                              : "Pending request"}
+                          </p>
+                          <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                            {formatDateLabel(vehicle.nextBooking.date)}
+                          </p>
+                        </div>
+                        <Badge
+                          tone={
+                            vehicle.nextBooking.status === "confirmed"
+                              ? "success"
+                              : "warning"
+                          }
+                        >
+                          {vehicle.nextBooking.status}
+                        </Badge>
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                        No upcoming activity.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-[var(--border-subtle)] pt-4">
+                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                      View schedule
+                    </p>
+                    <span className="rounded-full bg-[var(--brand-100)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand-600)]">
+                      Open
+                    </span>
+                  </div>
                 </div>
               </div>
             </Link>

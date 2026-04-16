@@ -71,7 +71,7 @@ export function ResponsiveOverlay({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[140] flex items-end justify-center bg-[var(--text-primary)]/28 px-2 pt-8 backdrop-blur-xl sm:px-4 md:items-center md:px-6 md:py-8"
+      className="fixed inset-0 z-[140] flex items-end justify-center bg-[var(--text-primary)]/24 px-0 pt-4 backdrop-blur-lg md:items-center md:bg-[var(--text-primary)]/28 md:px-6 md:py-8 md:backdrop-blur-xl"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -84,18 +84,18 @@ export function ResponsiveOverlay({
         aria-modal="true"
         className={joinClasses(
           "flex w-full max-w-[980px] flex-col overflow-hidden border border-white/80 bg-[var(--bg-surface)] shadow-[0_28px_80px_rgba(15,23,42,0.2)]",
-          "max-h-[88vh] rounded-t-[1.75rem] md:max-h-[82vh] md:rounded-3xl"
+          "max-h-[92dvh] rounded-t-[1.5rem] md:max-h-[82vh] md:rounded-3xl"
         )}
         onMouseDown={(event) => {
           event.stopPropagation();
         }}
         role="dialog"
       >
-        <div className="px-5 pt-3 md:hidden">
+        <div className="px-4 pt-3 md:hidden">
           <div className="mx-auto h-1.5 w-12 rounded-full bg-[var(--border-strong)]/70" />
         </div>
 
-        <div className="bg-[linear-gradient(180deg,rgba(246,251,250,0.96),rgba(255,255,255,0.92))] px-5 py-5 md:px-6">
+        <div className="bg-[linear-gradient(180deg,rgba(246,251,250,0.96),rgba(255,255,255,0.92))] px-4 py-4 md:px-6 md:py-5">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <h2
@@ -129,9 +129,9 @@ export function ResponsiveOverlay({
           </div>
         </div>
 
-        <div className="overflow-y-auto px-5 pb-6 pt-4 md:px-6">{children}</div>
+        <div className="overflow-y-auto px-4 pb-5 pt-4 md:px-6 md:pb-6">{children}</div>
         {footer ? (
-          <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-5 py-4 md:px-6">
+          <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-4 md:px-6">
             {footer}
           </div>
         ) : null}
