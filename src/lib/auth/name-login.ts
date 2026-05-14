@@ -1,15 +1,13 @@
 import "server-only";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
  * Given a user-facing login name, returns the real Supabase Auth email
  * for that user, or null if no matching active user exists.
  *
- * Flow: name → look up public.users (case-insensitive) → get user ID
- *       → use admin client to get the real auth email by ID.
- *
- * This means the email format in Supabase Auth does not matter at all —
- * users only ever deal with their name and password.
+ * Users only ever deal with their name and password. The database RPC runs
+ * as a SECURITY DEFINER function so login can still resolve the hidden Auth
+ * email after RLS is enabled.
  */
 export async function lookupEmailByName(name: string): Promise<string | null> {
   const trimmedName = name.trim();
@@ -18,24 +16,14 @@ export async function lookupEmailByName(name: string): Promise<string | null> {
     return null;
   }
 
-  const adminClient = createSupabaseAdminClient();
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("lookup_auth_email_by_name", {
+    p_name: trimmedName,
+  });
 
-  const { data: profile, error } = await adminClient
-    .from("users")
-    .select("id")
-    .ilike("name", trimmedName)
-    .maybeSingle();
-
-  if (error || !profile) {
+  if (error || typeof data !== "string" || !data) {
     return null;
   }
 
-  const { data, error: authError } =
-    await adminClient.auth.admin.getUserById(profile.id);
-
-  if (authError || !data.user?.email) {
-    return null;
-  }
-
-  return data.user.email;
+  return data;
 }
