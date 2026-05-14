@@ -17,7 +17,7 @@ import {
   type BookingTimeWindow,
 } from "@/lib/booking/bookings";
 import { getBusinessToday } from "@/lib/booking/dates";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { RequestReviewList } from "@/components/admin/RequestReviewList";
 import { approveBookingRequest, rejectBookingRequest } from "./actions";
 
@@ -90,7 +90,7 @@ function compareRequests(
 async function getRequestReviewData() {
   await requireAdminAppUser();
 
-  const supabase = createSupabaseAdminClient();
+  const supabase = await createSupabaseServerClient();
   const { data: requestRows, error: requestsError } = await supabase
     .from("bookings")
     .select(

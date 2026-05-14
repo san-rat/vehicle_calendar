@@ -21,7 +21,7 @@ import {
   isDateWithinBookingWindow,
   parseIsoDate,
 } from "@/lib/booking/dates";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createBooking } from "./actions";
 
 type BookingPageProps = {
@@ -117,7 +117,7 @@ async function getBookingPageData(input: {
   date: string;
   vehicleId: string;
 }) {
-  const supabase = createSupabaseAdminClient();
+  const supabase = await createSupabaseServerClient();
   const { data: vehicle, error: vehicleError } = await supabase
     .from("vehicles")
     .select("id, name, type, is_active")

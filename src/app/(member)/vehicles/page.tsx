@@ -27,7 +27,7 @@ import {
   parseIsoDate,
 } from "@/lib/booking/dates";
 import { filterVisibleBookingSummaries } from "@/lib/booking/visibility";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type VehicleRecord = {
   id: string;
@@ -81,7 +81,7 @@ async function getVehicleDashboardData() {
     throw new Error("Unable to resolve the current month.");
   }
 
-  const supabase = createSupabaseAdminClient();
+  const supabase = await createSupabaseServerClient();
   const [{ data: vehicles, error: vehiclesError }, { data: bookings, error: bookingsError }] =
     await Promise.all([
       supabase
