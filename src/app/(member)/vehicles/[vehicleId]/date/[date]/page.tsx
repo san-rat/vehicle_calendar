@@ -4,16 +4,18 @@ import {
   BookingWorkspace,
   type TimelineBooking,
 } from "@/components/BookingWorkspace";
-import { Badge, BreadcrumbNav, PageHeader } from "@/components/ui";
+import {
+  Badge,
+  BreadcrumbNav,
+  MobileBackHeader,
+  PageHeader,
+} from "@/components/ui";
 import {
   getVehicleTypeLabel,
   type VehicleType,
 } from "@/lib/admin/vehicles";
 import { requireCurrentAppUser, type AppUser } from "@/lib/auth/user";
-import {
-  getBookingStatusForFreedom,
-  getThirtyMinuteTimeOptions,
-} from "@/lib/booking/bookings";
+import { getBookingStatusForFreedom } from "@/lib/booking/bookings";
 import {
   getBusinessToday,
   isDateWithinBookingWindow,
@@ -166,21 +168,6 @@ async function getBookingPageData(input: {
   };
 }
 
-function getPolicySummary(config: PrivilegeConfigRecord) {
-  const bookingMode = config.allow_booking_freedom
-    ? "Auto-confirm."
-    : "Approval required.";
-  const reasonMode = config.require_reason
-    ? "Reason required."
-    : "Reason optional.";
-  const timeLimit =
-    config.time_limit_minutes === null
-      ? "All-day allowed."
-      : `${config.time_limit_minutes}-minute limit.`;
-
-  return `${bookingMode} ${reasonMode} ${timeLimit}`;
-}
-
 export default async function BookingPage({
   params,
 }: BookingPageProps) {
@@ -211,6 +198,8 @@ export default async function BookingPage({
   const formDisabledMessage = isInsideBookingWindow
     ? null
     : "This date is outside the allowed booking window.";
+  const dateLabel = getDateLabel(date);
+  const mobileContextLabel = `${vehicle.name} · ${dateLabel}`;
   const breadcrumbs = [
     { href: "/vehicles", label: "Vehicles" },
     {
@@ -224,7 +213,12 @@ export default async function BookingPage({
     <>
       <AutoRefresh />
       <div className="space-y-6">
-        <div className="space-y-3">
+        <MobileBackHeader
+          backHref={`/vehicles/${vehicle.id}/calendar?month=${date.slice(0, 7)}`}
+          title="Booking"
+        />
+
+        <div className="space-y-3 hidden md:block">
           <BreadcrumbNav items={breadcrumbs} />
           <PageHeader
             action={
@@ -239,7 +233,7 @@ export default async function BookingPage({
             meta={
               <>
                 <Badge tone="secondary">{getVehicleTypeLabel(vehicle.type)}</Badge>
-                <Badge tone="secondary">{getDateLabel(date)}</Badge>
+                <Badge tone="secondary">{dateLabel}</Badge>
                 <Badge tone="neutral">
                   Window: {config.max_days_in_future} days
                 </Badge>
@@ -254,23 +248,36 @@ export default async function BookingPage({
           />
         </div>
 
+        <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3 md:hidden">
+          <p className="text-sm font-semibold text-[var(--text-primary)]">
+            {mobileContextLabel}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Badge tone={bookingStatus === "confirmed" ? "success" : "warning"}>
+              {bookingModeLabel}
+            </Badge>
+            <Badge tone="secondary">
+              {config.time_limit_minutes === null
+                ? "All-day allowed"
+                : `${config.time_limit_minutes} minute limit`}
+            </Badge>
+          </div>
+        </div>
+
         <BookingWorkspace
           allDayDisabled={config.time_limit_minutes !== null}
           bookingModeLabel={bookingModeLabel}
           bookings={bookings}
           formAction={createBookingAction}
           formDisabledMessage={formDisabledMessage}
-          policySummary={getPolicySummary(config)}
           reasonRequired={config.require_reason}
           selectedDate={date}
-          selectedDateLabel={getDateLabel(date)}
+          selectedDateLabel={dateLabel}
           submitLabel={
             bookingStatus === "confirmed" ? "Confirm booking" : "Submit request"
           }
           timeLimitMinutes={config.time_limit_minutes}
-          timeOptions={getThirtyMinuteTimeOptions()}
           today={today}
-          vehicleLabel={`${vehicle.name} · ${getVehicleTypeLabel(vehicle.type)}`}
         />
       </div>
     </>

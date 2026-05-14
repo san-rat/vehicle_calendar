@@ -10,7 +10,7 @@ import {
 } from "@/components/ui";
 import { RouteTransition } from "@/components/RouteTransition";
 import { ClockIcon, LogIcon, SearchIcon } from "@/components/ui/icons";
-import { requireCurrentAppUser } from "@/lib/auth/user";
+import { requireAdminAppUser } from "@/lib/auth/user";
 import {
   formatLogActionTime,
   formatRelativeLogTime,
@@ -83,7 +83,7 @@ async function getLogPageData(
   pageParam: string | undefined,
   queryParam: string | undefined
 ): Promise<LogPageData> {
-  await requireCurrentAppUser();
+  await requireAdminAppUser();
 
   const currentPage = getLogPageNumber(pageParam);
   const query = normalizeLogQuery(queryParam);

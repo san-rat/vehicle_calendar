@@ -5,7 +5,7 @@ import type {
   ReactNode,
 } from "react";
 import type { BookingStatus } from "@/lib/booking/bookings";
-import { ChevronRightIcon } from "./icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
 
 export type UiTone =
   | "danger"
@@ -52,6 +52,14 @@ type PageHeaderProps = {
   meta?: ReactNode;
   title: string;
   toolbar?: ReactNode;
+};
+
+type MobileBackHeaderProps = {
+  action?: ReactNode;
+  backHref: string;
+  backLabel?: string;
+  subtitle?: ReactNode;
+  title: string;
 };
 
 type EmptyStateProps = {
@@ -431,6 +439,43 @@ export function BreadcrumbNav({ items }: { items: BreadcrumbItem[] }) {
         })}
       </ol>
     </nav>
+  );
+}
+
+export function MobileBackHeader({
+  action,
+  backHref,
+  backLabel = "Back",
+  subtitle,
+  title,
+}: MobileBackHeaderProps) {
+  return (
+    <header className="space-y-3 md:hidden">
+      <div className="flex items-center justify-between gap-3">
+        <ButtonLink
+          aria-label={`${backLabel} back`}
+          className="min-h-10 gap-1.5 px-3 py-2 text-sm"
+          href={backHref}
+          size="sm"
+          tone="ghost"
+        >
+          <ChevronLeftIcon className="h-4 w-4" />
+          {backLabel}
+        </ButtonLink>
+        {action ? <div className="shrink-0">{action}</div> : null}
+      </div>
+
+      <div className="space-y-1.5">
+        <h1 className="text-[1.55rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
+          {title}
+        </h1>
+        {subtitle ? (
+          <p className="text-sm leading-6 text-[var(--text-secondary)]">
+            {subtitle}
+          </p>
+        ) : null}
+      </div>
+    </header>
   );
 }
 

@@ -4,6 +4,7 @@ import {
   BreadcrumbNav,
   Button,
   Field,
+  MobileBackHeader,
   PageHeader,
   Panel,
   StatCard,
@@ -68,28 +69,38 @@ export default async function AdminPrivilegesPage() {
 
   return (
     <div className="page-stack">
-      <BreadcrumbNav
-        items={[
-          { href: "/admin/settings", label: "Settings" },
-          { label: "Privileges" },
-        ]}
-      />
-
-      <PageHeader
-        action={<Badge tone="primary">Global policy</Badge>}
-        eyebrow="Settings"
-        meta={
-          <>
-            <Badge tone={config.allow_booking_freedom ? "success" : "warning"}>
-              {config.allow_booking_freedom ? "Auto-confirm" : "Approval required"}
-            </Badge>
-            <Badge tone="neutral">
-              Window: {config.max_days_in_future} days
-            </Badge>
-          </>
-        }
+      <MobileBackHeader
+        backHref="/admin/settings"
+        subtitle="Global booking policy"
         title="Booking Privileges"
       />
+
+      <div className="hidden md:block">
+        <BreadcrumbNav
+          items={[
+            { href: "/admin/settings", label: "Settings" },
+            { label: "Privileges" },
+          ]}
+        />
+      </div>
+
+      <div className="hidden md:block">
+        <PageHeader
+          action={<Badge tone="primary">Global policy</Badge>}
+          eyebrow="Settings"
+          meta={
+            <>
+              <Badge tone={config.allow_booking_freedom ? "success" : "warning"}>
+                {config.allow_booking_freedom ? "Auto-confirm" : "Approval required"}
+              </Badge>
+              <Badge tone="neutral">
+                Window: {config.max_days_in_future} days
+              </Badge>
+            </>
+          }
+          title="Booking Privileges"
+        />
+      </div>
 
       <section className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -135,7 +146,7 @@ export default async function AdminPrivilegesPage() {
       </Panel>
 
       <Panel className="overflow-hidden" variant="elevated">
-        <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-4 md:pb-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="hidden flex-col gap-4 border-b border-[var(--border-subtle)] pb-4 md:flex md:pb-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <div className="flex items-center gap-2">
               <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
@@ -149,61 +160,87 @@ export default async function AdminPrivilegesPage() {
           <Badge tone="secondary">Global scope</Badge>
         </div>
 
-        <div className="mt-4 grid gap-5 md:mt-5 md:gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-          <form action={updatePrivileges} className="grid gap-3 md:grid-cols-2 md:gap-4">
+        <div className="grid gap-5 md:mt-5 md:gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+          <form action={updatePrivileges} className="space-y-5 md:space-y-6">
             <input name="id" type="hidden" value={config.id} />
 
-            <Field htmlFor="allow-booking-freedom" label="Booking freedom">
-              <select
-                className={inputClass}
-                defaultValue={String(config.allow_booking_freedom)}
-                id="allow-booking-freedom"
-                name="allow_booking_freedom"
-              >
-                <option value="true">Auto-confirm bookings</option>
-                <option value="false">Require admin approval</option>
-              </select>
-            </Field>
+            <section className="space-y-4">
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--brand-600)]">
+                  Booking behavior
+                </p>
+                <h2 className="text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                  Booking behavior
+                </h2>
+              </div>
 
-            <Field htmlFor="require-reason" label="Reason requirement">
-              <select
-                className={inputClass}
-                defaultValue={String(config.require_reason)}
-                id="require-reason"
-                name="require_reason"
-              >
-                <option value="true">Reason required</option>
-                <option value="false">Reason optional</option>
-              </select>
-            </Field>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field htmlFor="allow-booking-freedom" label="Booking freedom">
+                  <select
+                    className={inputClass}
+                    defaultValue={String(config.allow_booking_freedom)}
+                    id="allow-booking-freedom"
+                    name="allow_booking_freedom"
+                  >
+                    <option value="true">Auto-confirm bookings</option>
+                    <option value="false">Require admin approval</option>
+                  </select>
+                </Field>
 
-            <Field htmlFor="time-limit-minutes" label="Time limit">
-              <input
-                className={inputClass}
-                defaultValue={config.time_limit_minutes ?? ""}
-                id="time-limit-minutes"
-                max={1440}
-                min={1}
-                name="time_limit_minutes"
-                placeholder="No limit"
-                type="number"
-              />
-            </Field>
+                <Field htmlFor="require-reason" label="Reason requirement">
+                  <select
+                    className={inputClass}
+                    defaultValue={String(config.require_reason)}
+                    id="require-reason"
+                    name="require_reason"
+                  >
+                    <option value="true">Reason required</option>
+                    <option value="false">Reason optional</option>
+                  </select>
+                </Field>
+              </div>
+            </section>
 
-            <Field htmlFor="max-days-in-future" label="Future booking window">
-              <input
-                className={inputClass}
-                defaultValue={config.max_days_in_future}
-                id="max-days-in-future"
-                max={365}
-                min={0}
-                name="max_days_in_future"
-                required
-                type="number"
-              />
-            </Field>
+            <section className="space-y-4">
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--brand-600)]">
+                  Rules
+                </p>
+                <h2 className="text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                  Rules
+                </h2>
+              </div>
 
-            <div className="mobile-sticky-action md:col-span-2">
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field htmlFor="time-limit-minutes" label="Time limit">
+                  <input
+                    className={inputClass}
+                    defaultValue={config.time_limit_minutes ?? ""}
+                    id="time-limit-minutes"
+                    max={1440}
+                    min={1}
+                    name="time_limit_minutes"
+                    placeholder="No limit"
+                    type="number"
+                  />
+                </Field>
+
+                <Field htmlFor="max-days-in-future" label="Future booking window">
+                  <input
+                    className={inputClass}
+                    defaultValue={config.max_days_in_future}
+                    id="max-days-in-future"
+                    max={365}
+                    min={0}
+                    name="max_days_in_future"
+                    required
+                    type="number"
+                  />
+                </Field>
+              </div>
+            </section>
+
+            <div className="mobile-sticky-action">
               <Button className="w-full md:w-auto" size="lg" type="submit" tone="primary">
                 Save privileges
               </Button>

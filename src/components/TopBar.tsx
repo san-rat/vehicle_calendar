@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
+import { canAccessSystemLog } from "@/lib/auth/access";
 import { type AppUser } from "@/lib/auth/user";
 import { Button, buttonClassName } from "@/components/ui";
 import {
@@ -217,13 +218,21 @@ export function TopBar({
 }: TopBarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isActive = useIsActivePath();
+  const showSystemLog = canAccessSystemLog(currentUser.role);
 
   const navItems = useMemo<NavItem[]>(
-    () => [
-      { href: "/vehicles", icon: CalendarIcon, label: "Vehicles" },
-      { href: "/log", icon: LogIcon, label: "Log" },
-    ],
-    []
+    () => {
+      const items: NavItem[] = [
+        { href: "/vehicles", icon: CalendarIcon, label: "Vehicles" },
+      ];
+
+      if (showSystemLog) {
+        items.push({ href: "/log", icon: LogIcon, label: "Log" });
+      }
+
+      return items;
+    },
+    [showSystemLog]
   );
 
   const adminItems = useMemo<NavItem[]>(
@@ -262,13 +271,17 @@ export function TopBar({
             </Link>
           </div>
 
-          <Link
-            aria-current={isActive("/log") ? "page" : undefined}
-            className="inline-flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-[var(--border-subtle)] bg-white/90 text-[var(--text-secondary)] shadow-[0_8px_18px_rgba(15,23,42,0.05)] transition-all hover:text-[var(--text-primary)]"
-            href="/log"
-          >
-            <LogIcon className="h-4 w-4" />
-          </Link>
+          {showSystemLog ? (
+            <Link
+              aria-current={isActive("/log") ? "page" : undefined}
+              className="inline-flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-[var(--border-subtle)] bg-white/90 text-[var(--text-secondary)] shadow-[0_8px_18px_rgba(15,23,42,0.05)] transition-all hover:text-[var(--text-primary)]"
+              href="/log"
+            >
+              <LogIcon className="h-4 w-4" />
+            </Link>
+          ) : (
+            <div aria-hidden="true" className="h-11 w-11" />
+          )}
         </div>
 
         <div className="hidden min-h-[4.5rem] items-center justify-between gap-4 py-3 md:flex md:min-h-20">

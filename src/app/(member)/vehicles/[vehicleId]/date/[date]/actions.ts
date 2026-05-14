@@ -13,9 +13,6 @@ import {
 import { getBusinessToday } from "@/lib/booking/dates";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
-const BOOKING_SELECT =
-  "id, user_id, vehicle_id, date, start_time, end_time, is_all_day, reason, status, created_by, updated_by, created_at, updated_at";
-
 type PrivilegeConfigRecord = {
   allow_booking_freedom: boolean;
   max_days_in_future: number;
@@ -43,6 +40,13 @@ type BookingRecord = {
   user_id: string;
   vehicle_id: string;
 };
+
+function isConflictError(error: { code?: string; message?: string } | null) {
+  return (
+    error?.code === "23P01" ||
+    error?.message?.includes("confirmed_booking_conflict")
+  );
+}
 
 function getFormString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -136,24 +140,29 @@ export async function createBooking(
   }
 
   const status = getBookingStatusForFreedom(config.allow_booking_freedom);
-  const { data: createdBooking, error: createError } = await supabase
-    .from("bookings")
-    .insert({
-      created_by: currentUser.id,
-      date: validation.value.date,
-      end_time: validation.value.end_time,
-      is_all_day: validation.value.is_all_day,
-      reason: validation.value.reason,
-      start_time: validation.value.start_time,
-      status,
-      updated_by: currentUser.id,
-      user_id: currentUser.id,
-      vehicle_id: vehicle.id,
-    })
-    .select(BOOKING_SELECT)
-    .single<BookingRecord>();
+  const { data: createdBookingData, error: createError } = await supabase
+    .rpc("create_booking_with_conflict_lock", {
+      p_date: validation.value.date,
+      p_end_time: validation.value.end_time,
+      p_is_all_day: validation.value.is_all_day,
+      p_reason: validation.value.reason,
+      p_start_time: validation.value.start_time,
+      p_status: status,
+      p_user_id: currentUser.id,
+      p_vehicle_id: vehicle.id,
+    });
+  const createdBooking = createdBookingData as BookingRecord | null;
 
   if (createError || !createdBooking) {
+    if (isConflictError(createError)) {
+      redirectWithMessage(
+        vehicleId,
+        date,
+        "error",
+        "This vehicle already has a confirmed booking during that time."
+      );
+    }
+
     redirectWithMessage(vehicleId, date, "error", "Booking could not be saved.");
   }
 
