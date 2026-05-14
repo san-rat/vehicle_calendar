@@ -1,5 +1,4 @@
 import "server-only";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 /**
@@ -19,9 +18,9 @@ export async function lookupEmailByName(name: string): Promise<string | null> {
     return null;
   }
 
-  const supabase = await createSupabaseServerClient();
+  const adminClient = createSupabaseAdminClient();
 
-  const { data: profile, error } = await supabase
+  const { data: profile, error } = await adminClient
     .from("users")
     .select("id")
     .ilike("name", trimmedName)
@@ -31,7 +30,6 @@ export async function lookupEmailByName(name: string): Promise<string | null> {
     return null;
   }
 
-  const adminClient = createSupabaseAdminClient();
   const { data, error: authError } =
     await adminClient.auth.admin.getUserById(profile.id);
 
