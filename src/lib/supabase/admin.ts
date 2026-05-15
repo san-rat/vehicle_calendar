@@ -1,10 +1,10 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
-import { getPublicSupabaseEnv, getServiceRoleKey } from "@/lib/env";
+import { getOptionalServiceRoleKey, getPublicSupabaseEnv } from "@/lib/env";
 
 export function createSupabaseAdminClient() {
-  const { url } = getPublicSupabaseEnv();
-  const serviceRoleKey = getServiceRoleKey();
+  const { anonKey, url } = getPublicSupabaseEnv();
+  const serviceRoleKey = getOptionalServiceRoleKey() ?? anonKey;
 
   return createClient(url, serviceRoleKey, {
     auth: {

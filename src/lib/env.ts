@@ -33,3 +33,7 @@ export function getServiceRoleKey(): string {
 
   return key;
 }
+
+export function getOptionalServiceRoleKey(): string | null {
+  return process.env.SUPABASE_SERVICE_ROLE_KEY ?? null;
+}
