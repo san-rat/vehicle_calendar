@@ -11,6 +11,7 @@ import {
   CloseIcon,
   LogIcon,
   LogoutIcon,
+  ManageIcon,
   MenuIcon,
   SettingsIcon,
   UserIcon,
@@ -230,8 +231,11 @@ export function TopBar({
     () =>
       showAdminActions
         ? [
-            { href: "/admin/settings", icon: SettingsIcon, label: "Settings" },
+            { href: "/admin/settings", icon: SettingsIcon, label: "Overview" },
             { href: "/admin/requests", icon: LogIcon, label: "Requests" },
+            { href: "/admin/vehicles", icon: ManageIcon, label: "Vehicles" },
+            { href: "/admin/privileges", icon: SettingsIcon, label: "Privileges" },
+            { href: "/admin/members", icon: UserIcon, label: "Members" },
           ]
         : [],
     [showAdminActions]

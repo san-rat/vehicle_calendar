@@ -265,7 +265,7 @@ export default async function BookingPage({
           selectedDate={date}
           selectedDateLabel={getDateLabel(date)}
           submitLabel={
-            bookingStatus === "confirmed" ? "Confirm booking" : "Submit request"
+            bookingStatus === "confirmed" ? "Book trip" : "Request booking"
           }
           timeLimitMinutes={config.time_limit_minutes}
           timeOptions={getThirtyMinuteTimeOptions()}

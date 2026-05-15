@@ -1,12 +1,11 @@
 import Link from "next/link";
 import {
   Badge,
+  CompactMetric,
   PageHeader,
-  StatCard,
   interactiveCardClassName,
 } from "@/components/ui";
 import {
-  CalendarIcon,
   ChevronRightIcon,
   LogIcon,
   ManageIcon,
@@ -117,27 +116,23 @@ export default async function AdminSettingsPage() {
         title="Admin Settings"
       />
 
-      <section className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={LogIcon}
+      <section className="hidden gap-3 md:grid md:grid-cols-2 xl:grid-cols-4">
+        <CompactMetric
           label="Pending"
           tone={pendingRequestCount > 0 ? "warning" : "success"}
           value={pendingRequestCount}
         />
-        <StatCard
-          icon={CalendarIcon}
+        <CompactMetric
           label="Active vehicles"
           tone="primary"
           value={activeVehicleCount}
         />
-        <StatCard
-          icon={UserIcon}
+        <CompactMetric
           label="Active members"
           tone="info"
           value={activeMemberCount}
         />
-        <StatCard
-          icon={SettingsIcon}
+        <CompactMetric
           label="Policy"
           tone="neutral"
           value={privilegeConfig.allow_booking_freedom ? "Auto" : "Approval"}

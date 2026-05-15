@@ -2,11 +2,11 @@ import {
   Badge,
   BreadcrumbNav,
   ButtonLink,
+  CompactMetric,
   EmptyState,
   PageHeader,
-  StatCard,
 } from "@/components/ui";
-import { EmptyStateIcon, LogIcon } from "@/components/ui/icons";
+import { EmptyStateIcon } from "@/components/ui/icons";
 import type { VehicleType } from "@/lib/admin/vehicles";
 import { requireAdminAppUser } from "@/lib/auth/user";
 import {
@@ -183,27 +183,23 @@ export default async function AdminRequestsPage() {
         title="Booking Requests"
       />
 
-      <section className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={LogIcon}
+      <section className="hidden gap-3 md:grid md:grid-cols-2 xl:grid-cols-4">
+        <CompactMetric
           label="Pending"
           tone={requests.length > 0 ? "warning" : "success"}
           value={requests.length}
         />
-        <StatCard
-          icon={LogIcon}
+        <CompactMetric
           label="Ready"
           tone="success"
           value={readyRequests}
         />
-        <StatCard
-          icon={LogIcon}
+        <CompactMetric
           label="Conflicts"
           tone="warning"
           value={conflictRequests}
         />
-        <StatCard
-          icon={LogIcon}
+        <CompactMetric
           label="Blocked"
           tone="info"
           value={blockedRequests}

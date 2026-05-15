@@ -1,9 +1,11 @@
 import Link from "next/link";
 import {
   Badge,
+  ButtonLink,
+  CompactMetric,
   EmptyState,
   PageHeader,
-  StatCard,
+  Panel,
   interactiveCardClassName,
 } from "@/components/ui";
 import {
@@ -40,6 +42,14 @@ type BookingRecord = {
   id: string;
   status: "confirmed" | "requested";
   vehicle_id: string;
+};
+
+type DashboardVehicle = VehicleRecord & {
+  confirmedThisMonth: number;
+  confirmedThisWeek: number;
+  isAvailableToday: boolean;
+  nextBooking: BookingRecord | null;
+  requestedCount: number;
 };
 
 function getGreetingLabel(hour: number, name: string) {
@@ -143,7 +153,7 @@ async function getVehicleDashboardData() {
     bookingsByVehicle.set(booking.vehicle_id, vehicleBookings);
   }
 
-  const activeVehicles = ((vehicles ?? []) as VehicleRecord[]).map((vehicle) => {
+  const activeVehicles: DashboardVehicle[] = ((vehicles ?? []) as VehicleRecord[]).map((vehicle) => {
     const vehicleBookings = bookingsByVehicle.get(vehicle.id) ?? [];
     const confirmedToday = vehicleBookings.filter(
       (booking) => booking.status === "confirmed" && booking.date === today
@@ -186,6 +196,15 @@ async function getVehicleDashboardData() {
     (sum, vehicle) => sum + vehicle.confirmedThisWeek,
     0
   );
+  const todayBookings = activeVehicles.filter(
+    (vehicle) => !vehicle.isAvailableToday
+  );
+  const upcomingBookings = activeVehicles
+    .filter((vehicle) => vehicle.nextBooking)
+    .sort((first, second) =>
+      (first.nextBooking?.date ?? "").localeCompare(second.nextBooking?.date ?? "")
+    )
+    .slice(0, 4);
 
   return {
     activeMemberCount,
@@ -194,6 +213,8 @@ async function getVehicleDashboardData() {
     currentUser,
     pendingRequestCount,
     today,
+    todayBookings,
+    upcomingBookings,
     upcomingThisWeekCount,
     vehicles: activeVehicles,
   };
@@ -206,6 +227,9 @@ export default async function VehiclesPage() {
     confirmedTodayCount,
     currentUser,
     pendingRequestCount,
+    today,
+    todayBookings,
+    upcomingBookings,
     upcomingThisWeekCount,
     vehicles,
   } = await getVehicleDashboardData();
@@ -254,27 +278,23 @@ export default async function VehiclesPage() {
         </section>
       ) : null}
 
-      <section className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={ManageIcon}
+      <section className="hidden gap-3 md:grid md:grid-cols-4">
+        <CompactMetric
           label="Fleet ready"
           tone="primary"
           value={vehicles.length}
         />
-        <StatCard
-          icon={CalendarIcon}
+        <CompactMetric
           label="Available today"
           tone="success"
           value={availableTodayCount}
         />
-        <StatCard
-          icon={LogIcon}
+        <CompactMetric
           label="Trips this week"
           tone="info"
           value={upcomingThisWeekCount}
         />
-        <StatCard
-          icon={currentUser.role === "super_admin" ? UserIcon : CalendarIcon}
+        <CompactMetric
           label={currentUser.role === "super_admin" ? "Active members" : "Busy today"}
           tone="warning"
           value={
@@ -286,18 +306,120 @@ export default async function VehiclesPage() {
       </section>
 
       {currentUser.role === "super_admin" && pendingRequestCount !== null ? (
-        <div className="rounded-[20px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 shadow-[0_12px_26px_rgba(15,23,42,0.05)] md:rounded-[24px] md:px-5 md:py-4 md:shadow-[0_16px_38px_rgba(15,23,42,0.06)]">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm font-semibold text-[var(--text-primary)]">
-              Approval queue
-            </p>
+        <Panel className="p-4 md:p-5" variant={pendingRequestCount > 0 ? "danger" : "base"}>
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-[var(--text-primary)]">
+                Needs approval
+              </p>
+              <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                {pendingRequestCount > 0
+                  ? "Review pending booking requests before they block schedules."
+                  : "No booking requests are waiting for review."}
+              </p>
+            </div>
             <Badge tone={pendingRequestCount > 0 ? "warning" : "success"}>
               {pendingRequestCount} pending request
               {pendingRequestCount === 1 ? "" : "s"}
             </Badge>
           </div>
-        </div>
+          {pendingRequestCount > 0 ? (
+            <div className="mt-4">
+              <ButtonLink href="/admin/requests" size="sm" tone="warning">
+                Review requests
+              </ButtonLink>
+            </div>
+          ) : null}
+        </Panel>
       ) : null}
+
+      <section className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <Panel className="p-4 md:p-5" variant="elevated">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                Today
+              </h2>
+              <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                {availableTodayCount} of {vehicles.length} vehicles available
+              </p>
+            </div>
+            <Badge tone={confirmedTodayCount > 0 ? "warning" : "success"}>
+              {confirmedTodayCount} busy
+            </Badge>
+          </div>
+          <div className="mt-4 space-y-2">
+            {todayBookings.length > 0 ? (
+              todayBookings.map((vehicle) => (
+                <div
+                  className="flex items-center justify-between gap-3 rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3.5 py-3"
+                  key={vehicle.id}
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-[var(--text-primary)]">
+                      {vehicle.name}
+                    </p>
+                    <p className="text-sm text-[var(--text-secondary)]">Booked today</p>
+                  </div>
+                  <ButtonLink
+                    href={`/vehicles/${vehicle.id}/date/${today}`}
+                    size="sm"
+                    tone="secondary"
+                  >
+                    View day
+                  </ButtonLink>
+                </div>
+              ))
+            ) : (
+              <p className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3.5 py-3 text-sm text-[var(--text-secondary)]">
+                All active vehicles are open today.
+              </p>
+            )}
+          </div>
+        </Panel>
+
+        <Panel className="p-4 md:p-5" variant="elevated">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                Upcoming bookings
+              </h2>
+              <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                Next scheduled vehicle activity
+              </p>
+            </div>
+            <Badge tone="neutral">{upcomingBookings.length} shown</Badge>
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {upcomingBookings.length > 0 ? (
+              upcomingBookings.map((vehicle) => (
+                <ButtonLink
+                  className="justify-between rounded-[16px] px-3.5 py-3"
+                  href={`/vehicles/${vehicle.id}/date/${vehicle.nextBooking?.date}`}
+                  key={`${vehicle.id}-${vehicle.nextBooking?.id}`}
+                  size="sm"
+                  tone="secondary"
+                >
+                  <span className="min-w-0 text-left">
+                    <span className="block truncate">{vehicle.name}</span>
+                    <span className="block text-xs font-medium text-[var(--text-secondary)]">
+                      {vehicle.nextBooking?.status === "confirmed"
+                        ? "Confirmed"
+                        : "Requested"}{" "}
+                      · {formatDateLabel(vehicle.nextBooking?.date ?? "")}
+                    </span>
+                  </span>
+                  <CalendarIcon className="h-4 w-4 shrink-0" />
+                </ButtonLink>
+              ))
+            ) : (
+              <p className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3.5 py-3 text-sm text-[var(--text-secondary)] sm:col-span-2">
+                No upcoming bookings in the current window.
+              </p>
+            )}
+          </div>
+        </Panel>
+      </section>
 
       {vehicles.length === 0 ? (
         <EmptyState
@@ -318,11 +440,10 @@ export default async function VehiclesPage() {
       ) : (
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {vehicles.map((vehicle) => (
-            <Link
+            <article
               className={interactiveCardClassName(
                 "overflow-hidden border-white/70 p-0"
               )}
-              href={`/vehicles/${vehicle.id}/calendar`}
               key={vehicle.id}
             >
               <div className="md:hidden">
@@ -364,13 +485,21 @@ export default async function VehiclesPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-[var(--border-subtle)] pt-3">
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                  <div className="grid grid-cols-2 gap-2 border-t border-[var(--border-subtle)] pt-3">
+                    <ButtonLink
+                      href={`/vehicles/${vehicle.id}/calendar`}
+                      size="sm"
+                      tone="secondary"
+                    >
                       View schedule
-                    </p>
-                    <span className="rounded-full bg-[var(--brand-100)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand-600)]">
-                      Open
-                    </span>
+                    </ButtonLink>
+                    <ButtonLink
+                      href={`/vehicles/${vehicle.id}/date/${today}`}
+                      size="sm"
+                      tone="primary"
+                    >
+                      Book
+                    </ButtonLink>
                   </div>
                 </div>
               </div>
@@ -458,17 +587,25 @@ export default async function VehiclesPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-[var(--border-subtle)] pt-4">
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                  <div className="flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-4">
+                    <ButtonLink
+                      href={`/vehicles/${vehicle.id}/calendar`}
+                      size="sm"
+                      tone="secondary"
+                    >
                       View schedule
-                    </p>
-                    <span className="rounded-full bg-[var(--brand-100)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand-600)]">
-                      Open
-                    </span>
+                    </ButtonLink>
+                    <ButtonLink
+                      href={`/vehicles/${vehicle.id}/date/${today}`}
+                      size="sm"
+                      tone="primary"
+                    >
+                      Book
+                    </ButtonLink>
                   </div>
                 </div>
               </div>
-            </Link>
+            </article>
           ))}
         </section>
       )}

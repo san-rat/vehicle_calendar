@@ -278,11 +278,11 @@ export function RequestReviewList({
                 return (
                   <Panel
                     as="article"
-                    className="p-4 md:p-6"
+                    className="p-4 md:p-5"
                     key={request.id}
                     variant="elevated"
                   >
-                    <div className="flex flex-col gap-4 md:gap-5 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2.5">
                           <span
@@ -301,7 +301,7 @@ export function RequestReviewList({
                             <Badge tone="neutral">Vehicle inactive</Badge>
                           ) : null}
                         </div>
-                        <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+                        <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
                           Requested {getRequestedAtLabel(request.created_at)}
                         </p>
                       </div>
@@ -348,8 +348,8 @@ export function RequestReviewList({
                       </div>
                     </div>
 
-                    <div className="mt-5 hidden gap-3 md:grid md:grid-cols-3">
-                      <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-4">
+                    <div className="mt-4 hidden gap-3 md:grid md:grid-cols-3">
+                      <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
                           Vehicle
                         </p>
@@ -362,7 +362,7 @@ export function RequestReviewList({
                           </p>
                         ) : null}
                       </div>
-                      <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-4">
+                      <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
                           Date and time
                         </p>
@@ -373,7 +373,7 @@ export function RequestReviewList({
                           {getTimeLabel(request)}
                         </p>
                       </div>
-                      <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-4">
+                      <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
                           Reason
                         </p>
@@ -509,7 +509,7 @@ export function RequestReviewList({
                         optionalLabel="Optional"
                       >
                         <textarea
-                          className={warningInputClassName("min-h-20")}
+                          className={warningInputClassName("min-h-16")}
                           id={`rejection-reason-${request.id}`}
                           maxLength={500}
                           name="rejection_reason"

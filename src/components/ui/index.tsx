@@ -518,3 +518,40 @@ export function StatCard({
     </Panel>
   );
 }
+
+export function CompactMetric({
+  label,
+  tone = "neutral",
+  value,
+}: {
+  label: string;
+  tone?: Extract<UiTone, "danger" | "info" | "neutral" | "primary" | "success" | "warning">;
+  value: ReactNode;
+}) {
+  const toneClass = {
+    danger: "border-[var(--danger)]/18 bg-[var(--danger-soft)] text-[var(--danger)]",
+    info: "border-[var(--info)]/18 bg-[var(--info-soft)] text-[var(--info)]",
+    neutral:
+      "border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)]",
+    primary:
+      "border-[var(--brand-500)]/16 bg-[var(--brand-100)] text-[var(--brand-600)]",
+    success:
+      "border-[var(--success)]/18 bg-[var(--success-soft)] text-[var(--success)]",
+    warning:
+      "border-[var(--warning)]/18 bg-[var(--warning-soft)] text-[var(--warning)]",
+  }[tone];
+
+  return (
+    <div
+      className={joinClasses(
+        "rounded-[16px] border px-3.5 py-3 shadow-[0_8px_18px_rgba(15,23,42,0.04)]",
+        toneClass
+      )}
+    >
+      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] opacity-80">
+        {label}
+      </p>
+      <p className="mt-1 text-lg font-semibold tracking-[-0.03em]">{value}</p>
+    </div>
+  );
+}

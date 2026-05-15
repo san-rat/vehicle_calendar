@@ -3,10 +3,10 @@ import {
   Badge,
   BreadcrumbNav,
   Button,
+  CompactMetric,
   Field,
   PageHeader,
   Panel,
-  StatCard,
   inputClassName,
 } from "@/components/ui";
 import { SettingsIcon } from "@/components/ui/icons";
@@ -91,27 +91,23 @@ export default async function AdminPrivilegesPage() {
         title="Booking Privileges"
       />
 
-      <section className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={SettingsIcon}
+      <section className="hidden gap-3 md:grid md:grid-cols-2 xl:grid-cols-4">
+        <CompactMetric
           label="Booking freedom"
           tone={config.allow_booking_freedom ? "success" : "warning"}
           value={config.allow_booking_freedom ? "Auto-confirm" : "Approval"}
         />
-        <StatCard
-          icon={SettingsIcon}
+        <CompactMetric
           label="Time limit"
           tone="info"
           value={getTimeLimitSummary(config.time_limit_minutes)}
         />
-        <StatCard
-          icon={SettingsIcon}
+        <CompactMetric
           label="Future window"
           tone="primary"
           value={`${config.max_days_in_future} days`}
         />
-        <StatCard
-          icon={SettingsIcon}
+        <CompactMetric
           label="Reason"
           tone="neutral"
           value={config.require_reason ? "Required" : "Optional"}

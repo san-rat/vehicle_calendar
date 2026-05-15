@@ -1,21 +1,17 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AutoRefresh } from "@/components/AutoRefresh";
+import {
+  CalendarWorkspace,
+  type CalendarBookingSummary,
+  type CalendarDaySummary,
+} from "@/components/CalendarWorkspace";
 import { RouteTransition } from "@/components/RouteTransition";
 import {
   Badge,
   BreadcrumbNav,
-  ButtonLink,
+  CompactMetric,
   PageHeader,
-  Panel,
-  StatCard,
 } from "@/components/ui";
-import {
-  CalendarIcon,
-  ClockIcon,
-  LogIcon,
-  ManageIcon,
-} from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
   type VehicleType,
@@ -51,30 +47,11 @@ type BookingRecord = {
     | { color_hex: string; name: string }[]
     | null;
   date: string;
+  end_time: string;
   id: string;
+  is_all_day: boolean;
+  start_time: string;
   status: "confirmed" | "requested";
-};
-
-type BookingIndicator = {
-  colorHex: string;
-  id: string;
-  userName: string;
-};
-
-type DateSummary = {
-  confirmedIndicators: BookingIndicator[];
-  requestedCount: number;
-};
-
-const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-const userColorDotClasses: Record<string, string> = {
-  "#10B981": "bg-[#10B981]",
-  "#14B8A6": "bg-[#14B8A6]",
-  "#3B82F6": "bg-[#3B82F6]",
-  "#6366F1": "bg-[#6366F1]",
-  "#EC4899": "bg-[#EC4899]",
-  "#F97316": "bg-[#F97316]",
 };
 
 function getBookingUser(booking: BookingRecord) {
@@ -85,30 +62,23 @@ function getBookingUser(booking: BookingRecord) {
   return booking.booking_user;
 }
 
-function getUserColorDotClass(colorHex: string) {
-  return userColorDotClasses[colorHex.toUpperCase()] ?? "bg-[var(--brand-500)]";
-}
-
 function getBookingSummaryByDate(bookings: BookingRecord[]) {
-  const summaryByDate = new Map<string, DateSummary>();
+  const summaryByDate = new Map<string, CalendarBookingSummary[]>();
 
   bookings.forEach((booking) => {
-    const existingSummary = summaryByDate.get(booking.date) ?? {
-      confirmedIndicators: [],
-      requestedCount: 0,
-    };
+    const user = getBookingUser(booking);
+    const existingSummary = summaryByDate.get(booking.date) ?? [];
 
-    if (booking.status === "confirmed") {
-      const user = getBookingUser(booking);
-
-      existingSummary.confirmedIndicators.push({
-        colorHex: user?.color_hex ?? "#3B82F6",
-        id: booking.id,
-        userName: user?.name ?? "Unknown user",
-      });
-    } else {
-      existingSummary.requestedCount += 1;
-    }
+    existingSummary.push({
+      colorHex: user?.color_hex ?? "#3B82F6",
+      date: booking.date,
+      endTime: booking.end_time,
+      id: booking.id,
+      isAllDay: booking.is_all_day,
+      startTime: booking.start_time,
+      status: booking.status,
+      userName: user?.name ?? "Unknown user",
+    });
 
     summaryByDate.set(booking.date, existingSummary);
   });
@@ -143,7 +113,7 @@ async function getCalendarData(vehicleId: string, month: CalendarMonth) {
   const { data: bookings, error: bookingsError } = await supabase
     .from("bookings")
     .select(
-      "id, date, status, booking_user:users!bookings_user_id_fkey(name, color_hex)"
+      "id, date, start_time, end_time, is_all_day, status, booking_user:users!bookings_user_id_fkey(name, color_hex)"
     )
     .eq("vehicle_id", vehicleId)
     .gte("date", month.startDate)
@@ -194,6 +164,16 @@ export default async function VehicleCalendarPage({
       today,
     })
   ).length;
+  const calendarDays: CalendarDaySummary[] = month.days.map((date) => ({
+    bookings: summaryByDate.get(date) ?? [],
+    date,
+    isBookable: isDateWithinBookingWindow({
+      date,
+      maxDaysInFuture: config.max_days_in_future,
+      today,
+    }),
+    isToday: date === today,
+  }));
 
   return (
     <>
@@ -221,194 +201,37 @@ export default async function VehicleCalendarPage({
             />
           </div>
 
-          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              icon={CalendarIcon}
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <CompactMetric
               label="Confirmed"
               tone="success"
               value={confirmedCount}
             />
-            <StatCard
-              icon={LogIcon}
+            <CompactMetric
               label="Requested"
               tone="warning"
               value={requestedCount}
             />
-            <StatCard
-              icon={ClockIcon}
+            <CompactMetric
               label="Bookable days"
               tone="primary"
               value={bookableDays}
             />
-            <StatCard
-              icon={ManageIcon}
+            <CompactMetric
               label="View mode"
               tone="info"
               value="Month"
             />
           </section>
 
-          <Panel className="overflow-hidden" variant="elevated">
-            <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-5 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <h2 className="text-[1.55rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
-                  {month.label}
-                </h2>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <ButtonLink
-                  href={`/vehicles/${vehicle.id}/calendar?month=${month.prevMonth}`}
-                  size="sm"
-                  tone="secondary"
-                >
-                  Previous
-                </ButtonLink>
-                <ButtonLink
-                  href={`/vehicles/${vehicle.id}/calendar?month=${month.nextMonth}`}
-                  size="sm"
-                  tone="secondary"
-                >
-                  Next
-                </ButtonLink>
-              </div>
-            </div>
-
-            <div className="mt-5 flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
-                <span className="h-2.5 w-6 rounded-full bg-[var(--brand-500)]" />
-                Confirmed occupancy
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
-                <span className="h-2.5 w-6 rounded-full border border-dashed border-[var(--warning)] bg-[var(--warning-soft)]" />
-                Pending requests
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
-                <span className="h-2.5 w-2.5 rounded-full border-2 border-[var(--brand-500)] bg-white" />
-                Today
-              </span>
-            </div>
-
-            <div className="mt-6 grid grid-cols-7 gap-2">
-              {weekdayLabels.map((label) => (
-                <div
-                  className="py-2 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]"
-                  key={label}
-                >
-                  {label}
-                </div>
-              ))}
-
-              {Array.from({ length: month.firstWeekday }, (_, index) => (
-                <div aria-hidden="true" key={`blank-${index}`} />
-              ))}
-
-              {month.days.map((date) => {
-                const dayNumber = Number(date.slice(-2));
-                const isToday = date === today;
-                const isBookable = isDateWithinBookingWindow({
-                  date,
-                  maxDaysInFuture: config.max_days_in_future,
-                  today,
-                });
-                const summary = summaryByDate.get(date) ?? {
-                  confirmedIndicators: [],
-                  requestedCount: 0,
-                };
-                const visibleIndicators = summary.confirmedIndicators.slice(0, 3);
-                const hiddenIndicatorCount =
-                  summary.confirmedIndicators.length - visibleIndicators.length;
-                const totalSignals =
-                  summary.confirmedIndicators.length + summary.requestedCount;
-                const cellClass = [
-                  "flex min-h-[110px] flex-col rounded-[20px] border px-3 py-3 text-left transition-all duration-200 sm:min-h-[132px]",
-                  isBookable
-                    ? "bg-white shadow-[0_10px_22px_rgba(15,23,42,0.05)] hover:-translate-y-[2px] hover:border-[var(--brand-500)]/25 hover:shadow-[0_18px_34px_rgba(15,23,42,0.1)]"
-                    : "bg-[var(--bg-surface-inset)] text-[var(--text-muted)] opacity-72",
-                  isToday ? "border-[var(--brand-500)]/45" : "border-[var(--border-subtle)]",
-                ].join(" ");
-                const cellContent = (
-                  <>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-2">
-                        <span
-                          className={[
-                            "inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold",
-                            isToday
-                              ? "border-2 border-[var(--brand-500)] bg-white text-[var(--brand-600)]"
-                              : "bg-[var(--bg-surface-tint)] text-[var(--text-primary)]",
-                          ].join(" ")}
-                        >
-                          {dayNumber}
-                        </span>
-                        {isToday ? (
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--brand-600)]">
-                            Today
-                          </p>
-                        ) : null}
-                      </div>
-                      {totalSignals > 0 ? (
-                        <span className="rounded-full bg-[var(--bg-surface-tint)] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
-                          {totalSignals}
-                        </span>
-                      ) : null}
-                    </div>
-
-                    {summary.confirmedIndicators.length > 0 ||
-                    summary.requestedCount > 0 ? (
-                      <div className="mt-auto space-y-2 pt-4">
-                        {summary.confirmedIndicators.length > 0 ? (
-                          <div className="space-y-1">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
-                              Confirmed
-                            </p>
-                            <div className="flex gap-1.5">
-                              {visibleIndicators.map((indicator) => (
-                                <span
-                                  aria-label={`Confirmed booking for ${indicator.userName}`}
-                                  className={`h-2.5 flex-1 rounded-full ${getUserColorDotClass(
-                                    indicator.colorHex
-                                  )}`}
-                                  key={indicator.id}
-                                  title={`Confirmed booking for ${indicator.userName}`}
-                                />
-                              ))}
-                              {hiddenIndicatorCount > 0 ? (
-                                <span className="rounded-full bg-[var(--bg-surface-tint)] px-2 py-0.5 text-[11px] font-semibold text-[var(--text-secondary)]">
-                                  +{hiddenIndicatorCount}
-                                </span>
-                              ) : null}
-                            </div>
-                          </div>
-                        ) : null}
-
-                        {summary.requestedCount > 0 ? (
-                          <div className="rounded-full border border-dashed border-[var(--warning)]/50 bg-[var(--warning-soft)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--warning)]">
-                            {summary.requestedCount} request
-                            {summary.requestedCount === 1 ? "" : "s"}
-                          </div>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </>
-                );
-
-                return isBookable ? (
-                  <Link
-                    aria-label={`Open booking page for ${date}`}
-                    className={cellClass}
-                    href={`/vehicles/${vehicle.id}/date/${date}`}
-                    key={date}
-                  >
-                    {cellContent}
-                  </Link>
-                ) : (
-                  <div aria-disabled="true" className={cellClass} key={date}>
-                    {cellContent}
-                  </div>
-                );
-              })}
-            </div>
-          </Panel>
+          <CalendarWorkspace
+            days={calendarDays}
+            firstWeekday={month.firstWeekday}
+            monthLabel={month.label}
+            nextMonthHref={`/vehicles/${vehicle.id}/calendar?month=${month.nextMonth}`}
+            prevMonthHref={`/vehicles/${vehicle.id}/calendar?month=${month.prevMonth}`}
+            vehicleId={vehicle.id}
+          />
         </div>
       </RouteTransition>
     </>

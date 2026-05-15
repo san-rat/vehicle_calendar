@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getBusinessTimeMinutes } from "@/lib/booking/bookings";
+import {
+  getBusinessTimeMinutes,
+  getConfirmedBookingConflicts,
+  parseTimeToMinutes,
+} from "@/lib/booking/bookings";
 import {
   TIMELINE_SLOT_HEIGHT_PX,
   TIMELINE_TIME_GUTTER_PX,
@@ -467,6 +471,7 @@ function BookingSummary({
 function BookingFormPanel({
   allDayDisabled,
   bookingModeLabel,
+  bookings,
   formAction,
   formDisabledMessage,
   policySummary,
@@ -476,10 +481,56 @@ function BookingFormPanel({
   timeOptions,
   timeLimitMinutes,
   vehicleLabel,
-}: Omit<BookingWorkspaceProps, "bookings" | "selectedDate" | "today">) {
+}: Omit<BookingWorkspaceProps, "selectedDate" | "today">) {
   const [isAllDay, setIsAllDay] = useState(false);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const isFormDisabled = formDisabledMessage !== null;
   const isTimeDisabled = isFormDisabled || isAllDay;
+  const confirmedBookings = bookings
+    .filter((booking) => booking.status === "confirmed")
+    .map((booking) => ({
+      end_time: booking.endTime,
+      is_all_day: booking.isAllDay,
+      start_time: booking.startTime,
+    }));
+  const selectedWindow = isAllDay
+    ? {
+        end_time: "23:59",
+        is_all_day: true,
+        start_time: "00:00",
+      }
+    : startTime && endTime
+      ? {
+          end_time: endTime,
+          is_all_day: false,
+          start_time: startTime,
+        }
+      : null;
+  const selectedConflicts = selectedWindow
+    ? getConfirmedBookingConflicts(selectedWindow, confirmedBookings)
+    : [];
+  const startMinutes = startTime ? parseTimeToMinutes(startTime) : null;
+  const endMinutes = endTime ? parseTimeToMinutes(endTime) : null;
+  const durationMinutes =
+    startMinutes !== null && endMinutes !== null ? endMinutes - startMinutes : null;
+  const timingFeedback =
+    !isAllDay && startTime && endTime && durationMinutes !== null && durationMinutes <= 0
+      ? "End time must be after start time."
+      : !isAllDay &&
+          durationMinutes !== null &&
+          timeLimitMinutes !== null &&
+          durationMinutes > timeLimitMinutes
+        ? `Booking duration must be ${timeLimitMinutes} minutes or fewer.`
+        : selectedConflicts.length > 0
+          ? "This time overlaps a confirmed booking."
+          : !isAllDay && startTime && endTime
+            ? "This time is currently clear."
+            : isAllDay && selectedConflicts.length === 0
+              ? "All-day booking is currently clear."
+              : null;
+  const feedbackTone =
+    timingFeedback && timingFeedback.includes("clear") ? "success" : "warning";
 
   return (
     <Panel className="h-full" variant="elevated">
@@ -547,7 +598,9 @@ function BookingFormPanel({
                 disabled={isTimeDisabled}
                 id="booking-start-time"
                 name="start_time"
+                onChange={(event) => setStartTime(event.target.value)}
                 required={!isAllDay}
+                value={startTime}
               >
                 <option value="">Choose start</option>
                 {timeOptions.map((time) => (
@@ -564,7 +617,9 @@ function BookingFormPanel({
                 disabled={isTimeDisabled}
                 id="booking-end-time"
                 name="end_time"
+                onChange={(event) => setEndTime(event.target.value)}
                 required={!isAllDay}
+                value={endTime}
               >
                 <option value="">Choose end</option>
                 {timeOptions.map((time) => (
@@ -575,6 +630,10 @@ function BookingFormPanel({
               </select>
             </Field>
           </div>
+
+          {timingFeedback ? (
+            <Notice tone={feedbackTone}>{timingFeedback}</Notice>
+          ) : null}
 
           <Field
             description={
@@ -598,7 +657,14 @@ function BookingFormPanel({
 
           <Button
             className="w-full"
-            disabled={isFormDisabled}
+            disabled={
+              isFormDisabled ||
+              durationMinutes !== null && durationMinutes <= 0 ||
+              selectedConflicts.length > 0 ||
+              durationMinutes !== null &&
+                timeLimitMinutes !== null &&
+                durationMinutes > timeLimitMinutes
+            }
             size="lg"
             tone="primary"
             type="submit"
@@ -673,6 +739,7 @@ export function BookingWorkspace({
           <BookingFormPanel
             allDayDisabled={allDayDisabled}
             bookingModeLabel={bookingModeLabel}
+            bookings={bookings}
             formAction={formAction}
             formDisabledMessage={formDisabledMessage}
             policySummary={policySummary}

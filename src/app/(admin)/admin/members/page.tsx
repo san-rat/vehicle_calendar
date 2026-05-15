@@ -8,11 +8,11 @@ import {
   Badge,
   BreadcrumbNav,
   Button,
+  CompactMetric,
   EmptyState,
   Field,
   PageHeader,
   Panel,
-  StatCard,
   inputClassName,
 } from "@/components/ui";
 import { MemberManagerList } from "@/components/admin/MemberManagerList";
@@ -76,27 +76,23 @@ export default async function AdminMembersPage() {
         title="Admin Members"
       />
 
-      <section className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={UserIcon}
+      <section className="hidden gap-3 md:grid md:grid-cols-2 xl:grid-cols-4">
+        <CompactMetric
           label="Active members"
           tone="primary"
           value={activeMembers}
         />
-        <StatCard
-          icon={UserIcon}
+        <CompactMetric
           label="Total members"
           tone="neutral"
           value={members.length}
         />
-        <StatCard
-          icon={UserIcon}
+        <CompactMetric
           label="Super admins"
           tone="info"
           value={superAdmins}
         />
-        <StatCard
-          icon={UserIcon}
+        <CompactMetric
           label="Current user"
           tone="success"
           value={currentUser.name}
@@ -114,7 +110,7 @@ export default async function AdminMembersPage() {
         </div>
         <form
           action={createMember}
-          className="mt-4 grid gap-3 md:mt-5 md:gap-4 md:grid-cols-2 xl:grid-cols-[1fr_170px_150px_1fr_1fr_auto] xl:items-end"
+          className="mt-4 grid gap-3 md:mt-5 md:grid-cols-2 md:gap-4 xl:grid-cols-3 xl:items-end"
         >
           <Field htmlFor="member-create-name" label="Name">
             <input
@@ -182,7 +178,7 @@ export default async function AdminMembersPage() {
             />
           </Field>
 
-          <Button className="w-full md:w-auto" type="submit" tone="primary">
+          <Button className="w-full xl:w-auto" type="submit" tone="primary">
             Add member
           </Button>
         </form>

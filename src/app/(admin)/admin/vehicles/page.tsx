@@ -3,11 +3,11 @@ import {
   Badge,
   BreadcrumbNav,
   Button,
+  CompactMetric,
   EmptyState,
   Field,
   PageHeader,
   Panel,
-  StatCard,
   inputClassName,
 } from "@/components/ui";
 import { VehicleManagerList } from "@/components/admin/VehicleManagerList";
@@ -122,27 +122,23 @@ export default async function AdminVehiclesPage() {
         title="Admin Vehicles"
       />
 
-      <section className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={ManageIcon}
+      <section className="hidden gap-3 md:grid md:grid-cols-2 xl:grid-cols-4">
+        <CompactMetric
           label="Active fleet"
           tone="primary"
           value={activeVehicles}
         />
-        <StatCard
-          icon={ManageIcon}
+        <CompactMetric
           label="Total records"
           tone="neutral"
           value={vehicles.length}
         />
-        <StatCard
-          icon={ManageIcon}
+        <CompactMetric
           label="Pending review"
           tone={pendingRequestVehicles > 0 ? "warning" : "success"}
           value={pendingRequestVehicles}
         />
-        <StatCard
-          icon={ManageIcon}
+        <CompactMetric
           label="Confirmed trips"
           tone="info"
           value={confirmedTrips}

@@ -116,7 +116,85 @@ export function MemberManagerList({
         </div>
       </Panel>
 
-      <div className="space-y-3">
+      <div className="hidden overflow-hidden rounded-[22px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[0_14px_30px_rgba(15,23,42,0.07)] md:block">
+        <table className="w-full border-collapse text-left text-sm">
+          <thead className="bg-[var(--bg-surface-tint)] text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+            <tr>
+              <th className="px-4 py-3">Member</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Role</th>
+              <th className="px-4 py-3">Created</th>
+              <th className="px-4 py-3">Updated</th>
+              <th className="px-4 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[var(--border-subtle)]">
+            {filteredMembers.map((member) => {
+              const isSelf = member.id === currentUserId;
+
+              return (
+                <tr
+                  className="transition-colors hover:bg-[var(--bg-surface-tint)]"
+                  key={member.id}
+                >
+                  <td className="px-4 py-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span
+                        aria-hidden="true"
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white ${getMemberColorClass(
+                          member.color_hex
+                        )}`}
+                      >
+                        {member.name
+                          .split(" ")
+                          .slice(0, 2)
+                          .map((part) => part.charAt(0).toUpperCase())
+                          .join("")}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate font-semibold text-[var(--text-primary)]">
+                            {member.name}
+                          </p>
+                          {isSelf ? <Badge tone="info">You</Badge> : null}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <Badge tone={member.is_active ? "success" : "neutral"}>
+                      {member.is_active ? "Active" : "Inactive"}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-4 text-[var(--text-secondary)]">
+                    {getMemberRoleLabel(member.role)}
+                  </td>
+                  <td className="px-4 py-4 text-[var(--text-secondary)]">
+                    {formatDate(member.created_at)}
+                  </td>
+                  <td className="px-4 py-4 text-[var(--text-secondary)]">
+                    {formatDate(member.updated_at)}
+                  </td>
+                  <td className="px-4 py-4 text-right">
+                    <Button
+                      className="ml-auto"
+                      onClick={() => setActiveMemberId(member.id)}
+                      size="sm"
+                      tone="secondary"
+                      type="button"
+                    >
+                      <ManageIcon className="h-4 w-4" />
+                      Manage
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="space-y-3 md:hidden">
         {filteredMembers.map((member) => {
           const isSelf = member.id === currentUserId;
 

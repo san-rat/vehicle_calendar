@@ -107,7 +107,77 @@ export function VehicleManagerList({
         </div>
       </Panel>
 
-      <div className="space-y-3">
+      <div className="hidden overflow-hidden rounded-[22px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[0_14px_30px_rgba(15,23,42,0.07)] md:block">
+        <table className="w-full border-collapse text-left text-sm">
+          <thead className="bg-[var(--bg-surface-tint)] text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+            <tr>
+              <th className="px-4 py-3">Vehicle</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Type</th>
+              <th className="px-4 py-3">Confirmed trips</th>
+              <th className="px-4 py-3">Pending</th>
+              <th className="px-4 py-3">Next activity</th>
+              <th className="px-4 py-3">Updated</th>
+              <th className="px-4 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[var(--border-subtle)]">
+            {filteredVehicles.map((vehicle) => (
+              <tr
+                className="transition-colors hover:bg-[var(--bg-surface-tint)]"
+                key={vehicle.id}
+              >
+                <td className="px-4 py-4">
+                  <p className="font-semibold text-[var(--text-primary)]">
+                    {vehicle.name}
+                  </p>
+                </td>
+                <td className="px-4 py-4">
+                  <Badge tone={vehicle.is_active ? "success" : "neutral"}>
+                    {vehicle.is_active ? "Active" : "Inactive"}
+                  </Badge>
+                </td>
+                <td className="px-4 py-4 text-[var(--text-secondary)]">
+                  {getVehicleTypeLabel(vehicle.type)}
+                </td>
+                <td className="px-4 py-4 font-semibold text-[var(--text-primary)]">
+                  {vehicle.confirmedTripCount}
+                </td>
+                <td className="px-4 py-4">
+                  <Badge tone={vehicle.pendingRequestCount > 0 ? "warning" : "neutral"}>
+                    {vehicle.pendingRequestCount}
+                  </Badge>
+                </td>
+                <td className="px-4 py-4 text-[var(--text-secondary)]">
+                  {formatDate(vehicle.nextActivityDate)}
+                </td>
+                <td className="px-4 py-4 text-[var(--text-secondary)]">
+                  {new Intl.DateTimeFormat("en-US", {
+                    day: "numeric",
+                    month: "short",
+                    timeZone: "UTC",
+                    year: "numeric",
+                  }).format(new Date(vehicle.updated_at))}
+                </td>
+                <td className="px-4 py-4 text-right">
+                  <Button
+                    className="ml-auto"
+                    onClick={() => setActiveVehicleId(vehicle.id)}
+                    size="sm"
+                    tone="secondary"
+                    type="button"
+                  >
+                    <ManageIcon className="h-4 w-4" />
+                    Manage
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="space-y-3 md:hidden">
         {filteredVehicles.map((vehicle) => (
           <Panel as="article" className="p-4 md:p-5" key={vehicle.id} variant="elevated">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
