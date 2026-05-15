@@ -27,7 +27,7 @@ import {
   normalizeLogQuery,
   type LogActionType,
 } from "@/lib/logs/log-page";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type LogPageProps = {
   searchParams?: Promise<{ page?: string; q?: string }>;
@@ -89,7 +89,7 @@ async function getLogPageData(
   const query = normalizeLogQuery(queryParam);
   const searchPattern = getLogSearchPattern(query);
   const { from, to } = getLogPaginationWindow(currentPage);
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   let request = supabase
     .from("log_entries")
     .select(

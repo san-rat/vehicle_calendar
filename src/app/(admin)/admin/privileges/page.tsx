@@ -11,7 +11,7 @@ import {
   inputClassName,
 } from "@/components/ui";
 import { SettingsIcon } from "@/components/ui/icons";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { updatePrivileges } from "./actions";
 
 type PrivilegeConfigRecord = {
@@ -29,7 +29,7 @@ const inputClass = inputClassName();
 async function getPrivilegeConfig() {
   await requireAdminAppUser();
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("privilege_config")
     .select(

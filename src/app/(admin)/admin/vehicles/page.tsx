@@ -17,8 +17,8 @@ import {
   VEHICLE_TYPES,
   type VehicleType,
 } from "@/lib/admin/vehicles";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getBusinessToday } from "@/lib/booking/dates";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createVehicle, deleteVehicle, updateVehicle } from "./actions";
 
 type BaseVehicleRecord = {
@@ -42,7 +42,7 @@ async function getVehicles() {
   await requireAdminAppUser();
   const today = getBusinessToday();
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const [{ data: vehicles, error: vehiclesError }, { data: bookings, error: bookingsError }] =
     await Promise.all([
       supabase

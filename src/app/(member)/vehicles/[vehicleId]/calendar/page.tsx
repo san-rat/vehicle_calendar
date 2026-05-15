@@ -23,7 +23,7 @@ import {
   resolveCalendarMonth,
   type CalendarMonth,
 } from "@/lib/booking/dates";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type CalendarPageProps = {
   params: Promise<{ vehicleId: string }>;
@@ -70,7 +70,7 @@ function getBookingSummaryByDate(bookings: BookingRecord[]) {
 async function getCalendarData(vehicleId: string, month: CalendarMonth) {
   const currentUser = await requireCurrentAppUser();
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const { data: vehicle, error: vehicleError } = await supabase
     .from("vehicles")
     .select("id, name, type, is_active")

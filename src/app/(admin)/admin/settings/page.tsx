@@ -14,7 +14,7 @@ import {
   UserIcon,
 } from "@/components/ui/icons";
 import { requireAdminAppUser } from "@/lib/auth/user";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type SettingsCard = {
   href: string;
@@ -27,7 +27,7 @@ type SettingsCard = {
 async function getSettingsSummary() {
   await requireAdminAppUser();
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const [
     { count: requestCount, error: requestError },
     { count: vehicleCount, error: vehicleError },

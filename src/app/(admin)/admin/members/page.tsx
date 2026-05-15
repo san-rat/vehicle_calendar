@@ -17,7 +17,7 @@ import {
 } from "@/components/ui";
 import { MemberManagerList } from "@/components/admin/MemberManagerList";
 import { EmptyStateIcon, UserIcon } from "@/components/ui/icons";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   createMember,
   deleteMember,
@@ -39,7 +39,7 @@ const inputClass = inputClassName();
 
 async function getMembers() {
   const currentUser = await requireAdminAppUser();
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("users")
     .select("id, name, role, color_hex, is_active, created_at, updated_at")
