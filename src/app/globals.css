@@ -1,8 +1,6 @@
 @import "tailwindcss";
 
 :root {
-  --font-body: Arial, Helvetica, sans-serif;
-  --font-heading: "Segoe UI", Arial, Helvetica, sans-serif;
   --bg-app: #f3f5f7;
   --bg-app-strong: #ebf0f3;
   --bg-surface: #ffffff;
@@ -255,15 +253,6 @@ select {
   backdrop-filter: blur(12px);
 }
 
-.mobile-sticky-subnav {
-  position: sticky;
-  top: calc(env(safe-area-inset-top) + 4.75rem);
-  z-index: 30;
-  margin: 0 -0.125rem;
-  padding: 0.125rem;
-  background: linear-gradient(180deg, rgba(243, 245, 247, 0.96), rgba(243, 245, 247, 0.72) 74%, rgba(243, 245, 247, 0));
-}
-
 @media (min-width: 768px) {
   .app-container {
     padding: 0 1rem;
@@ -284,15 +273,6 @@ select {
     border-top: 0;
     background: transparent;
     backdrop-filter: none;
-  }
-
-  .mobile-sticky-subnav {
-    position: static;
-    top: auto;
-    z-index: auto;
-    margin: 0;
-    padding: 0;
-    background: transparent;
   }
 }
 

@@ -21,11 +21,7 @@ import {
   StatusBadge,
   inputClassName,
 } from "@/components/ui";
-import {
-  CalendarIcon,
-  ClockIcon,
-  EmptyStateIcon,
-} from "@/components/ui/icons";
+import { CalendarIcon, ClockIcon, EmptyStateIcon, ManageIcon } from "@/components/ui/icons";
 
 export type TimelineBooking = {
   colorHex: string;
@@ -44,12 +40,15 @@ type BookingWorkspaceProps = {
   bookings: TimelineBooking[];
   formAction: (formData: FormData) => void | Promise<void>;
   formDisabledMessage: string | null;
+  policySummary: string;
   reasonRequired: boolean;
   selectedDate: string;
   selectedDateLabel: string;
   submitLabel: string;
+  timeOptions: string[];
   timeLimitMinutes: number | null;
   today: string;
+  vehicleLabel: string;
 };
 
 const bookingColorClasses: Record<string, string> = {
@@ -151,12 +150,14 @@ function TimelinePanel({
   onOpenForm,
   selectedDate,
   selectedDateLabel,
+  timeOptions,
   today,
 }: {
   bookings: TimelineBooking[];
   onOpenForm: () => void;
   selectedDate: string;
   selectedDateLabel: string;
+  timeOptions: string[];
   today: string;
 }) {
   const { allDayBookings, timedBookings } = splitTimelineBookings(
@@ -190,17 +191,19 @@ function TimelinePanel({
     <Panel className="h-full" variant="elevated">
       <div className="flex flex-col gap-3 border-b border-[var(--border-subtle)] pb-4">
         <div className="flex items-start justify-between gap-4">
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
-              <ClockIcon className="h-5 w-5" />
-            </span>
-            <div className="min-w-0">
-              <h2 className="text-[1.35rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
-                Timeline
-              </h2>
-              <p className="truncate text-sm leading-6 text-[var(--text-secondary)]">
-                {selectedDateLabel}
-              </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
+                <ClockIcon className="h-5 w-5" />
+              </span>
+              <div>
+                <h2 className="text-[1.4rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
+                  Daily timeline
+                </h2>
+                <p className="text-sm leading-6 text-[var(--text-secondary)]">
+                  {selectedDateLabel}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -211,7 +214,7 @@ function TimelinePanel({
             tone="primary"
             type="button"
           >
-            Book
+            New booking
           </Button>
         </div>
 
@@ -321,7 +324,7 @@ function TimelinePanel({
                         />
                       ))}
 
-                      {Array.from({ length: 49 }, (_, index) => (
+                      {Array.from({ length: timeOptions.length + 1 }, (_, index) => (
                         <div
                           className={`absolute inset-x-0 border-t ${
                             index % 2 === 0
@@ -402,28 +405,81 @@ function TimelinePanel({
   );
 }
 
+function BookingSummary({
+  bookingModeLabel,
+  policySummary,
+  selectedDateLabel,
+  vehicleLabel,
+}: Pick<
+  BookingWorkspaceProps,
+  "bookingModeLabel" | "policySummary" | "selectedDateLabel" | "vehicleLabel"
+>) {
+  return (
+    <div className="rounded-[22px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+      <div className="flex items-center gap-2">
+        <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[var(--brand-100)] text-[var(--brand-600)]">
+          <ManageIcon className="h-[1.125rem] w-[1.125rem]" />
+        </span>
+        <div>
+          <p className="text-sm font-semibold text-[var(--text-primary)]">
+            Booking summary
+          </p>
+        </div>
+      </div>
+      <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div>
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+            Vehicle
+          </dt>
+          <dd className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
+            {vehicleLabel}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+            Date
+          </dt>
+          <dd className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
+            {selectedDateLabel}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+            Booking mode
+          </dt>
+          <dd className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
+            {bookingModeLabel}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+            Policy
+          </dt>
+          <dd className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
+            {policySummary}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
 function BookingFormPanel({
   allDayDisabled,
   bookingModeLabel,
   formAction,
   formDisabledMessage,
+  policySummary,
   reasonRequired,
+  selectedDateLabel,
   submitLabel,
+  timeOptions,
   timeLimitMinutes,
-}: {
-  allDayDisabled: boolean;
-  bookingModeLabel: string;
-  formAction: (formData: FormData) => void | Promise<void>;
-  formDisabledMessage: string | null;
-  reasonRequired: boolean;
-  submitLabel: string;
-  timeLimitMinutes: number | null;
-}) {
+  vehicleLabel,
+}: Omit<BookingWorkspaceProps, "bookings" | "selectedDate" | "today">) {
   const [isAllDay, setIsAllDay] = useState(false);
   const isFormDisabled = formDisabledMessage !== null;
-  const allDayHelper = allDayDisabled
-    ? "Unavailable while a time limit is active."
-    : "Skip start and end times for a full-day booking.";
+  const isTimeDisabled = isFormDisabled || isAllDay;
 
   return (
     <Panel className="h-full" variant="elevated">
@@ -433,8 +489,8 @@ function BookingFormPanel({
             <CalendarIcon className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="text-[1.35rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
-              Booking form
+            <h2 className="text-[1.4rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
+              New booking
             </h2>
           </div>
         </div>
@@ -445,99 +501,110 @@ function BookingFormPanel({
           </Badge>
           <Badge tone="secondary">
             {timeLimitMinutes === null
-              ? "All-day allowed"
+              ? "All-day bookings enabled"
               : `${timeLimitMinutes} minute limit`}
           </Badge>
         </div>
       </div>
 
       <div className="mt-4 space-y-4">
+        <BookingSummary
+          bookingModeLabel={bookingModeLabel}
+          policySummary={policySummary}
+          selectedDateLabel={selectedDateLabel}
+          vehicleLabel={vehicleLabel}
+        />
+
         {formDisabledMessage ? (
           <Notice tone="danger">{formDisabledMessage}</Notice>
         ) : null}
 
         <form action={formAction} className="space-y-4">
-          <label className="flex items-start justify-between gap-4 rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3.5">
-            <div className="space-y-1">
-              <span className="block text-sm font-semibold text-[var(--text-primary)]">
-                All-day booking
+          <label className="flex items-start gap-3 rounded-[20px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-4 text-sm text-[var(--text-primary)]">
+            <input
+              checked={isAllDay}
+              className="mt-1 h-4 w-4 rounded border-[var(--border-strong)]"
+              disabled={allDayDisabled || isFormDisabled}
+              name="is_all_day"
+              onChange={(event) => setIsAllDay(event.target.checked)}
+              type="checkbox"
+              value="true"
+            />
+            <span>
+              <span className="block font-semibold">All day booking</span>
+              <span className="mt-1 block text-sm leading-6 text-[var(--text-secondary)]">
+                {allDayDisabled
+                  ? "Disabled while a time limit is active."
+                  : "Use this when you do not need start and end times."}
               </span>
-              <span className="block text-xs leading-5 text-[var(--text-secondary)]">
-                {allDayHelper}
-              </span>
-            </div>
-
-            <span className="relative mt-0.5 inline-flex shrink-0 items-center">
-              <input
-                checked={isAllDay}
-                className="peer sr-only"
-                disabled={allDayDisabled || isFormDisabled}
-                name="is_all_day"
-                onChange={(event) => setIsAllDay(event.target.checked)}
-                type="checkbox"
-                value="true"
-              />
-              <span className="h-7 w-12 rounded-full bg-[var(--border-strong)]/80 transition peer-checked:bg-[var(--brand-500)] peer-disabled:cursor-not-allowed peer-disabled:opacity-50" />
-              <span className="pointer-events-none absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-[0_6px_12px_rgba(15,23,42,0.18)] transition peer-checked:translate-x-5" />
             </span>
           </label>
 
-          {!isAllDay ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field htmlFor="booking-start-time" label="Start time">
-                <input
-                  className={inputClassName()}
-                  disabled={isFormDisabled}
-                  id="booking-start-time"
-                  name="start_time"
-                  required
-                  step={1800}
-                  type="time"
-                />
-              </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field htmlFor="booking-start-time" label="Start time">
+              <select
+                className={inputClassName()}
+                disabled={isTimeDisabled}
+                id="booking-start-time"
+                name="start_time"
+                required={!isAllDay}
+              >
+                <option value="">Choose start</option>
+                {timeOptions.map((time) => (
+                  <option key={time} value={time}>
+                    {time}
+                  </option>
+                ))}
+              </select>
+            </Field>
 
-              <Field htmlFor="booking-end-time" label="End time">
-                <input
-                  className={inputClassName()}
-                  disabled={isFormDisabled}
-                  id="booking-end-time"
-                  name="end_time"
-                  required
-                  step={1800}
-                  type="time"
-                />
-              </Field>
-            </div>
-          ) : null}
+            <Field htmlFor="booking-end-time" label="End time">
+              <select
+                className={inputClassName()}
+                disabled={isTimeDisabled}
+                id="booking-end-time"
+                name="end_time"
+                required={!isAllDay}
+              >
+                <option value="">Choose end</option>
+                {timeOptions.map((time) => (
+                  <option key={time} value={time}>
+                    {time}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
 
           <Field
-            description={reasonRequired ? "Required by policy." : undefined}
+            description={
+              reasonRequired
+                ? "Required by policy."
+                : undefined
+            }
             htmlFor="booking-reason"
             label="Reason"
-            optionalLabel={reasonRequired ? null : "Optional note"}
+            optionalLabel={reasonRequired ? null : "Optional"}
           >
             <textarea
-              className={inputClassName("min-h-24")}
+              className={inputClassName("min-h-28")}
               disabled={isFormDisabled}
               id="booking-reason"
               maxLength={500}
               name="reason"
-              placeholder="Add a note for this booking"
               required={reasonRequired}
             />
           </Field>
 
-          <div className="mobile-sticky-action">
-            <Button
-              className="w-full"
-              disabled={isFormDisabled}
-              size="lg"
-              tone="primary"
-              type="submit"
-            >
-              {submitLabel}
-            </Button>
-          </div>
+          <Button
+            className="w-full"
+            disabled={isFormDisabled}
+            size="lg"
+            tone="primary"
+            type="submit"
+          >
+            {submitLabel}
+          </Button>
         </form>
       </div>
     </Panel>
@@ -550,42 +617,45 @@ export function BookingWorkspace({
   bookings,
   formAction,
   formDisabledMessage,
+  policySummary,
   reasonRequired,
   selectedDate,
   selectedDateLabel,
   submitLabel,
+  timeOptions,
   timeLimitMinutes,
   today,
+  vehicleLabel,
 }: BookingWorkspaceProps) {
-  const [activePanel, setActivePanel] = useState<"timeline" | "form">("form");
+  const [activePanel, setActivePanel] = useState<"timeline" | "form">(
+    "timeline"
+  );
 
   return (
     <div className="space-y-4">
-      <div className="mobile-sticky-subnav md:hidden">
-        <div className="grid grid-cols-2 gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[rgba(255,255,255,0.94)] p-1 shadow-[0_12px_28px_rgba(15,23,42,0.08)] backdrop-blur-xl">
-          <button
-            className={`min-h-10 rounded-full px-3 py-2 text-sm font-semibold transition ${
-              activePanel === "timeline"
-                ? "bg-[var(--brand-500)] text-white shadow-[0_12px_24px_rgba(17,122,108,0.22)]"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-            }`}
-            onClick={() => setActivePanel("timeline")}
-            type="button"
-          >
-            Timeline
-          </button>
-          <button
-            className={`min-h-10 rounded-full px-3 py-2 text-sm font-semibold transition ${
-              activePanel === "form"
-                ? "bg-[var(--brand-500)] text-white shadow-[0_12px_24px_rgba(17,122,108,0.22)]"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-            }`}
-            onClick={() => setActivePanel("form")}
-            type="button"
-          >
-            Form
-          </button>
-        </div>
+      <div className="grid grid-cols-2 gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1 shadow-[0_12px_28px_rgba(15,23,42,0.05)] md:hidden">
+        <button
+          className={`min-h-11 rounded-full px-4 py-2 text-sm font-semibold transition ${
+            activePanel === "timeline"
+              ? "bg-[var(--brand-500)] text-white shadow-[0_12px_24px_rgba(17,122,108,0.22)]"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          }`}
+          onClick={() => setActivePanel("timeline")}
+          type="button"
+        >
+          Timeline
+        </button>
+        <button
+          className={`min-h-11 rounded-full px-4 py-2 text-sm font-semibold transition ${
+            activePanel === "form"
+              ? "bg-[var(--brand-500)] text-white shadow-[0_12px_24px_rgba(17,122,108,0.22)]"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          }`}
+          onClick={() => setActivePanel("form")}
+          type="button"
+        >
+          Booking form
+        </button>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_minmax(360px,0.82fr)]">
@@ -595,6 +665,7 @@ export function BookingWorkspace({
             onOpenForm={() => setActivePanel("form")}
             selectedDate={selectedDate}
             selectedDateLabel={selectedDateLabel}
+            timeOptions={timeOptions}
             today={today}
           />
         </div>
@@ -604,9 +675,13 @@ export function BookingWorkspace({
             bookingModeLabel={bookingModeLabel}
             formAction={formAction}
             formDisabledMessage={formDisabledMessage}
+            policySummary={policySummary}
             reasonRequired={reasonRequired}
+            selectedDateLabel={selectedDateLabel}
             submitLabel={submitLabel}
             timeLimitMinutes={timeLimitMinutes}
+            timeOptions={timeOptions}
+            vehicleLabel={vehicleLabel}
           />
         </div>
       </div>

@@ -46,13 +46,6 @@ type BookingRequestRecord = BookingRecord & {
 
 type ConfirmedBookingRecord = BookingRecord;
 
-type ApproveBookingRpcResult = {
-  before: BookingRecord;
-  conflict_before_snapshots: BookingRecord[];
-  overridden_bookings: BookingRecord[];
-  updated: BookingRecord;
-};
-
 type AuditLogEntry = {
   action_type: "booking_confirmed" | "booking_overridden" | "booking_rejected";
   actor_user_id: string;
@@ -99,29 +92,6 @@ function getBookingSnapshot(booking: BookingRecord): BookingRecord {
     user_id: booking.user_id,
     vehicle_id: booking.vehicle_id,
   };
-}
-
-function getApprovalRpcErrorMessage(error: { code?: string; message?: string } | null) {
-  if (
-    error?.code === "23P01" ||
-    error?.message?.includes("booking_conflict_requires_override")
-  ) {
-    return "Confirm the override before approving this conflicting request.";
-  }
-
-  if (error?.message?.includes("booking_conflicts_changed")) {
-    return "Conflicting bookings changed before override approval completed. Refresh and try again.";
-  }
-
-  if (error?.message?.includes("booking_request_not_pending")) {
-    return "This booking request is no longer pending.";
-  }
-
-  if (error?.message?.includes("booking_request_not_found")) {
-    return "Booking request not found.";
-  }
-
-  return "Booking request could not be approved.";
 }
 
 export async function approveBookingRequest(formData: FormData) {
@@ -203,6 +173,12 @@ export async function approveBookingRequest(formData: FormData) {
     (confirmedBookings ?? []) as ConfirmedBookingRecord[]
   );
 
+  let overriddenBookings: BookingRecord[] = [];
+  const isOverrideApproval = conflicts.length > 0;
+  const conflictBeforeSnapshots = new Map(
+    conflicts.map((conflict) => [conflict.id, getBookingSnapshot(conflict)])
+  );
+
   if (conflicts.length > 0) {
     const overrideConfirmationValidation = validateOverrideConfirmation(
       overrideConfirmation || null
@@ -211,30 +187,49 @@ export async function approveBookingRequest(formData: FormData) {
     if (!overrideConfirmationValidation.ok) {
       redirectWithMessage("error", overrideConfirmationValidation.error);
     }
+
+    const { data: overrideRows, error: overrideError } = await supabase
+      .from("bookings")
+      .update({
+        status: "overridden",
+        updated_by: currentUser.id,
+      })
+      .in(
+        "id",
+        conflicts.map((conflict) => conflict.id)
+      )
+      .eq("status", "confirmed")
+      .select(BOOKING_SELECT);
+
+    if (
+      overrideError ||
+      !overrideRows ||
+      overrideRows.length !== conflicts.length
+    ) {
+      redirectWithMessage(
+        "error",
+        "Conflicting bookings changed before override approval completed. Refresh and try again."
+      );
+    }
+
+    overriddenBookings = overrideRows as BookingRecord[];
   }
 
-  const { data: approvalResultData, error: approvalError } = await supabase
-    .rpc("approve_booking_request_with_conflict_lock", {
-      p_actor_user_id: currentUser.id,
-      p_allow_override: conflicts.length > 0,
-      p_booking_id: id,
-    });
-  const approvalResult = approvalResultData as ApproveBookingRpcResult | null;
+  const beforeSnapshot = getBookingSnapshot(before);
+  const { data: updated, error: updateError } = await supabase
+    .from("bookings")
+    .update({
+      status: "confirmed",
+      updated_by: currentUser.id,
+    })
+    .eq("id", id)
+    .eq("status", "requested")
+    .select(BOOKING_SELECT)
+    .maybeSingle<BookingRecord>();
 
-  if (approvalError || !approvalResult) {
-    redirectWithMessage("error", getApprovalRpcErrorMessage(approvalError));
+  if (updateError || !updated) {
+    redirectWithMessage("error", "Booking request could not be approved.");
   }
-
-  const beforeSnapshot = getBookingSnapshot(approvalResult.before);
-  const updated = approvalResult.updated;
-  const overriddenBookings = approvalResult.overridden_bookings;
-  const isOverrideApproval = overriddenBookings.length > 0;
-  const conflictBeforeSnapshots = new Map(
-    approvalResult.conflict_before_snapshots.map((conflict) => [
-      conflict.id,
-      getBookingSnapshot(conflict),
-    ])
-  );
 
   const logEntries: AuditLogEntry[] = overriddenBookings.map((booking) => ({
     action_type: "booking_overridden",

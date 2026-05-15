@@ -26,7 +26,6 @@ import {
   getCalendarMonth,
   parseIsoDate,
 } from "@/lib/booking/dates";
-import { filterVisibleBookingSummaries } from "@/lib/booking/visibility";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type VehicleRecord = {
@@ -40,7 +39,6 @@ type BookingRecord = {
   date: string;
   id: string;
   status: "confirmed" | "requested";
-  user_id: string;
   vehicle_id: string;
 };
 
@@ -91,7 +89,7 @@ async function getVehicleDashboardData() {
         .order("name", { ascending: true }),
       supabase
         .from("bookings")
-        .select("id, vehicle_id, date, status, user_id")
+        .select("id, vehicle_id, date, status")
         .gte("date", currentMonth.startDate)
         .lte("date", futureWindowEnd)
         .in("status", ["confirmed", "requested"])
@@ -139,12 +137,7 @@ async function getVehicleDashboardData() {
 
   const bookingsByVehicle = new Map<string, BookingRecord[]>();
 
-  const visibleBookings = filterVisibleBookingSummaries(
-    (bookings ?? []) as BookingRecord[],
-    currentUser
-  );
-
-  for (const booking of visibleBookings) {
+  for (const booking of (bookings ?? []) as BookingRecord[]) {
     const vehicleBookings = bookingsByVehicle.get(booking.vehicle_id) ?? [];
     vehicleBookings.push(booking);
     bookingsByVehicle.set(booking.vehicle_id, vehicleBookings);
