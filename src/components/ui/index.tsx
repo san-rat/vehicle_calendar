@@ -123,14 +123,15 @@ const badgeToneClasses: Record<UiTone, string> = {
 
 const statusBadgeClasses: Record<BookingStatus, string> = {
   cancelled:
-    "border border-slate-300/70 bg-slate-100 text-slate-600",
+    "border border-[var(--border-subtle)] bg-[var(--bg-surface-inset)] text-[var(--text-secondary)]",
   confirmed:
-    "border border-emerald-200 bg-emerald-50 text-emerald-700",
+    "border border-[var(--success)]/16 bg-[var(--success-soft)] text-[var(--success)]",
   overridden:
-    "border border-amber-200 bg-amber-50 text-amber-700",
-  rejected: "border border-rose-200 bg-rose-50 text-rose-700",
+    "border border-[var(--warning)]/16 bg-[var(--warning-soft)] text-[var(--warning)]",
+  rejected:
+    "border border-[var(--danger)]/16 bg-[var(--danger-soft)] text-[var(--danger)]",
   requested:
-    "border border-sky-200 bg-sky-50 text-sky-700",
+    "border border-[var(--info)]/16 bg-[var(--info-soft)] text-[var(--info)]",
 };
 
 const noticeToneClasses: Record<
@@ -296,7 +297,7 @@ export function StatusBadge({
       className={joinClasses(
         "inline-flex items-center rounded-full px-2 py-1 text-[11px] font-semibold capitalize md:px-2.5 md:text-xs",
         statusBadgeClasses[status] ??
-          "border border-slate-200 bg-slate-100 text-slate-600",
+          "border border-[var(--border-subtle)] bg-[var(--bg-surface-inset)] text-[var(--text-secondary)]",
         className
       )}
       {...props}
@@ -464,58 +465,6 @@ export function EmptyState({
       ) : null}
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
-  );
-}
-
-export function StatCard({
-  detail,
-  icon: Icon,
-  label,
-  tone = "neutral",
-  value,
-}: {
-  detail?: ReactNode;
-  icon?: ElementType<ComponentPropsWithoutRef<"svg">>;
-  label: string;
-  tone?: Extract<UiTone, "info" | "neutral" | "primary" | "success" | "warning">;
-  value: ReactNode;
-}) {
-  const accentClass = {
-    info: "bg-[var(--info-soft)] text-[var(--info)]",
-    neutral: "bg-[var(--bg-surface-inset)] text-[var(--text-secondary)]",
-    primary: "bg-[var(--brand-100)] text-[var(--brand-600)]",
-    success: "bg-[var(--success-soft)] text-[var(--success)]",
-    warning: "bg-[var(--warning-soft)] text-[var(--warning)]",
-  }[tone];
-
-  return (
-    <Panel className="h-full p-4 sm:p-5" variant="elevated">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
-            {label}
-          </p>
-          <p className="mt-2 text-[1.5rem] font-semibold tracking-[-0.03em] text-[var(--text-primary)] md:mt-2.5 md:text-2xl">
-            {value}
-          </p>
-        </div>
-        {Icon ? (
-          <span
-            className={joinClasses(
-              "flex h-9 w-9 items-center justify-center rounded-[18px] md:h-10 md:w-10 md:rounded-2xl",
-              accentClass
-            )}
-          >
-            <Icon className="h-[1.125rem] w-[1.125rem] md:h-5 md:w-5" />
-          </span>
-        ) : null}
-      </div>
-      {detail ? (
-        <p className="mt-2.5 text-sm leading-6 text-[var(--text-secondary)]">
-          {detail}
-        </p>
-      ) : null}
-    </Panel>
   );
 }
 

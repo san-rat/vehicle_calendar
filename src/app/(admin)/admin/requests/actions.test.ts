@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { makeFormData } from "@/test/form-data";
 import { createSupabaseMock } from "@/test/supabase-mock";
 
@@ -56,8 +56,12 @@ const requestedBooking = {
 
 describe("admin booking request actions", () => {
   beforeEach(() => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-04-12T02:30:00.000Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("approves a request without conflicts", async () => {

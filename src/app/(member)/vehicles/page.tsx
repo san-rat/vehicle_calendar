@@ -468,7 +468,7 @@ export default async function VehiclesPage() {
                   </div>
 
                   <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3.5 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                       Next activity
                     </p>
                     {vehicle.nextBooking ? (
@@ -529,7 +529,7 @@ export default async function VehiclesPage() {
                 <div className="space-y-4 px-5 py-5">
                   <div className="grid grid-cols-3 gap-3">
                     <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                         Week
                       </p>
                       <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
@@ -537,7 +537,7 @@ export default async function VehiclesPage() {
                       </p>
                     </div>
                     <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                         Month
                       </p>
                       <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
@@ -545,7 +545,7 @@ export default async function VehiclesPage() {
                       </p>
                     </div>
                     <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                         Requests
                       </p>
                       <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
@@ -555,7 +555,7 @@ export default async function VehiclesPage() {
                   </div>
 
                   <div className="rounded-[18px] border border-[var(--border-subtle)] bg-white px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                       Next activity
                     </p>
                     {vehicle.nextBooking ? (

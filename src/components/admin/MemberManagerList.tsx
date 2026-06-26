@@ -119,7 +119,7 @@ export function MemberManagerList({
 
       <div className="hidden overflow-hidden rounded-[22px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[0_14px_30px_rgba(15,23,42,0.07)] md:block">
         <table className="w-full border-collapse text-left text-sm">
-          <thead className="bg-[var(--bg-surface-tint)] text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+          <thead className="bg-[var(--bg-surface-tint)] text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             <tr>
               <th className="px-4 py-3">Member</th>
               <th className="px-4 py-3">Status</th>
@@ -247,7 +247,7 @@ export function MemberManagerList({
 
               <div className="mt-5 hidden gap-3 md:grid md:grid-cols-2 xl:grid-cols-3">
                 <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                     Role
                   </p>
                   <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -255,7 +255,7 @@ export function MemberManagerList({
                   </p>
                 </div>
                 <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                     Created
                   </p>
                   <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -263,7 +263,7 @@ export function MemberManagerList({
                   </p>
                 </div>
                 <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                     Updated
                   </p>
                   <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -285,7 +285,7 @@ export function MemberManagerList({
           <div className="space-y-6">
             <section className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Role
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -293,7 +293,7 @@ export function MemberManagerList({
                 </p>
               </div>
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Created
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -301,7 +301,7 @@ export function MemberManagerList({
                 </p>
               </div>
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Updated
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">

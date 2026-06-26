@@ -39,7 +39,7 @@ export function LoginForm({
           />
           <button
             aria-label={showPassword ? "Hide password" : "Show password"}
-            className="absolute right-2 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-[var(--text-muted)] transition hover:bg-[var(--bg-surface-tint)] hover:text-[var(--text-primary)]"
+            className="absolute right-2 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-[var(--text-muted)] transition hover:bg-[var(--bg-surface-tint)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20"
             onClick={() => setShowPassword((current) => !current)}
             type="button"
           >

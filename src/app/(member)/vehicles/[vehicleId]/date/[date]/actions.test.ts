@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { makeFormData } from "@/test/form-data";
 import { createSupabaseMock } from "@/test/supabase-mock";
 
@@ -80,8 +80,12 @@ function existingBooking(overrides: Record<string, unknown> = {}) {
 
 describe("createBooking server action", () => {
   beforeEach(() => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-04-12T02:30:00.000Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("redirects when the vehicle is unavailable", async () => {

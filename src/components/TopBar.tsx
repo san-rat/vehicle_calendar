@@ -62,7 +62,7 @@ function DesktopNavLink({ href, icon: Icon, label }: NavItem) {
   return (
     <Link
       className={joinClasses(
-        "inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200",
+        "inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20",
         isActive
           ? "bg-[var(--brand-100)] text-[var(--brand-600)] shadow-[inset_0_0_0_1px_rgba(17,122,108,0.14)]"
           : "text-[var(--text-secondary)] hover:bg-white hover:text-[var(--text-primary)]"
@@ -86,7 +86,7 @@ function MobileNavLink({
   return (
     <Link
       className={joinClasses(
-        "inline-flex min-h-12 items-center gap-3 rounded-[18px] px-4 py-3 text-sm font-semibold transition-all duration-200",
+        "inline-flex min-h-12 items-center gap-3 rounded-[18px] px-4 py-3 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20",
         isActive
           ? "bg-[var(--brand-100)] text-[var(--brand-600)] shadow-[inset_0_0_0_1px_rgba(17,122,108,0.14)]"
           : "bg-[var(--bg-surface-tint)] text-[var(--text-primary)] hover:bg-white"
@@ -141,7 +141,7 @@ function MobileNavDrawer({
       >
         <div className="flex items-center justify-between gap-3 pb-5">
           <Link
-            className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-[1.35rem] font-bold tracking-tight text-[var(--text-primary)] transition-all hover:opacity-80"
+            className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-[1.35rem] font-bold tracking-tight text-[var(--text-primary)] transition-all hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20"
             href="/vehicles"
             onClick={onClose}
           >
@@ -259,7 +259,7 @@ export function TopBar({
 
           <div className="flex min-w-0 justify-center">
             <Link
-              className="inline-flex min-w-0 items-center justify-center rounded-xl px-2 text-[1.32rem] font-bold tracking-[-0.03em] text-[var(--text-primary)] transition-all hover:text-[var(--brand-600)]"
+              className="inline-flex min-w-0 items-center justify-center rounded-xl px-2 text-[1.32rem] font-bold tracking-[-0.03em] text-[var(--text-primary)] transition-all hover:text-[var(--brand-600)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20"
               href="/vehicles"
             >
               <span className="mr-[2px] text-[var(--brand-500)]">Fleet</span>Time
@@ -268,7 +268,7 @@ export function TopBar({
 
           <Link
             aria-current={isActive("/log") ? "page" : undefined}
-            className="inline-flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-[var(--border-subtle)] bg-white/90 text-[var(--text-secondary)] shadow-[0_8px_18px_rgba(15,23,42,0.05)] transition-all hover:text-[var(--text-primary)]"
+            className="inline-flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-[var(--border-subtle)] bg-white/90 text-[var(--text-secondary)] shadow-[0_8px_18px_rgba(15,23,42,0.05)] transition-all hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20"
             href="/log"
           >
             <LogIcon className="h-4 w-4" />
@@ -278,7 +278,7 @@ export function TopBar({
         <div className="hidden min-h-[4.5rem] items-center justify-between gap-4 py-3 md:flex md:min-h-20">
           <div className="flex items-center gap-3">
             <Link
-              className="inline-flex items-center rounded-xl px-2 text-[1.45rem] font-bold tracking-[-0.03em] text-[var(--text-primary)] transition-all hover:text-[var(--brand-600)]"
+              className="inline-flex items-center rounded-xl px-2 text-[1.45rem] font-bold tracking-[-0.03em] text-[var(--text-primary)] transition-all hover:text-[var(--brand-600)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20"
               href="/vehicles"
             >
               <span className="mr-[2px] text-[var(--brand-500)]">Fleet</span>Time

@@ -543,7 +543,7 @@ function BookingSummary({
       </div>
       <dl className="mt-3 grid gap-3 sm:grid-cols-2">
         <div>
-          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             Vehicle
           </dt>
           <dd className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
@@ -551,7 +551,7 @@ function BookingSummary({
           </dd>
         </div>
         <div>
-          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             Date
           </dt>
           <dd className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
@@ -559,7 +559,7 @@ function BookingSummary({
           </dd>
         </div>
         <div>
-          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             Booking mode
           </dt>
           <dd className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
@@ -567,7 +567,7 @@ function BookingSummary({
           </dd>
         </div>
         <div>
-          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             Policy
           </dt>
           <dd className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
@@ -842,7 +842,7 @@ export function BookingWorkspace({
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1 shadow-[0_12px_28px_rgba(15,23,42,0.05)] md:hidden">
         <button
-          className={`min-h-11 rounded-full px-4 py-2 text-sm font-semibold transition ${
+          className={`min-h-11 rounded-full px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20 ${
             activePanel === "timeline"
               ? "bg-[var(--brand-500)] text-white shadow-[0_12px_24px_rgba(17,122,108,0.22)]"
               : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -853,7 +853,7 @@ export function BookingWorkspace({
           Timeline
         </button>
         <button
-          className={`min-h-11 rounded-full px-4 py-2 text-sm font-semibold transition ${
+          className={`min-h-11 rounded-full px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20 ${
             activePanel === "form"
               ? "bg-[var(--brand-500)] text-white shadow-[0_12px_24px_rgba(17,122,108,0.22)]"
               : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"

@@ -203,7 +203,7 @@ export function RequestReviewList({
               return (
                 <button
                   className={[
-                    "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-semibold transition-all duration-200",
+                    "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20",
                     isActive
                       ? "border-[var(--brand-500)]/18 bg-[var(--brand-100)] text-[var(--brand-600)] shadow-[0_8px_18px_rgba(17,122,108,0.12)]"
                       : "border-[var(--border-subtle)] bg-white text-[var(--text-secondary)]",
@@ -323,7 +323,7 @@ export function RequestReviewList({
 
                     <div className="mt-4 grid gap-2.5 md:hidden">
                       <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3.5 py-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                           Vehicle
                         </p>
                         <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -336,7 +336,7 @@ export function RequestReviewList({
                         ) : null}
                       </div>
                       <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3.5 py-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                           Date and time
                         </p>
                         <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -350,7 +350,7 @@ export function RequestReviewList({
 
                     <div className="mt-4 hidden gap-3 md:grid md:grid-cols-3">
                       <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                           Vehicle
                         </p>
                         <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -363,7 +363,7 @@ export function RequestReviewList({
                         ) : null}
                       </div>
                       <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                           Date and time
                         </p>
                         <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -374,7 +374,7 @@ export function RequestReviewList({
                         </p>
                       </div>
                       <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                           Reason
                         </p>
                         <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">
@@ -494,7 +494,7 @@ export function RequestReviewList({
                     </div>
 
                     <div className="mt-4 rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3.5 py-3 md:hidden">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                         Reason
                       </p>
                       <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">
