@@ -18,6 +18,7 @@ async function loadVehicleActions(
   const redirect = vi.fn((url: string) => {
     throw new Error(`redirect:${url}`);
   });
+  const reportAuditLogFailure = vi.fn();
   const revalidatePath = vi.fn();
 
   vi.doMock("next/navigation", () => ({ redirect }));
@@ -28,9 +29,13 @@ async function loadVehicleActions(
   vi.doMock("@/lib/supabase/admin", () => ({
     createSupabaseAdminClient: vi.fn(() => supabase),
   }));
+  vi.doMock("@/lib/logs/audit", () => ({
+    reportAuditLogFailure,
+  }));
 
   return {
     ...(await import("./actions")),
+    reportAuditLogFailure,
     revalidatePath,
     supabase,
   };
@@ -67,6 +72,24 @@ describe("vehicle admin actions", () => {
       expect.objectContaining({ action_type: "vehicle_created" })
     );
     expect(revalidatePath).toHaveBeenCalledWith("/admin/vehicles");
+  });
+
+  it("logs server-side and succeeds when vehicle audit logging fails", async () => {
+    const { createVehicle, reportAuditLogFailure } = await loadVehicleActions({
+      log_entries: { error: { message: "log failed" } },
+      vehicles: { data: vehicle },
+    });
+
+    await expect(
+      createVehicle(
+        makeFormData({ is_active: "true", name: "Pool Car", type: "car" })
+      )
+    ).rejects.toThrow("redirect:/admin/vehicles?success=Vehicle+%22Pool+Car%22+created.");
+    expect(reportAuditLogFailure).toHaveBeenCalledWith({
+      action: "vehicle_created",
+      error: { message: "log failed" },
+      targetId: "vehicle-1",
+    });
   });
 
   it("short-circuits unchanged vehicle updates", async () => {

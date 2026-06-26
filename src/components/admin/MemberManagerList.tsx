@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { SubmitButton } from "@/components/SubmitButton";
 import {
   Badge,
   Button,
@@ -360,9 +361,9 @@ export function MemberManagerList({
                   </select>
                 </Field>
 
-                <Button type="submit" tone="primary">
+                <SubmitButton pendingLabel="Saving" tone="primary">
                   Save changes
-                </Button>
+                </SubmitButton>
               </form>
             </section>
 
@@ -405,9 +406,9 @@ export function MemberManagerList({
                   />
                 </Field>
 
-                <Button type="submit" tone="secondary">
+                <SubmitButton pendingLabel="Resetting" tone="secondary">
                   Reset password
-                </Button>
+                </SubmitButton>
               </form>
             </section>
 
@@ -438,9 +439,9 @@ export function MemberManagerList({
                   />
                 </Field>
 
-                <Button type="submit" tone="danger">
+                <SubmitButton pendingLabel="Deleting" tone="danger">
                   Delete member
-                </Button>
+                </SubmitButton>
               </form>
             </section>
           </div>

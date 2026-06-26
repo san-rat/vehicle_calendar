@@ -1,8 +1,8 @@
 import { requireAdminAppUser } from "@/lib/auth/user";
+import { SubmitButton } from "@/components/SubmitButton";
 import {
   Badge,
   BreadcrumbNav,
-  Button,
   CompactMetric,
   Field,
   PageHeader,
@@ -200,9 +200,14 @@ export default async function AdminPrivilegesPage() {
             </Field>
 
             <div className="mobile-sticky-action md:col-span-2">
-              <Button className="w-full md:w-auto" size="lg" type="submit" tone="primary">
+              <SubmitButton
+                className="w-full md:w-auto"
+                pendingLabel="Saving"
+                size="lg"
+                tone="primary"
+              >
                 Save privileges
-              </Button>
+              </SubmitButton>
             </div>
           </form>
 

@@ -23,6 +23,7 @@ async function loadCreateBooking(
   const redirect = vi.fn((url: string) => {
     throw redirectError(url);
   });
+  const reportAuditLogFailure = vi.fn();
   const revalidatePath = vi.fn();
 
   vi.doMock("next/navigation", () => ({ redirect }));
@@ -33,6 +34,9 @@ async function loadCreateBooking(
   vi.doMock("@/lib/supabase/admin", () => ({
     createSupabaseAdminClient: vi.fn(() => supabase),
   }));
+  vi.doMock("@/lib/logs/audit", () => ({
+    reportAuditLogFailure,
+  }));
 
   const actions = await import("./actions");
 
@@ -40,6 +44,7 @@ async function loadCreateBooking(
     cancelBooking: actions.cancelBooking,
     createBooking: actions.createBooking,
     redirect,
+    reportAuditLogFailure,
     revalidatePath,
     supabase,
   };
@@ -240,8 +245,8 @@ describe("createBooking server action", () => {
     );
   });
 
-  it("reports when audit logging fails after saving a booking", async () => {
-    const { createBooking } = await loadCreateBooking({
+  it("logs server-side and succeeds when audit logging fails after saving a booking", async () => {
+    const { createBooking, reportAuditLogFailure } = await loadCreateBooking({
       bookings: [
         { data: [] },
         {
@@ -277,8 +282,13 @@ describe("createBooking server action", () => {
     await expect(
       createBooking("vehicle-1", "2026-04-13", bookingForm())
     ).rejects.toThrow(
-      "redirect:/vehicles/vehicle-1/date/2026-04-13?error=Booking+saved%2C+but+the+audit+log+could+not+be+written."
+      "redirect:/vehicles/vehicle-1/date/2026-04-13?success=Booking+confirmed."
     );
+    expect(reportAuditLogFailure).toHaveBeenCalledWith({
+      action: "booking_confirmed",
+      error: { message: "log failed" },
+      targetId: "booking-1",
+    });
   });
 
   it("cancels a future owned booking and writes an audit log", async () => {

@@ -13,6 +13,7 @@ import {
   type BookingTimeWindow,
 } from "@/lib/booking/bookings";
 import { getBusinessToday } from "@/lib/booking/dates";
+import { reportAuditLogFailure } from "@/lib/logs/audit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const BOOKING_SELECT =
@@ -181,12 +182,11 @@ export async function createBooking(
   });
 
   if (logError) {
-    redirectWithMessage(
-      vehicleId,
-      date,
-      "error",
-      "Booking saved, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: actionType,
+      error: logError,
+      targetId: createdBooking.id,
+    });
   }
 
   revalidatePath(`/vehicles/${vehicleId}/date/${date}`);
@@ -279,12 +279,11 @@ export async function cancelBooking(
   });
 
   if (logError) {
-    redirectWithMessage(
-      vehicleId,
-      date,
-      "error",
-      "Booking cancelled, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: "booking_cancelled",
+      error: logError,
+      targetId: updated.id,
+    });
   }
 
   revalidatePath(`/vehicles/${vehicleId}/date/${date}`);

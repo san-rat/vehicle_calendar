@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { SubmitButton } from "@/components/SubmitButton";
 import {
   Badge,
-  Button,
   ButtonLink,
   EmptyState,
   Field,
@@ -452,9 +452,13 @@ export function RequestReviewList({
                                 placeholder="Why override"
                               />
                             </Field>
-                            <Button className="w-full md:w-auto" type="submit" tone="warning">
+                            <SubmitButton
+                              className="w-full md:w-auto"
+                              pendingLabel="Approving"
+                              tone="warning"
+                            >
                               Approve with override
-                            </Button>
+                            </SubmitButton>
                           </form>
                         ) : null}
                       </div>
@@ -473,15 +477,15 @@ export function RequestReviewList({
                         </ButtonLink>
                         <form action={approveBookingRequestAction}>
                           <input name="id" type="hidden" value={request.id} />
-                          <Button
+                          <SubmitButton
                             className="w-full sm:w-auto"
                             disabled={!canApprove}
+                            pendingLabel="Approving"
                             size="sm"
                             tone="primary"
-                            type="submit"
                           >
                             Approve
-                          </Button>
+                          </SubmitButton>
                         </form>
                       </div>
                       <p className="text-sm leading-6 text-[var(--text-secondary)] xl:text-right">
@@ -516,9 +520,13 @@ export function RequestReviewList({
                           placeholder="Why reject"
                         />
                       </Field>
-                      <Button className="w-full md:w-auto" type="submit" tone="danger">
+                      <SubmitButton
+                        className="w-full md:w-auto"
+                        pendingLabel="Rejecting"
+                        tone="danger"
+                      >
                         Reject
-                      </Button>
+                      </SubmitButton>
                     </form>
                   </Panel>
                 );

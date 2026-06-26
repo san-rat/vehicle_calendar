@@ -6,6 +6,7 @@ import {
   getConfirmedBookingConflicts,
   parseTimeToMinutes,
 } from "@/lib/booking/bookings";
+import { SubmitButton } from "@/components/SubmitButton";
 import {
   TIMELINE_SLOT_HEIGHT_PX,
   TIMELINE_TIME_GUTTER_PX,
@@ -193,9 +194,9 @@ function TimelineDetailCard({
       {canCancel ? (
         <form action={cancelAction} className="mt-3">
           <input name="id" type="hidden" value={booking.id} />
-          <Button size="sm" tone="danger" type="submit">
+          <SubmitButton pendingLabel="Cancelling" size="sm" tone="danger">
             Cancel
-          </Button>
+          </SubmitButton>
         </form>
       ) : null}
     </article>
@@ -748,7 +749,7 @@ function BookingFormPanel({
             />
           </Field>
 
-          <Button
+          <SubmitButton
             className="w-full"
             disabled={
               isFormDisabled ||
@@ -758,12 +759,12 @@ function BookingFormPanel({
                 timeLimitMinutes !== null &&
                 durationMinutes > timeLimitMinutes
             }
+            pendingLabel="Saving"
             size="lg"
             tone="primary"
-            type="submit"
           >
             {submitLabel}
-          </Button>
+          </SubmitButton>
         </form>
       </div>
     </Panel>

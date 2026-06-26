@@ -1,19 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useFormStatus } from "react-dom";
-import { Button, Field, inputClassName } from "@/components/ui";
+import { SubmitButton } from "@/components/SubmitButton";
+import { Field, inputClassName } from "@/components/ui";
 import { EyeIcon, EyeOffIcon } from "@/components/ui/icons";
-
-function LoginSubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button className="w-full" loading={pending} size="lg" tone="primary" type="submit">
-      {pending ? "Signing in" : "Sign in to FleetTime"}
-    </Button>
-  );
-}
 
 export function LoginForm({
   formAction,
@@ -62,7 +52,14 @@ export function LoginForm({
         </div>
       </Field>
 
-      <LoginSubmitButton />
+      <SubmitButton
+        className="w-full"
+        pendingLabel="Signing in"
+        size="lg"
+        tone="primary"
+      >
+        Sign in to FleetTime
+      </SubmitButton>
     </form>
   );
 }

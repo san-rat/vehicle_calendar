@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { SubmitButton } from "@/components/SubmitButton";
 import {
   Badge,
   Button,
@@ -364,9 +365,9 @@ export function VehicleManagerList({
                   </select>
                 </Field>
 
-                <Button type="submit" tone="primary">
+                <SubmitButton pendingLabel="Saving" tone="primary">
                   Save changes
-                </Button>
+                </SubmitButton>
               </form>
             </section>
 
@@ -398,9 +399,9 @@ export function VehicleManagerList({
                   />
                 </Field>
 
-                <Button type="submit" tone="danger">
+                <SubmitButton pendingLabel="Deleting" tone="danger">
                   Delete vehicle
-                </Button>
+                </SubmitButton>
               </form>
             </section>
           </div>
