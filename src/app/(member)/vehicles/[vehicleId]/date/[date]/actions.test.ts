@@ -195,6 +195,30 @@ describe("createBooking server action", () => {
     );
   });
 
+  it("maps database overlap violations to a friendly booking conflict", async () => {
+    const { createBooking } = await loadCreateBooking({
+      bookings: [
+        { data: [] },
+        { error: { code: "23P01", message: "exclusion violation" } },
+      ],
+      privilege_config: {
+        data: {
+          allow_booking_freedom: true,
+          max_days_in_future: 30,
+          require_reason: false,
+          time_limit_minutes: null,
+        },
+      },
+      vehicles: { data: { id: "vehicle-1", name: "Pool Car" } },
+    });
+
+    await expect(
+      createBooking("vehicle-1", "2026-04-13", bookingForm())
+    ).rejects.toThrow(
+      "redirect:/vehicles/vehicle-1/date/2026-04-13?error=This+vehicle+already+has+a+confirmed+booking+during+that+time."
+    );
+  });
+
   it("reports when audit logging fails after saving a booking", async () => {
     const { createBooking } = await loadCreateBooking({
       bookings: [

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdminAppUser } from "@/lib/auth/user";
 import {
   getApprovalTimingProblem,
+  getBookingPersistenceErrorMessage,
   getBusinessTimeMinutes,
   getConfirmedBookingConflicts,
   validateOverrideConfirmation,
@@ -228,7 +229,11 @@ export async function approveBookingRequest(formData: FormData) {
     .maybeSingle<BookingRecord>();
 
   if (updateError || !updated) {
-    redirectWithMessage("error", "Booking request could not be approved.");
+    redirectWithMessage(
+      "error",
+      getBookingPersistenceErrorMessage(updateError) ??
+        "Booking request could not be approved."
+    );
   }
 
   const logEntries: AuditLogEntry[] = overriddenBookings.map((booking) => ({

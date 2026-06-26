@@ -6,6 +6,7 @@ import { requireCurrentAppUser } from "@/lib/auth/user";
 import {
   getBookingStatusForFreedom,
   getBusinessTimeMinutes,
+  getBookingPersistenceErrorMessage,
   validateBookingInput,
   type BookingStatus,
   type BookingTimeWindow,
@@ -154,7 +155,13 @@ export async function createBooking(
     .single<BookingRecord>();
 
   if (createError || !createdBooking) {
-    redirectWithMessage(vehicleId, date, "error", "Booking could not be saved.");
+    redirectWithMessage(
+      vehicleId,
+      date,
+      "error",
+      getBookingPersistenceErrorMessage(createError) ??
+        "Booking could not be saved."
+    );
   }
 
   const actionType =

@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   ALL_DAY_END_TIME,
   ALL_DAY_START_TIME,
+  BOOKING_OVERLAP_CONFLICT_MESSAGE,
   getApprovalTimingProblem,
+  getBookingPersistenceErrorMessage,
   getBookingStatusForFreedom,
   getBusinessTimeMinutes,
   getConfirmedBookingConflicts,
@@ -60,6 +62,14 @@ describe("booking helpers", () => {
   it("uses booking freedom to pick the created status", () => {
     expect(getBookingStatusForFreedom(true)).toBe("confirmed");
     expect(getBookingStatusForFreedom(false)).toBe("requested");
+  });
+
+  it("maps database overlap violations to the booking conflict message", () => {
+    expect(getBookingPersistenceErrorMessage({ code: "23P01" })).toBe(
+      BOOKING_OVERLAP_CONFLICT_MESSAGE
+    );
+    expect(getBookingPersistenceErrorMessage({ code: "23505" })).toBeNull();
+    expect(getBookingPersistenceErrorMessage(null)).toBeNull();
   });
 
   it("resolves the business time in Asia/Colombo", () => {

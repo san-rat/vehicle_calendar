@@ -147,6 +147,22 @@ describe("admin booking request actions", () => {
     );
   });
 
+  it("maps database overlap violations during approval to a friendly conflict", async () => {
+    const { approveBookingRequest } = await loadRequestActions({
+      bookings: [
+        { data: requestedBooking },
+        { data: [] },
+        { error: { code: "23P01", message: "exclusion violation" } },
+      ],
+    });
+
+    await expect(
+      approveBookingRequest(makeFormData({ id: "request-1" }))
+    ).rejects.toThrow(
+      "redirect:/admin/requests?error=This+vehicle+already+has+a+confirmed+booking+during+that+time."
+    );
+  });
+
   it("blocks approval for inactive members", async () => {
     const { approveBookingRequest } = await loadRequestActions({
       bookings: {
