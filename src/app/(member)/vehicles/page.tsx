@@ -11,10 +11,7 @@ import {
 import {
   CalendarIcon,
   EmptyStateIcon,
-  LogIcon,
   ManageIcon,
-  SettingsIcon,
-  UserIcon,
 } from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
@@ -234,15 +231,6 @@ export default async function VehiclesPage() {
     vehicles,
   } = await getVehicleDashboardData();
   const greetingLabel = getGreetingLabel(getBusinessHour(), currentUser.name);
-  const quickActions =
-    currentUser.role === "super_admin"
-      ? [
-          { href: "/admin/requests", icon: LogIcon, label: "Requests" },
-          { href: "/admin/vehicles", icon: ManageIcon, label: "Vehicles" },
-          { href: "/admin/members", icon: UserIcon, label: "Members" },
-          { href: "/admin/settings", icon: SettingsIcon, label: "Settings" },
-        ]
-      : [];
 
   return (
     <div className="page-stack">
@@ -254,29 +242,6 @@ export default async function VehiclesPage() {
         }
         title={greetingLabel}
       />
-
-      {quickActions.length > 0 ? (
-        <section className="grid gap-2.5 md:hidden">
-          <div className="grid grid-cols-2 gap-2.5">
-            {quickActions.map((action) => {
-              const Icon = action.icon;
-
-              return (
-                <Link
-                  className="flex min-h-12 items-center gap-3 rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 text-sm font-semibold text-[var(--text-primary)] shadow-[0_10px_22px_rgba(15,23,42,0.05)] transition-all hover:border-[var(--brand-500)]/18 hover:bg-white"
-                  href={action.href}
-                  key={action.href}
-                >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-[16px] bg-[var(--brand-100)] text-[var(--brand-600)]">
-                    <Icon className="h-[1.125rem] w-[1.125rem]" />
-                  </span>
-                  {action.label}
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      ) : null}
 
       <section className="hidden gap-3 md:grid md:grid-cols-4">
         <CompactMetric

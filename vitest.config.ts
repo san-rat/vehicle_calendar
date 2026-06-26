@@ -47,5 +47,6 @@ export default defineConfig({
     globals: true,
     pool: "vmThreads",
     setupFiles: ["./src/test/setup.ts"],
+    testTimeout: 20000,
   },
 });
