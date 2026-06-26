@@ -1,0 +1,11 @@
+RLS BEFORE PROOF (read-only anon REST)
+Timestamp: 2026-06-27T02:40:44+05:30
+
+$ curl /rest/v1/users?select=id,name,role&limit=3
+[{"id":"d9598190-dfc7-490a-976a-acd4c47fa513","name":"Super Admin","role":"super_admin"}, 
+ {"id":"b5f993ca-06ae-4ed1-a28d-930e8c81212c","name":"Sanuk","role":"member"}]
+
+$ curl /rest/v1/bookings?select=id,status&limit=3
+[{"id":"4e29712c-1370-4701-aa7e-83f88392b019","status":"confirmed"}, 
+ {"id":"a47ead4d-50a3-4f1b-813d-7bae68e5dfe8","status":"confirmed"}, 
+ {"id":"19475735-c41b-4918-91cc-443092820333","status":"confirmed"}]
