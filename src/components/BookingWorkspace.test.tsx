@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { BookingWorkspace, type TimelineBooking } from "./BookingWorkspace";
@@ -56,6 +56,33 @@ describe("BookingWorkspace", () => {
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
   });
 
+  it("expands details for the selected timeline booking", async () => {
+    const user = userEvent.setup();
+    renderWorkspace({
+      bookings: [
+        ...bookings,
+        {
+          colorHex: "#10B981",
+          endTime: "10:30:00",
+          id: "booking-2",
+          isAllDay: false,
+          reason: "Airport run",
+          startTime: "10:00:00",
+          status: "confirmed",
+          userId: "user-2",
+          userName: "Riley",
+        },
+      ],
+    });
+
+    expect(screen.getByText("School run")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Riley/ }));
+
+    expect(screen.getByText("Airport run")).toBeInTheDocument();
+    expect(screen.queryByText("School run")).not.toBeInTheDocument();
+  });
+
   it("reports clear, invalid, and conflicting selected time windows", async () => {
     const user = userEvent.setup();
     renderWorkspace();
@@ -83,5 +110,21 @@ describe("BookingWorkspace", () => {
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Start time")).toBeDisabled();
     expect(screen.getByRole("button", { name: "Book Trip" })).toBeDisabled();
+  });
+
+  it("disables past time options for today", async () => {
+    const user = userEvent.setup();
+    renderWorkspace({
+      currentTimeMinutes: 9 * 60 + 45,
+      selectedDate: "2026-04-12",
+      today: "2026-04-12",
+    });
+
+    await user.click(screen.getByRole("button", { name: "Booking form" }));
+
+    const startTime = screen.getByLabelText("Start time");
+    expect(within(startTime).getByRole("option", { name: "09:00" })).toBeDisabled();
+    expect(within(startTime).getByRole("option", { name: "09:30" })).toBeDisabled();
+    expect(within(startTime).getByRole("option", { name: "10:00" })).not.toBeDisabled();
   });
 });
