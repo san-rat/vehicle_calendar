@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildInternalMemberEmail,
   getMemberRoleLabel,
+  getNextUserColor,
   getSelfMemberEditProblem,
   isMemberRole,
   parseMemberActiveState,
@@ -36,6 +37,10 @@ describe("member admin helpers", () => {
         role: "member",
       },
     });
+  });
+
+  it("picks the first palette color when none are used", () => {
+    expect(getNextUserColor([])).toBe(USER_COLOR_PALETTE[0]);
   });
 
   it("rejects invalid names and roles", () => {
@@ -106,6 +111,9 @@ describe("member admin helpers", () => {
     expect(buildInternalMemberEmail("Super Admin", "XYZ-789")).not.toBe(
       buildInternalMemberEmail("Super Admin", "ABC-123")
     );
+    expect(buildInternalMemberEmail("!!!", "###")).toBe(
+      "member--member@auth.fleettime.local"
+    );
   });
 
   it("guards self-admin lockout actions", () => {
@@ -132,6 +140,14 @@ describe("member admin helpers", () => {
         targetUserId: "user-1",
       })
     ).toBe("You cannot demote your own admin account.");
+
+    expect(
+      getSelfMemberEditProblem({
+        currentUserId: "user-1",
+        nextRole: "super_admin",
+        targetUserId: "user-1",
+      })
+    ).toBeNull();
 
     expect(
       getSelfMemberEditProblem({
