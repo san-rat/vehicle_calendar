@@ -224,6 +224,33 @@ export function getApprovalTimingProblem(input: {
   return null;
 }
 
+export function getCancellationTimingProblem(input: {
+  currentTimeMinutes: number;
+  date: string;
+  startTime: string;
+  today: string;
+}) {
+  if (!parseIsoDate(input.date) || !parseIsoDate(input.today)) {
+    return "This booking has an invalid date.";
+  }
+
+  if (input.date < input.today) {
+    return "This booking has already started.";
+  }
+
+  const startMinutes = parseTimeToMinutes(normalizeDbTime(input.startTime));
+
+  if (startMinutes === null) {
+    return "This booking has an invalid start time.";
+  }
+
+  if (input.date === input.today && startMinutes <= input.currentTimeMinutes) {
+    return "This booking has already started.";
+  }
+
+  return null;
+}
+
 export function validateBookingInput(input: {
   allDay: string | null;
   confirmedBookings: BookingTimeWindow[];

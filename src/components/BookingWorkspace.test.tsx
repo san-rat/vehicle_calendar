@@ -14,6 +14,7 @@ const bookings: TimelineBooking[] = [
     reason: "School run",
     startTime: "09:00:00",
     status: "confirmed",
+    userId: "user-1",
     userName: "Alex",
   },
 ];
@@ -24,6 +25,10 @@ function renderWorkspace(overrides = {}) {
       allDayDisabled={false}
       bookingModeLabel="Auto-confirm"
       bookings={bookings}
+      cancelAction={vi.fn()}
+      currentTimeMinutes={8 * 60}
+      currentUserId="user-1"
+      currentUserRole="member"
       formAction={vi.fn()}
       formDisabledMessage={null}
       policySummary="30 day booking window"
@@ -48,6 +53,7 @@ describe("BookingWorkspace", () => {
     expect(screen.getByText("School run")).toBeInTheDocument();
     expect(screen.getByText("Pool Car")).toBeInTheDocument();
     expect(screen.getByText("30 day booking window")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
   });
 
   it("reports clear, invalid, and conflicting selected time windows", async () => {

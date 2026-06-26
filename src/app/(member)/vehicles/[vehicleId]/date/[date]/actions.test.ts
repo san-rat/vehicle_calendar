@@ -14,7 +14,8 @@ function redirectError(url: string) {
 }
 
 async function loadCreateBooking(
-  tableResults: Parameters<typeof createSupabaseMock>[0]
+  tableResults: Parameters<typeof createSupabaseMock>[0],
+  user = currentUser
 ) {
   vi.resetModules();
 
@@ -27,7 +28,7 @@ async function loadCreateBooking(
   vi.doMock("next/navigation", () => ({ redirect }));
   vi.doMock("next/cache", () => ({ revalidatePath }));
   vi.doMock("@/lib/auth/user", () => ({
-    requireCurrentAppUser: vi.fn(async () => currentUser),
+    requireCurrentAppUser: vi.fn(async () => user),
   }));
   vi.doMock("@/lib/supabase/admin", () => ({
     createSupabaseAdminClient: vi.fn(() => supabase),
@@ -36,6 +37,7 @@ async function loadCreateBooking(
   const actions = await import("./actions");
 
   return {
+    cancelBooking: actions.cancelBooking,
     createBooking: actions.createBooking,
     redirect,
     revalidatePath,
@@ -50,6 +52,25 @@ function bookingForm(overrides: Record<string, string> = {}) {
     start_time: "09:00",
     ...overrides,
   });
+}
+
+function existingBooking(overrides: Record<string, unknown> = {}) {
+  return {
+    created_at: "2026-04-12T00:00:00Z",
+    created_by: "user-1",
+    date: "2026-04-13",
+    end_time: "10:00",
+    id: "booking-1",
+    is_all_day: false,
+    reason: null,
+    start_time: "09:00",
+    status: "confirmed",
+    updated_at: "2026-04-12T00:00:00Z",
+    updated_by: "user-1",
+    user_id: "user-1",
+    vehicle_id: "vehicle-1",
+    ...overrides,
+  };
 }
 
 describe("createBooking server action", () => {
@@ -257,6 +278,95 @@ describe("createBooking server action", () => {
       createBooking("vehicle-1", "2026-04-13", bookingForm())
     ).rejects.toThrow(
       "redirect:/vehicles/vehicle-1/date/2026-04-13?error=Booking+saved%2C+but+the+audit+log+could+not+be+written."
+    );
+  });
+
+  it("cancels a future owned booking and writes an audit log", async () => {
+    const before = existingBooking();
+    const updated = existingBooking({
+      status: "cancelled",
+      updated_by: "user-1",
+    });
+    const { cancelBooking, revalidatePath, supabase } = await loadCreateBooking({
+      bookings: [{ data: before }, { data: updated }],
+      log_entries: { data: null },
+    });
+
+    await expect(
+      cancelBooking(
+        "vehicle-1",
+        "2026-04-13",
+        makeFormData({ id: "booking-1" })
+      )
+    ).rejects.toThrow(
+      "redirect:/vehicles/vehicle-1/date/2026-04-13?success=Booking+cancelled."
+    );
+
+    expect(supabase.buildersByTable.get("bookings")?.[1].update).toHaveBeenCalledWith({
+      status: "cancelled",
+      updated_by: "user-1",
+    });
+    expect(supabase.buildersByTable.get("log_entries")?.[0].insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action_type: "booking_cancelled",
+        snapshot: { after: updated, before },
+      })
+    );
+    expect(revalidatePath).toHaveBeenCalledWith(
+      "/vehicles/vehicle-1/date/2026-04-13"
+    );
+  });
+
+  it("blocks cancellation by a different member", async () => {
+    const { cancelBooking } = await loadCreateBooking({
+      bookings: { data: existingBooking({ user_id: "someone-else" }) },
+    });
+
+    await expect(
+      cancelBooking(
+        "vehicle-1",
+        "2026-04-13",
+        makeFormData({ id: "booking-1" })
+      )
+    ).rejects.toThrow(
+      "redirect:/vehicles/vehicle-1/date/2026-04-13?error=You+cannot+cancel+this+booking."
+    );
+  });
+
+  it("blocks cancellation after a booking has started", async () => {
+    const { cancelBooking } = await loadCreateBooking({
+      bookings: {
+        data: existingBooking({
+          date: "2026-04-12",
+          start_time: "07:30",
+        }),
+      },
+    });
+
+    await expect(
+      cancelBooking(
+        "vehicle-1",
+        "2026-04-12",
+        makeFormData({ id: "booking-1" })
+      )
+    ).rejects.toThrow(
+      "redirect:/vehicles/vehicle-1/date/2026-04-12?error=This+booking+has+already+started."
+    );
+  });
+
+  it("blocks cancellation for terminal statuses", async () => {
+    const { cancelBooking } = await loadCreateBooking({
+      bookings: { data: existingBooking({ status: "cancelled" }) },
+    });
+
+    await expect(
+      cancelBooking(
+        "vehicle-1",
+        "2026-04-13",
+        makeFormData({ id: "booking-1" })
+      )
+    ).rejects.toThrow(
+      "redirect:/vehicles/vehicle-1/date/2026-04-13?error=This+booking+cannot+be+cancelled."
     );
   });
 });

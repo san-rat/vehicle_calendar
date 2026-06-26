@@ -7,6 +7,7 @@ import {
   getBookingPersistenceErrorMessage,
   getBookingStatusForFreedom,
   getBusinessTimeMinutes,
+  getCancellationTimingProblem,
   getConfirmedBookingConflicts,
   getThirtyMinuteTimeOptions,
   hasConfirmedBookingConflict,
@@ -354,6 +355,35 @@ describe("booking helpers", () => {
         currentTimeMinutes: 10 * 60,
         date: "2026-04-12",
         startTime: "10:00",
+        today: "2026-04-12",
+      })
+    ).toBeNull();
+  });
+
+  it("blocks cancellations after a booking has started", () => {
+    expect(
+      getCancellationTimingProblem({
+        currentTimeMinutes: 8 * 60,
+        date: "2026-04-11",
+        startTime: "09:00",
+        today: "2026-04-12",
+      })
+    ).toBe("This booking has already started.");
+
+    expect(
+      getCancellationTimingProblem({
+        currentTimeMinutes: 10 * 60,
+        date: "2026-04-12",
+        startTime: "10:00:00",
+        today: "2026-04-12",
+      })
+    ).toBe("This booking has already started.");
+
+    expect(
+      getCancellationTimingProblem({
+        currentTimeMinutes: 9 * 60,
+        date: "2026-04-12",
+        startTime: "10:00:00",
         today: "2026-04-12",
       })
     ).toBeNull();
