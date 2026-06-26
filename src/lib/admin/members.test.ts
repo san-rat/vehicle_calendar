@@ -104,6 +104,43 @@ describe("member admin helpers", () => {
     });
   });
 
+  it("rejects passwords over bcrypt's 72-byte limit", () => {
+    const seventyTwoBytes = "a".repeat(72);
+    expect(
+      validatePasswordResetInput({
+        password: seventyTwoBytes,
+        passwordConfirmation: seventyTwoBytes,
+      })
+    ).toEqual({
+      ok: true,
+      value: {
+        password: seventyTwoBytes,
+      },
+    });
+
+    const seventyThreeBytes = "a".repeat(73);
+    expect(
+      validatePasswordResetInput({
+        password: seventyThreeBytes,
+        passwordConfirmation: seventyThreeBytes,
+      })
+    ).toEqual({
+      error: "Password must be 72 bytes or fewer.",
+      ok: false,
+    });
+
+    const multiBytePassword = "1234567" + "\u{1F642}".repeat(17);
+    expect(
+      validatePasswordResetInput({
+        password: multiBytePassword,
+        passwordConfirmation: multiBytePassword,
+      })
+    ).toEqual({
+      error: "Password must be 72 bytes or fewer.",
+      ok: false,
+    });
+  });
+
   it("builds hidden internal emails with unique suffixes", () => {
     expect(buildInternalMemberEmail("Super Admin", "ABC-123")).toBe(
       "super-admin--abc-123@auth.fleettime.local"

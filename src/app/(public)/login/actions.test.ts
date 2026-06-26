@@ -26,11 +26,12 @@ async function loadLoginAction(options: {
     throw new Error(`redirect:${url}`);
   });
   const revalidatePath = vi.fn();
+  const lookupEmailByName = vi.fn(async () => options.email ?? null);
 
   vi.doMock("next/navigation", () => ({ redirect }));
   vi.doMock("next/cache", () => ({ revalidatePath }));
   vi.doMock("@/lib/auth/name-login", () => ({
-    lookupEmailByName: vi.fn(async () => options.email ?? null),
+    lookupEmailByName,
   }));
   vi.doMock("@/lib/supabase/server", () => ({
     createSupabaseServerClient: vi.fn(async () => supabase),
@@ -38,6 +39,7 @@ async function loadLoginAction(options: {
 
   return {
     ...(await import("./actions")),
+    lookupEmailByName,
     revalidatePath,
     supabase,
   };
@@ -45,11 +47,12 @@ async function loadLoginAction(options: {
 
 describe("logInWithName action", () => {
   it("requires both credentials before looking up auth", async () => {
-    const { logInWithName } = await loadLoginAction({});
+    const { logInWithName, lookupEmailByName } = await loadLoginAction({});
 
     await expect(
       logInWithName(makeFormData({ name: "", password: "" }))
     ).rejects.toThrow("redirect:/login?error=missing-credentials");
+    expect(lookupEmailByName).not.toHaveBeenCalled();
   });
 
   it("rejects unknown names and invalid passwords", async () => {
@@ -93,10 +96,11 @@ describe("logInWithName action", () => {
   });
 
   it("revalidates layout and redirects active members after login", async () => {
-    const { logInWithName, revalidatePath, supabase } = await loadLoginAction({
-      email: "alex@example.test",
-      profile: { is_active: true, role: "member" },
-    });
+    const { logInWithName, lookupEmailByName, revalidatePath, supabase } =
+      await loadLoginAction({
+        email: "alex@example.test",
+        profile: { is_active: true, role: "member" },
+      });
 
     await expect(
       logInWithName(makeFormData({ name: "Alex", password: "password" }))
@@ -106,6 +110,7 @@ describe("logInWithName action", () => {
       email: "alex@example.test",
       password: "password",
     });
+    expect(lookupEmailByName).toHaveBeenCalledWith("Alex");
     expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
   });
 });

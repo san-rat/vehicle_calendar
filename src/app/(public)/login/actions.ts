@@ -17,6 +17,7 @@ function isAppUserRole(value: string): value is AppUserRole {
 }
 
 export async function logInWithName(formData: FormData) {
+  // TODO(security): add login rate limiting.
   const name = getFormValue(formData, "name");
   const password = getFormValue(formData, "password");
 
