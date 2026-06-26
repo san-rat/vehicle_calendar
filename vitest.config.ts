@@ -45,6 +45,11 @@ export default defineConfig({
     },
     environment: "jsdom",
     globals: true,
+    // Only ever discover the project's own tests under src/. Without this,
+    // vitest's default glob scans the whole tree (incl. stray temp dirs such
+    // as browser-profile folders) and runs unrelated *.spec.js files.
+    include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    exclude: ["node_modules/**", ".next/**", ".tmp-chrome*/**", "screenshots/**"],
     pool: "vmThreads",
     setupFiles: ["./src/test/setup.ts"],
     testTimeout: 20000,
