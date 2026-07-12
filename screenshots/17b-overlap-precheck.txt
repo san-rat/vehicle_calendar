@@ -1,4 +1,0 @@
-Overlap constraint pre-check (read-only)
-Timestamp: 2026-06-26T21:20:34.582Z
-Confirmed bookings scanned: 8
-Overlapping confirmed booking pairs: 0
