@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { SubmitButton } from "@/components/SubmitButton";
 import {
   Badge,
   Button,
@@ -109,7 +110,7 @@ export function VehicleManagerList({
 
       <div className="hidden overflow-hidden rounded-[22px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[0_14px_30px_rgba(15,23,42,0.07)] md:block">
         <table className="w-full border-collapse text-left text-sm">
-          <thead className="bg-[var(--bg-surface-tint)] text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+          <thead className="bg-[var(--bg-surface-tint)] text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             <tr>
               <th className="px-4 py-3">Vehicle</th>
               <th className="px-4 py-3">Status</th>
@@ -217,7 +218,7 @@ export function VehicleManagerList({
 
             <div className="mt-5 hidden gap-3 md:grid md:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Confirmed trips
                 </p>
                 <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
@@ -225,7 +226,7 @@ export function VehicleManagerList({
                 </p>
               </div>
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Next activity
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -233,7 +234,7 @@ export function VehicleManagerList({
                 </p>
               </div>
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Last confirmed
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -241,7 +242,7 @@ export function VehicleManagerList({
                 </p>
               </div>
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Updated
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -267,7 +268,7 @@ export function VehicleManagerList({
           <div className="space-y-6">
             <section className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Confirmed trips
                 </p>
                 <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
@@ -275,7 +276,7 @@ export function VehicleManagerList({
                 </p>
               </div>
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Pending requests
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -283,7 +284,7 @@ export function VehicleManagerList({
                 </p>
               </div>
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Next activity
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -291,7 +292,7 @@ export function VehicleManagerList({
                 </p>
               </div>
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Last confirmed
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -299,7 +300,7 @@ export function VehicleManagerList({
                 </p>
               </div>
               <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-4 py-3 sm:col-span-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                   Updated
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">
@@ -364,9 +365,9 @@ export function VehicleManagerList({
                   </select>
                 </Field>
 
-                <Button type="submit" tone="primary">
+                <SubmitButton pendingLabel="Saving" tone="primary">
                   Save changes
-                </Button>
+                </SubmitButton>
               </form>
             </section>
 
@@ -398,9 +399,9 @@ export function VehicleManagerList({
                   />
                 </Field>
 
-                <Button type="submit" tone="danger">
+                <SubmitButton pendingLabel="Deleting" tone="danger">
                   Delete vehicle
-                </Button>
+                </SubmitButton>
               </form>
             </section>
           </div>

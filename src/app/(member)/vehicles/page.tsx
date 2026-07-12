@@ -11,10 +11,7 @@ import {
 import {
   CalendarIcon,
   EmptyStateIcon,
-  LogIcon,
   ManageIcon,
-  SettingsIcon,
-  UserIcon,
 } from "@/components/ui/icons";
 import {
   getVehicleTypeLabel,
@@ -234,15 +231,6 @@ export default async function VehiclesPage() {
     vehicles,
   } = await getVehicleDashboardData();
   const greetingLabel = getGreetingLabel(getBusinessHour(), currentUser.name);
-  const quickActions =
-    currentUser.role === "super_admin"
-      ? [
-          { href: "/admin/requests", icon: LogIcon, label: "Requests" },
-          { href: "/admin/vehicles", icon: ManageIcon, label: "Vehicles" },
-          { href: "/admin/members", icon: UserIcon, label: "Members" },
-          { href: "/admin/settings", icon: SettingsIcon, label: "Settings" },
-        ]
-      : [];
 
   return (
     <div className="page-stack">
@@ -254,29 +242,6 @@ export default async function VehiclesPage() {
         }
         title={greetingLabel}
       />
-
-      {quickActions.length > 0 ? (
-        <section className="grid gap-2.5 md:hidden">
-          <div className="grid grid-cols-2 gap-2.5">
-            {quickActions.map((action) => {
-              const Icon = action.icon;
-
-              return (
-                <Link
-                  className="flex min-h-12 items-center gap-3 rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 text-sm font-semibold text-[var(--text-primary)] shadow-[0_10px_22px_rgba(15,23,42,0.05)] transition-all hover:border-[var(--brand-500)]/18 hover:bg-white"
-                  href={action.href}
-                  key={action.href}
-                >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-[16px] bg-[var(--brand-100)] text-[var(--brand-600)]">
-                    <Icon className="h-[1.125rem] w-[1.125rem]" />
-                  </span>
-                  {action.label}
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      ) : null}
 
       <section className="hidden gap-3 md:grid md:grid-cols-4">
         <CompactMetric
@@ -468,7 +433,7 @@ export default async function VehiclesPage() {
                   </div>
 
                   <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3.5 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                       Next activity
                     </p>
                     {vehicle.nextBooking ? (
@@ -529,7 +494,7 @@ export default async function VehiclesPage() {
                 <div className="space-y-4 px-5 py-5">
                   <div className="grid grid-cols-3 gap-3">
                     <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                         Week
                       </p>
                       <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
@@ -537,7 +502,7 @@ export default async function VehiclesPage() {
                       </p>
                     </div>
                     <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                         Month
                       </p>
                       <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
@@ -545,7 +510,7 @@ export default async function VehiclesPage() {
                       </p>
                     </div>
                     <div className="rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface-tint)] px-3 py-3">
-                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                      <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                         Requests
                       </p>
                       <p className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
@@ -555,7 +520,7 @@ export default async function VehiclesPage() {
                   </div>
 
                   <div className="rounded-[18px] border border-[var(--border-subtle)] bg-white px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
                       Next activity
                     </p>
                     {vehicle.nextBooking ? (

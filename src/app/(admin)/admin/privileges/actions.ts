@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { validatePrivilegeInput } from "@/lib/admin/privileges";
 import { requireAdminAppUser } from "@/lib/auth/user";
+import { reportAuditLogFailure } from "@/lib/logs/audit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const PRIVILEGE_SELECT =
@@ -100,10 +101,11 @@ export async function updatePrivileges(formData: FormData) {
   });
 
   if (logError) {
-    redirectWithMessage(
-      "error",
-      "Privileges updated, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: "privilege_updated",
+      error: logError,
+      targetId: updated.id,
+    });
   }
 
   revalidatePath("/admin/privileges");

@@ -4,10 +4,10 @@ import {
   type MemberRole,
 } from "@/lib/admin/members";
 import { requireAdminAppUser } from "@/lib/auth/user";
+import { SubmitButton } from "@/components/SubmitButton";
 import {
   Badge,
   BreadcrumbNav,
-  Button,
   CompactMetric,
   EmptyState,
   Field,
@@ -178,9 +178,13 @@ export default async function AdminMembersPage() {
             />
           </Field>
 
-          <Button className="w-full xl:w-auto" type="submit" tone="primary">
+          <SubmitButton
+            className="w-full xl:w-auto"
+            pendingLabel="Adding"
+            tone="primary"
+          >
             Add member
-          </Button>
+          </SubmitButton>
         </form>
       </Panel>
 

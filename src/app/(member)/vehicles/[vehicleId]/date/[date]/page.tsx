@@ -11,6 +11,7 @@ import {
 } from "@/lib/admin/vehicles";
 import { requireCurrentAppUser, type AppUser } from "@/lib/auth/user";
 import {
+  getBusinessTimeMinutes,
   getBookingStatusForFreedom,
   getThirtyMinuteTimeOptions,
 } from "@/lib/booking/bookings";
@@ -20,7 +21,7 @@ import {
   parseIsoDate,
 } from "@/lib/booking/dates";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createBooking } from "./actions";
+import { cancelBooking, createBooking } from "./actions";
 
 type BookingPageProps = {
   params: Promise<{ date: string; vehicleId: string }>;
@@ -76,6 +77,7 @@ function toTimelineBooking(booking: BookingRecord): TimelineBooking {
     reason: booking.reason,
     startTime: booking.start_time,
     status: booking.status,
+    userId: booking.user_id,
     userName: user?.name ?? "Unknown user",
   };
 }
@@ -203,6 +205,7 @@ export default async function BookingPage({
     today,
   });
   const createBookingAction = createBooking.bind(null, vehicle.id, date);
+  const cancelBookingAction = cancelBooking.bind(null, vehicle.id, date);
   const bookingStatus = getBookingStatusForFreedom(
     config.allow_booking_freedom
   );
@@ -258,6 +261,10 @@ export default async function BookingPage({
           allDayDisabled={config.time_limit_minutes !== null}
           bookingModeLabel={bookingModeLabel}
           bookings={bookings}
+          cancelAction={cancelBookingAction}
+          currentTimeMinutes={getBusinessTimeMinutes()}
+          currentUserId={currentUser.id}
+          currentUserRole={currentUser.role}
           formAction={createBookingAction}
           formDisabledMessage={formDisabledMessage}
           policySummary={getPolicySummary(config)}

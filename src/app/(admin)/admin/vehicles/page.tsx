@@ -1,8 +1,8 @@
 import { requireAdminAppUser } from "@/lib/auth/user";
+import { SubmitButton } from "@/components/SubmitButton";
 import {
   Badge,
   BreadcrumbNav,
-  Button,
   CompactMetric,
   EmptyState,
   Field,
@@ -197,9 +197,13 @@ export default async function AdminVehiclesPage() {
             </select>
           </Field>
 
-          <Button className="w-full md:w-auto" type="submit" tone="primary">
+          <SubmitButton
+            className="w-full md:w-auto"
+            pendingLabel="Adding"
+            tone="primary"
+          >
             Add vehicle
-          </Button>
+          </SubmitButton>
         </form>
       </Panel>
 

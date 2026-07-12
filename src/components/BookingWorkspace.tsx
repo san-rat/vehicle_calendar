@@ -6,6 +6,7 @@ import {
   getConfirmedBookingConflicts,
   parseTimeToMinutes,
 } from "@/lib/booking/bookings";
+import { SubmitButton } from "@/components/SubmitButton";
 import {
   TIMELINE_SLOT_HEIGHT_PX,
   TIMELINE_TIME_GUTTER_PX,
@@ -35,6 +36,7 @@ export type TimelineBooking = {
   reason: string | null;
   startTime: string;
   status: "confirmed" | "requested";
+  userId: string;
   userName: string;
 };
 
@@ -42,6 +44,10 @@ type BookingWorkspaceProps = {
   allDayDisabled: boolean;
   bookingModeLabel: string;
   bookings: TimelineBooking[];
+  cancelAction: (formData: FormData) => void | Promise<void>;
+  currentTimeMinutes: number;
+  currentUserId: string;
+  currentUserRole: "member" | "super_admin";
   formAction: (formData: FormData) => void | Promise<void>;
   formDisabledMessage: string | null;
   policySummary: string;
@@ -118,7 +124,62 @@ function compareBookings(first: TimelineBooking, second: TimelineBooking) {
   );
 }
 
-function TimelineDetailCard({ booking }: { booking: TimelineBooking }) {
+function canCancelBooking(input: {
+  booking: TimelineBooking;
+  currentTimeMinutes: number;
+  currentUserId: string;
+  currentUserRole: "member" | "super_admin";
+  selectedDate: string;
+  today: string;
+}) {
+  const isActor =
+    input.booking.userId === input.currentUserId ||
+    input.currentUserRole === "super_admin";
+
+  if (!isActor) {
+    return false;
+  }
+
+  if (input.selectedDate < input.today) {
+    return false;
+  }
+
+  const startMinutes = parseTimeToMinutes(normalizeTime(input.booking.startTime));
+
+  if (startMinutes === null) {
+    return false;
+  }
+
+  return (
+    input.selectedDate > input.today ||
+    startMinutes > input.currentTimeMinutes
+  );
+}
+
+function isPastTimeOption(input: {
+  currentTimeMinutes: number;
+  selectedDate: string;
+  time: string;
+  today: string;
+}) {
+  const timeMinutes = parseTimeToMinutes(input.time);
+
+  return (
+    input.selectedDate === input.today &&
+    timeMinutes !== null &&
+    timeMinutes <= input.currentTimeMinutes
+  );
+}
+
+function TimelineDetailCard({
+  booking,
+  cancelAction,
+  canCancel,
+}: {
+  booking: TimelineBooking;
+  cancelAction: BookingWorkspaceProps["cancelAction"];
+  canCancel: boolean;
+}) {
   return (
     <article
       className={`rounded-[20px] border px-4 py-4 text-sm shadow-[0_12px_28px_rgba(15,23,42,0.06)] transition-all hover:-translate-y-[1px] hover:shadow-[0_16px_34px_rgba(15,23,42,0.1)] ${getBookingSurfaceClass(
@@ -145,12 +206,24 @@ function TimelineDetailCard({ booking }: { booking: TimelineBooking }) {
           {booking.reason}
         </p>
       ) : null}
+      {canCancel ? (
+        <form action={cancelAction} className="mt-3">
+          <input name="id" type="hidden" value={booking.id} />
+          <SubmitButton pendingLabel="Cancelling" size="sm" tone="danger">
+            Cancel
+          </SubmitButton>
+        </form>
+      ) : null}
     </article>
   );
 }
 
 function TimelinePanel({
   bookings,
+  cancelAction,
+  currentTimeMinutes,
+  currentUserId,
+  currentUserRole,
   onOpenForm,
   selectedDate,
   selectedDateLabel,
@@ -158,6 +231,10 @@ function TimelinePanel({
   today,
 }: {
   bookings: TimelineBooking[];
+  cancelAction: BookingWorkspaceProps["cancelAction"];
+  currentTimeMinutes: number;
+  currentUserId: string;
+  currentUserRole: "member" | "super_admin";
   onOpenForm: () => void;
   selectedDate: string;
   selectedDateLabel: string;
@@ -168,9 +245,15 @@ function TimelinePanel({
     [...bookings].sort(compareBookings)
   );
   const timedLayouts = getTimedTimelineLayout(timedBookings);
-  const orderedBookings = [...bookings].sort(compareBookings);
+  const [activeTimedBookingId, setActiveTimedBookingId] = useState<string | null>(
+    null
+  );
+  const selectedTimedBooking =
+    timedBookings.find((booking) => booking.id === activeTimedBookingId) ??
+    timedBookings[0] ??
+    null;
   const showNowLine = shouldShowTimelineNowLine(selectedDate, today);
-  const [currentTimeMinutes, setCurrentTimeMinutes] = useState<number | null>(
+  const [liveTimeMinutes, setLiveTimeMinutes] = useState<number | null>(
     showNowLine ? getBusinessTimeMinutes() : null
   );
 
@@ -180,7 +263,7 @@ function TimelinePanel({
     }
 
     const updateCurrentTime = () => {
-      setCurrentTimeMinutes(getBusinessTimeMinutes());
+      setLiveTimeMinutes(getBusinessTimeMinutes());
     };
 
     updateCurrentTime();
@@ -263,7 +346,19 @@ function TimelinePanel({
               </div>
               <div className="space-y-2">
                 {allDayBookings.map((booking) => (
-                  <TimelineDetailCard booking={booking} key={booking.id} />
+                  <TimelineDetailCard
+                    booking={booking}
+                    cancelAction={cancelAction}
+                    canCancel={canCancelBooking({
+                      booking,
+                      currentTimeMinutes,
+                      currentUserId,
+                      currentUserRole,
+                      selectedDate,
+                      today,
+                    })}
+                    key={booking.id}
+                  />
                 ))}
               </div>
             </section>
@@ -340,11 +435,11 @@ function TimelinePanel({
                         />
                       ))}
 
-                      {showNowLine && currentTimeMinutes !== null ? (
+                      {showNowLine && liveTimeMinutes !== null ? (
                         <div
                           className="pointer-events-none absolute inset-x-0 z-20 flex items-center"
                           style={{
-                            top: getTimelineNowLineTopPx(currentTimeMinutes),
+                            top: getTimelineNowLineTopPx(liveTimeMinutes),
                           }}
                         >
                           <div className="absolute -left-[5px] h-2.5 w-2.5 rounded-full bg-[var(--danger)] shadow-[0_0_8px_rgba(199,59,55,0.5)]" />
@@ -358,17 +453,24 @@ function TimelinePanel({
                           layout.heightPx >= TIMELINE_SLOT_HEIGHT_PX * 1.25;
 
                         return (
-                          <article
-                            className={`absolute z-10 overflow-hidden rounded-[18px] border-l-4 border-t border-r border-b px-3 py-2 text-xs shadow-[0_10px_22px_rgba(15,23,42,0.08)] transition-all hover:z-20 hover:scale-[1.01] hover:shadow-[0_14px_30px_rgba(15,23,42,0.12)] ${getBookingSurfaceClass(
+                          <button
+                            aria-expanded={selectedTimedBooking?.id === layout.booking.id}
+                            className={`absolute z-10 overflow-hidden rounded-[18px] border-l-4 border-t border-r border-b px-3 py-2 text-left text-xs shadow-[0_10px_22px_rgba(15,23,42,0.08)] transition-all hover:z-20 hover:scale-[1.01] hover:shadow-[0_14px_30px_rgba(15,23,42,0.12)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20 ${
+                              selectedTimedBooking?.id === layout.booking.id
+                                ? "z-20 ring-4 ring-[var(--brand-500)]/16"
+                                : ""
+                            } ${getBookingSurfaceClass(
                               layout.booking
                             )}`}
                             key={layout.booking.id}
+                            onClick={() => setActiveTimedBookingId(layout.booking.id)}
                             style={{
                               height: Math.max(layout.heightPx - 6, 44),
                               left: `calc(${layout.column * columnWidth}% + 8px)`,
                               top: layout.topPx + 3,
                               width: `calc(${columnWidth}% - 12px)`,
                             }}
+                            type="button"
                           >
                             <p className="truncate text-sm font-semibold">
                               {layout.booking.userName}
@@ -380,7 +482,7 @@ function TimelinePanel({
                                 {normalizeTime(layout.booking.endTime)}
                               </p>
                             ) : null}
-                          </article>
+                          </button>
                         );
                       })}
                     </div>
@@ -390,19 +492,28 @@ function TimelinePanel({
             )}
           </section>
 
-          <section className="space-y-2.5">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-                Booking details
-              </h3>
-              <Badge tone="secondary">{orderedBookings.length}</Badge>
-            </div>
-            <div className="space-y-2">
-              {orderedBookings.map((booking) => (
-                <TimelineDetailCard booking={booking} key={`detail-${booking.id}`} />
-              ))}
-            </div>
-          </section>
+          {selectedTimedBooking ? (
+            <section className="space-y-2.5">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                  Booking details
+                </h3>
+                <Badge tone="secondary">Selected</Badge>
+              </div>
+              <TimelineDetailCard
+                booking={selectedTimedBooking}
+                cancelAction={cancelAction}
+                canCancel={canCancelBooking({
+                  booking: selectedTimedBooking,
+                  currentTimeMinutes,
+                  currentUserId,
+                  currentUserRole,
+                  selectedDate,
+                  today,
+                })}
+              />
+            </section>
+          ) : null}
         </div>
       )}
     </Panel>
@@ -432,7 +543,7 @@ function BookingSummary({
       </div>
       <dl className="mt-3 grid gap-3 sm:grid-cols-2">
         <div>
-          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             Vehicle
           </dt>
           <dd className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
@@ -440,7 +551,7 @@ function BookingSummary({
           </dd>
         </div>
         <div>
-          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             Date
           </dt>
           <dd className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
@@ -448,7 +559,7 @@ function BookingSummary({
           </dd>
         </div>
         <div>
-          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             Booking mode
           </dt>
           <dd className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
@@ -456,7 +567,7 @@ function BookingSummary({
           </dd>
         </div>
         <div>
-          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+          <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             Policy
           </dt>
           <dd className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
@@ -472,16 +583,24 @@ function BookingFormPanel({
   allDayDisabled,
   bookingModeLabel,
   bookings,
+  currentTimeMinutes,
   formAction,
   formDisabledMessage,
   policySummary,
   reasonRequired,
+  selectedDate,
   selectedDateLabel,
   submitLabel,
   timeOptions,
   timeLimitMinutes,
+  today,
   vehicleLabel,
-}: Omit<BookingWorkspaceProps, "selectedDate" | "today">) {
+}: Omit<
+  BookingWorkspaceProps,
+  | "cancelAction"
+  | "currentUserId"
+  | "currentUserRole"
+>) {
   const [isAllDay, setIsAllDay] = useState(false);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -603,11 +722,20 @@ function BookingFormPanel({
                 value={startTime}
               >
                 <option value="">Choose start</option>
-                {timeOptions.map((time) => (
-                  <option key={time} value={time}>
-                    {time}
-                  </option>
-                ))}
+                {timeOptions.map((time) => {
+                  const isPastOption = isPastTimeOption({
+                    currentTimeMinutes,
+                    selectedDate,
+                    time,
+                    today,
+                  });
+
+                  return (
+                    <option disabled={isPastOption} key={time} value={time}>
+                      {time}
+                    </option>
+                  );
+                })}
               </select>
             </Field>
 
@@ -622,11 +750,20 @@ function BookingFormPanel({
                 value={endTime}
               >
                 <option value="">Choose end</option>
-                {timeOptions.map((time) => (
-                  <option key={time} value={time}>
-                    {time}
-                  </option>
-                ))}
+                {timeOptions.map((time) => {
+                  const isPastOption = isPastTimeOption({
+                    currentTimeMinutes,
+                    selectedDate,
+                    time,
+                    today,
+                  });
+
+                  return (
+                    <option disabled={isPastOption} key={time} value={time}>
+                      {time}
+                    </option>
+                  );
+                })}
               </select>
             </Field>
           </div>
@@ -655,7 +792,7 @@ function BookingFormPanel({
             />
           </Field>
 
-          <Button
+          <SubmitButton
             className="w-full"
             disabled={
               isFormDisabled ||
@@ -665,12 +802,12 @@ function BookingFormPanel({
                 timeLimitMinutes !== null &&
                 durationMinutes > timeLimitMinutes
             }
+            pendingLabel="Saving"
             size="lg"
             tone="primary"
-            type="submit"
           >
             {submitLabel}
-          </Button>
+          </SubmitButton>
         </form>
       </div>
     </Panel>
@@ -681,6 +818,10 @@ export function BookingWorkspace({
   allDayDisabled,
   bookingModeLabel,
   bookings,
+  cancelAction,
+  currentTimeMinutes,
+  currentUserId,
+  currentUserRole,
   formAction,
   formDisabledMessage,
   policySummary,
@@ -701,7 +842,7 @@ export function BookingWorkspace({
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1 shadow-[0_12px_28px_rgba(15,23,42,0.05)] md:hidden">
         <button
-          className={`min-h-11 rounded-full px-4 py-2 text-sm font-semibold transition ${
+          className={`min-h-11 rounded-full px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20 ${
             activePanel === "timeline"
               ? "bg-[var(--brand-500)] text-white shadow-[0_12px_24px_rgba(17,122,108,0.22)]"
               : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -712,7 +853,7 @@ export function BookingWorkspace({
           Timeline
         </button>
         <button
-          className={`min-h-11 rounded-full px-4 py-2 text-sm font-semibold transition ${
+          className={`min-h-11 rounded-full px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20 ${
             activePanel === "form"
               ? "bg-[var(--brand-500)] text-white shadow-[0_12px_24px_rgba(17,122,108,0.22)]"
               : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -728,6 +869,10 @@ export function BookingWorkspace({
         <div className={activePanel === "timeline" ? "block" : "hidden xl:block"}>
           <TimelinePanel
             bookings={bookings}
+            cancelAction={cancelAction}
+            currentTimeMinutes={currentTimeMinutes}
+            currentUserId={currentUserId}
+            currentUserRole={currentUserRole}
             onOpenForm={() => setActivePanel("form")}
             selectedDate={selectedDate}
             selectedDateLabel={selectedDateLabel}
@@ -740,13 +885,16 @@ export function BookingWorkspace({
             allDayDisabled={allDayDisabled}
             bookingModeLabel={bookingModeLabel}
             bookings={bookings}
+            currentTimeMinutes={currentTimeMinutes}
             formAction={formAction}
             formDisabledMessage={formDisabledMessage}
             policySummary={policySummary}
             reasonRequired={reasonRequired}
+            selectedDate={selectedDate}
             selectedDateLabel={selectedDateLabel}
             submitLabel={submitLabel}
             timeLimitMinutes={timeLimitMinutes}
+            today={today}
             timeOptions={timeOptions}
             vehicleLabel={vehicleLabel}
           />

@@ -3,6 +3,8 @@ import { isDateWithinBookingWindow, parseIsoDate } from "./dates";
 export const ALL_DAY_START_TIME = "00:00";
 export const ALL_DAY_END_TIME = "23:59";
 export const BOOKING_REASON_MAX_LENGTH = 500;
+export const BOOKING_OVERLAP_CONFLICT_MESSAGE =
+  "This vehicle already has a confirmed booking during that time.";
 
 export type BookingStatus =
   | "cancelled"
@@ -32,6 +34,10 @@ export type BookingValidationResult =
 export type BookingDecisionNoteValidationResult =
   | { ok: true; value: string | null }
   | { error: string; ok: false };
+
+type PostgresErrorLike = {
+  code?: string | null;
+};
 
 function pad2(value: number) {
   return String(value).padStart(2, "0");
@@ -88,6 +94,18 @@ export function parseAllDayValue(value: string | null) {
 
 export function getBookingStatusForFreedom(allowBookingFreedom: boolean) {
   return allowBookingFreedom ? "confirmed" : "requested";
+}
+
+export function getBookingPersistenceErrorMessage(error: unknown) {
+  if (
+    error &&
+    typeof error === "object" &&
+    (error as PostgresErrorLike).code === "23P01"
+  ) {
+    return BOOKING_OVERLAP_CONFLICT_MESSAGE;
+  }
+
+  return null;
 }
 
 export function getBusinessTimeMinutes(
@@ -206,6 +224,33 @@ export function getApprovalTimingProblem(input: {
   return null;
 }
 
+export function getCancellationTimingProblem(input: {
+  currentTimeMinutes: number;
+  date: string;
+  startTime: string;
+  today: string;
+}) {
+  if (!parseIsoDate(input.date) || !parseIsoDate(input.today)) {
+    return "This booking has an invalid date.";
+  }
+
+  if (input.date < input.today) {
+    return "This booking has already started.";
+  }
+
+  const startMinutes = parseTimeToMinutes(normalizeDbTime(input.startTime));
+
+  if (startMinutes === null) {
+    return "This booking has an invalid start time.";
+  }
+
+  if (input.date === input.today && startMinutes <= input.currentTimeMinutes) {
+    return "This booking has already started.";
+  }
+
+  return null;
+}
+
 export function validateBookingInput(input: {
   allDay: string | null;
   confirmedBookings: BookingTimeWindow[];
@@ -271,7 +316,7 @@ export function validateBookingInput(input: {
 
     if (hasConfirmedBookingConflict(proposed, input.confirmedBookings)) {
       return {
-        error: "This vehicle already has a confirmed booking during that time.",
+        error: BOOKING_OVERLAP_CONFLICT_MESSAGE,
         ok: false,
       };
     }
@@ -332,7 +377,7 @@ export function validateBookingInput(input: {
 
   if (hasConfirmedBookingConflict(proposed, input.confirmedBookings)) {
     return {
-      error: "This vehicle already has a confirmed booking during that time.",
+      error: BOOKING_OVERLAP_CONFLICT_MESSAGE,
       ok: false,
     };
   }

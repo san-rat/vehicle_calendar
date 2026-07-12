@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   ALL_DAY_END_TIME,
   ALL_DAY_START_TIME,
+  BOOKING_OVERLAP_CONFLICT_MESSAGE,
   getApprovalTimingProblem,
+  getBookingPersistenceErrorMessage,
   getBookingStatusForFreedom,
   getBusinessTimeMinutes,
+  getCancellationTimingProblem,
   getConfirmedBookingConflicts,
   getThirtyMinuteTimeOptions,
   hasConfirmedBookingConflict,
@@ -60,6 +63,14 @@ describe("booking helpers", () => {
   it("uses booking freedom to pick the created status", () => {
     expect(getBookingStatusForFreedom(true)).toBe("confirmed");
     expect(getBookingStatusForFreedom(false)).toBe("requested");
+  });
+
+  it("maps database overlap violations to the booking conflict message", () => {
+    expect(getBookingPersistenceErrorMessage({ code: "23P01" })).toBe(
+      BOOKING_OVERLAP_CONFLICT_MESSAGE
+    );
+    expect(getBookingPersistenceErrorMessage({ code: "23505" })).toBeNull();
+    expect(getBookingPersistenceErrorMessage(null)).toBeNull();
   });
 
   it("resolves the business time in Asia/Colombo", () => {
@@ -344,6 +355,35 @@ describe("booking helpers", () => {
         currentTimeMinutes: 10 * 60,
         date: "2026-04-12",
         startTime: "10:00",
+        today: "2026-04-12",
+      })
+    ).toBeNull();
+  });
+
+  it("blocks cancellations after a booking has started", () => {
+    expect(
+      getCancellationTimingProblem({
+        currentTimeMinutes: 8 * 60,
+        date: "2026-04-11",
+        startTime: "09:00",
+        today: "2026-04-12",
+      })
+    ).toBe("This booking has already started.");
+
+    expect(
+      getCancellationTimingProblem({
+        currentTimeMinutes: 10 * 60,
+        date: "2026-04-12",
+        startTime: "10:00:00",
+        today: "2026-04-12",
+      })
+    ).toBe("This booking has already started.");
+
+    expect(
+      getCancellationTimingProblem({
+        currentTimeMinutes: 9 * 60,
+        date: "2026-04-12",
+        startTime: "10:00:00",
         today: "2026-04-12",
       })
     ).toBeNull();

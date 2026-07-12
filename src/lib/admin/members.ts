@@ -38,6 +38,8 @@ const memberRoleLabels: Record<MemberRole, string> = {
   super_admin: "Super Admin",
 };
 
+const maxPasswordBytes = 72;
+
 function normalizeHiddenEmailPart(value: string) {
   const normalized = value
     .trim()
@@ -125,6 +127,10 @@ function validateMemberName(name: string) {
 function validateMemberPassword(password: string, confirmation: string) {
   if (password.length < 8) {
     return { error: "Password must be at least 8 characters.", ok: false } as const;
+  }
+
+  if (new TextEncoder().encode(password).length > maxPasswordBytes) {
+    return { error: "Password must be 72 bytes or fewer.", ok: false } as const;
   }
 
   if (password !== confirmation) {

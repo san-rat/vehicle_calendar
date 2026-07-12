@@ -170,7 +170,7 @@ export function CalendarWorkspace({
             const visibleConfirmed = confirmedBookings.slice(0, 3);
             const totalSignals = day.bookings.length;
             const cellClass = [
-              "flex min-h-[72px] flex-col rounded-[16px] border px-2 py-2 text-left transition-all duration-200 sm:min-h-[116px] sm:rounded-[18px] sm:px-3 sm:py-3",
+              "flex min-h-[72px] flex-col rounded-[16px] border px-2 py-2 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20 sm:min-h-[116px] sm:rounded-[18px] sm:px-3 sm:py-3",
               day.isBookable
                 ? "bg-white shadow-[0_8px_18px_rgba(15,23,42,0.05)] hover:border-[var(--brand-500)]/28 hover:shadow-[0_14px_28px_rgba(15,23,42,0.09)]"
                 : "cursor-not-allowed bg-[var(--bg-surface-inset)] text-[var(--text-muted)] opacity-70",

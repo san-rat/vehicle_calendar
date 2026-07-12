@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { createPortal } from "react-dom";
-import { useEffect, useMemo, useState } from "react";
+import {
+  type RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { usePathname } from "next/navigation";
 import { type AppUser } from "@/lib/auth/user";
 import { Button, buttonClassName } from "@/components/ui";
@@ -34,10 +41,29 @@ type MobileNavDrawerProps = {
   navItems: NavItem[];
   onClose: () => void;
   open: boolean;
+  returnFocusRef: RefObject<HTMLButtonElement | null>;
 };
 
 function joinClasses(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
+}
+
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
+function getFocusableElements(container: HTMLElement) {
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    (element) =>
+      element.tabIndex >= 0 &&
+      element.getAttribute("aria-hidden") !== "true" &&
+      !element.hasAttribute("disabled")
+  );
 }
 
 function useIsActivePath() {
@@ -62,7 +88,7 @@ function DesktopNavLink({ href, icon: Icon, label }: NavItem) {
   return (
     <Link
       className={joinClasses(
-        "inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200",
+        "inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20",
         isActive
           ? "bg-[var(--brand-100)] text-[var(--brand-600)] shadow-[inset_0_0_0_1px_rgba(17,122,108,0.14)]"
           : "text-[var(--text-secondary)] hover:bg-white hover:text-[var(--text-primary)]"
@@ -86,7 +112,7 @@ function MobileNavLink({
   return (
     <Link
       className={joinClasses(
-        "inline-flex min-h-12 items-center gap-3 rounded-[18px] px-4 py-3 text-sm font-semibold transition-all duration-200",
+        "inline-flex min-h-12 items-center gap-3 rounded-[18px] px-4 py-3 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20",
         isActive
           ? "bg-[var(--brand-100)] text-[var(--brand-600)] shadow-[inset_0_0_0_1px_rgba(17,122,108,0.14)]"
           : "bg-[var(--bg-surface-tint)] text-[var(--text-primary)] hover:bg-white"
@@ -106,7 +132,11 @@ function MobileNavDrawer({
   navItems,
   onClose,
   open,
+  returnFocusRef,
 }: MobileNavDrawerProps) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!open) {
       return;
@@ -120,28 +150,113 @@ function MobileNavDrawer({
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const previouslyFocused =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const returnFocusTarget = returnFocusRef.current;
+
+    const focusFirstDrawerControl = () => {
+      const firstFocusable = drawerRef.current
+        ? getFocusableElements(drawerRef.current)[0]
+        : null;
+      (closeButtonRef.current ?? firstFocusable)?.focus({ preventScroll: true });
+    };
+
+    const frameId = window.requestAnimationFrame(focusFirstDrawerControl);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      const focusTarget = returnFocusTarget ?? previouslyFocused;
+
+      if (focusTarget?.isConnected) {
+        focusTarget.focus({ preventScroll: true });
+      }
+    };
+  }, [open, returnFocusRef]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (event.key !== "Tab" || !drawerRef.current) {
+        return;
+      }
+
+      const focusableElements = getFocusableElements(drawerRef.current);
+
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const activeElement =
+        document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+      if (event.shiftKey) {
+        if (
+          !activeElement ||
+          activeElement === firstElement ||
+          !drawerRef.current.contains(activeElement)
+        ) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+        return;
+      }
+
+      if (activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose, open]);
+
   if (!open || typeof document === "undefined") {
     return null;
   }
 
   return createPortal(
     <div
+      aria-label="Navigation menu"
+      aria-modal="true"
       className="fixed inset-0 z-[130] bg-[var(--text-primary)]/28 backdrop-blur-xl md:hidden"
-      onMouseDown={(event) => {
+      onPointerDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
         }
       }}
+      role="dialog"
     >
       <div
         className="flex h-full w-[min(348px,calc(100%-0.75rem))] flex-col border-r border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(246,251,250,0.95))] px-4 py-4 shadow-[0_24px_64px_rgba(15,23,42,0.18)]"
-        onMouseDown={(event) => {
+        onPointerDown={(event) => {
           event.stopPropagation();
         }}
+        ref={drawerRef}
       >
         <div className="flex items-center justify-between gap-3 pb-5">
           <Link
-            className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-[1.35rem] font-bold tracking-tight text-[var(--text-primary)] transition-all hover:opacity-80"
+            className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-[1.35rem] font-bold tracking-tight text-[var(--text-primary)] transition-all hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20"
             href="/vehicles"
             onClick={onClose}
           >
@@ -155,6 +270,7 @@ function MobileNavDrawer({
               tone: "ghost",
             })}
             onClick={onClose}
+            ref={closeButtonRef}
             type="button"
           >
             <CloseIcon className="h-5 w-5" />
@@ -217,7 +333,14 @@ export function TopBar({
   showAdminActions = false,
 }: TopBarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const isActive = useIsActivePath();
+  const closeMenu = useCallback(() => {
+    setIsMenuOpen(false);
+  }, []);
+  const openMenu = useCallback(() => {
+    setIsMenuOpen(true);
+  }, []);
 
   const navItems = useMemo<NavItem[]>(
     () => [
@@ -251,7 +374,8 @@ export function TopBar({
               className: "h-11 w-11 p-0",
               tone: "ghost",
             })}
-            onClick={() => setIsMenuOpen(true)}
+            onClick={openMenu}
+            ref={menuButtonRef}
             type="button"
           >
             <MenuIcon className="h-5 w-5" />
@@ -259,7 +383,7 @@ export function TopBar({
 
           <div className="flex min-w-0 justify-center">
             <Link
-              className="inline-flex min-w-0 items-center justify-center rounded-xl px-2 text-[1.32rem] font-bold tracking-[-0.03em] text-[var(--text-primary)] transition-all hover:text-[var(--brand-600)]"
+              className="inline-flex min-w-0 items-center justify-center rounded-xl px-2 text-[1.32rem] font-bold tracking-[-0.03em] text-[var(--text-primary)] transition-all hover:text-[var(--brand-600)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20"
               href="/vehicles"
             >
               <span className="mr-[2px] text-[var(--brand-500)]">Fleet</span>Time
@@ -268,7 +392,7 @@ export function TopBar({
 
           <Link
             aria-current={isActive("/log") ? "page" : undefined}
-            className="inline-flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-[var(--border-subtle)] bg-white/90 text-[var(--text-secondary)] shadow-[0_8px_18px_rgba(15,23,42,0.05)] transition-all hover:text-[var(--text-primary)]"
+            className="inline-flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-[var(--border-subtle)] bg-white/90 text-[var(--text-secondary)] shadow-[0_8px_18px_rgba(15,23,42,0.05)] transition-all hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20"
             href="/log"
           >
             <LogIcon className="h-4 w-4" />
@@ -278,7 +402,7 @@ export function TopBar({
         <div className="hidden min-h-[4.5rem] items-center justify-between gap-4 py-3 md:flex md:min-h-20">
           <div className="flex items-center gap-3">
             <Link
-              className="inline-flex items-center rounded-xl px-2 text-[1.45rem] font-bold tracking-[-0.03em] text-[var(--text-primary)] transition-all hover:text-[var(--brand-600)]"
+              className="inline-flex items-center rounded-xl px-2 text-[1.45rem] font-bold tracking-[-0.03em] text-[var(--text-primary)] transition-all hover:text-[var(--brand-600)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--brand-500)]/20"
               href="/vehicles"
             >
               <span className="mr-[2px] text-[var(--brand-500)]">Fleet</span>Time
@@ -327,8 +451,9 @@ export function TopBar({
         adminItems={adminItems}
         currentUser={currentUser}
         navItems={navItems}
-        onClose={() => setIsMenuOpen(false)}
+        onClose={closeMenu}
         open={isMenuOpen}
+        returnFocusRef={menuButtonRef}
       />
     </header>
   );

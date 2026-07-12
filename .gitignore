@@ -44,3 +44,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# stray temp dirs (browser profiles from screenshot tooling)
+.tmp-chrome*/

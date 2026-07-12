@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminAppUser } from "@/lib/auth/user";
 import { validateVehicleInput, type VehicleType } from "@/lib/admin/vehicles";
+import { reportAuditLogFailure } from "@/lib/logs/audit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const VEHICLE_SELECT = "id, name, type, is_active, created_at, updated_at";
@@ -100,10 +101,11 @@ export async function createVehicle(formData: FormData) {
   });
 
   if (logError) {
-    redirectWithMessage(
-      "error",
-      "Vehicle created, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: "vehicle_created",
+      error: logError,
+      targetId: data.id,
+    });
   }
 
   revalidatePath("/admin/vehicles");
@@ -167,10 +169,11 @@ export async function updateVehicle(formData: FormData) {
   });
 
   if (logError) {
-    redirectWithMessage(
-      "error",
-      "Vehicle updated, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: "vehicle_updated",
+      error: logError,
+      targetId: updated.id,
+    });
   }
 
   revalidatePath("/admin/vehicles");
@@ -238,10 +241,11 @@ export async function deleteVehicle(formData: FormData) {
   });
 
   if (logError) {
-    redirectWithMessage(
-      "error",
-      "Vehicle deleted, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: "vehicle_deleted",
+      error: logError,
+      targetId: vehicle.id,
+    });
   }
 
   revalidatePath("/admin/vehicles");

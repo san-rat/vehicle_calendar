@@ -6,11 +6,14 @@ import { requireCurrentAppUser } from "@/lib/auth/user";
 import {
   getBookingStatusForFreedom,
   getBusinessTimeMinutes,
+  getBookingPersistenceErrorMessage,
   validateBookingInput,
+  getCancellationTimingProblem,
   type BookingStatus,
   type BookingTimeWindow,
 } from "@/lib/booking/bookings";
 import { getBusinessToday } from "@/lib/booking/dates";
+import { reportAuditLogFailure } from "@/lib/logs/audit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const BOOKING_SELECT =
@@ -154,7 +157,13 @@ export async function createBooking(
     .single<BookingRecord>();
 
   if (createError || !createdBooking) {
-    redirectWithMessage(vehicleId, date, "error", "Booking could not be saved.");
+    redirectWithMessage(
+      vehicleId,
+      date,
+      "error",
+      getBookingPersistenceErrorMessage(createError) ??
+        "Booking could not be saved."
+    );
   }
 
   const actionType =
@@ -173,12 +182,11 @@ export async function createBooking(
   });
 
   if (logError) {
-    redirectWithMessage(
-      vehicleId,
-      date,
-      "error",
-      "Booking saved, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: actionType,
+      error: logError,
+      targetId: createdBooking.id,
+    });
   }
 
   revalidatePath(`/vehicles/${vehicleId}/date/${date}`);
@@ -189,4 +197,96 @@ export async function createBooking(
     "success",
     status === "confirmed" ? "Booking confirmed." : "Booking request submitted."
   );
+}
+
+export async function cancelBooking(
+  vehicleId: string,
+  date: string,
+  formData: FormData
+) {
+  const currentUser = await requireCurrentAppUser();
+  const bookingId = getFormString(formData, "id");
+
+  if (!bookingId) {
+    redirectWithMessage(vehicleId, date, "error", "Missing booking id.");
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const { data: before, error: beforeError } = await supabase
+    .from("bookings")
+    .select(BOOKING_SELECT)
+    .eq("id", bookingId)
+    .eq("vehicle_id", vehicleId)
+    .eq("date", date)
+    .maybeSingle<BookingRecord>();
+
+  if (beforeError || !before) {
+    redirectWithMessage(vehicleId, date, "error", "Booking not found.");
+  }
+
+  if (before.user_id !== currentUser.id && currentUser.role !== "super_admin") {
+    redirectWithMessage(
+      vehicleId,
+      date,
+      "error",
+      "You cannot cancel this booking."
+    );
+  }
+
+  if (before.status !== "confirmed" && before.status !== "requested") {
+    redirectWithMessage(
+      vehicleId,
+      date,
+      "error",
+      "This booking cannot be cancelled."
+    );
+  }
+
+  const timingProblem = getCancellationTimingProblem({
+    currentTimeMinutes: getBusinessTimeMinutes(),
+    date: before.date,
+    startTime: before.start_time,
+    today: getBusinessToday(),
+  });
+
+  if (timingProblem) {
+    redirectWithMessage(vehicleId, date, "error", timingProblem);
+  }
+
+  const { data: updated, error: updateError } = await supabase
+    .from("bookings")
+    .update({
+      status: "cancelled",
+      updated_by: currentUser.id,
+    })
+    .eq("id", before.id)
+    .in("status", ["confirmed", "requested"])
+    .select(BOOKING_SELECT)
+    .maybeSingle<BookingRecord>();
+
+  if (updateError || !updated) {
+    redirectWithMessage(vehicleId, date, "error", "Booking could not be cancelled.");
+  }
+
+  const { error: logError } = await supabase.from("log_entries").insert({
+    action_type: "booking_cancelled",
+    actor_user_id: currentUser.id,
+    booking_id: updated.id,
+    description: `Booking cancelled for ${updated.date}.`,
+    snapshot: { after: updated, before },
+    target_user_id: updated.user_id,
+    target_vehicle_id: updated.vehicle_id,
+  });
+
+  if (logError) {
+    reportAuditLogFailure({
+      action: "booking_cancelled",
+      error: logError,
+      targetId: updated.id,
+    });
+  }
+
+  revalidatePath(`/vehicles/${vehicleId}/date/${date}`);
+  revalidatePath(`/vehicles/${vehicleId}/calendar`);
+  redirectWithMessage(vehicleId, date, "success", "Booking cancelled.");
 }

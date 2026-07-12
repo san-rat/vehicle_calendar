@@ -12,6 +12,7 @@ import {
   type MemberRole,
 } from "@/lib/admin/members";
 import { requireAdminAppUser } from "@/lib/auth/user";
+import { reportAuditLogFailure } from "@/lib/logs/audit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const MEMBER_SELECT = "id, name, role, color_hex, is_active, created_at, updated_at";
@@ -168,10 +169,11 @@ export async function createMember(formData: FormData) {
   });
 
   if (logError) {
-    redirectWithMessage(
-      "error",
-      "Member created, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: "member_created",
+      error: logError,
+      targetId: createdProfile.id,
+    });
   }
 
   revalidatePath("/admin/members");
@@ -245,10 +247,11 @@ export async function updateMember(formData: FormData) {
   });
 
   if (logError) {
-    redirectWithMessage(
-      "error",
-      "Member updated, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: roleChanged ? "member_role_changed" : "member_updated",
+      error: logError,
+      targetId: updated.id,
+    });
   }
 
   revalidatePath("/admin/members");
@@ -295,10 +298,11 @@ export async function resetMemberPassword(formData: FormData) {
   });
 
   if (logError) {
-    redirectWithMessage(
-      "error",
-      "Password reset, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: "member_password_reset",
+      error: logError,
+      targetId: member.id,
+    });
   }
 
   revalidatePath("/admin/members");
@@ -369,10 +373,11 @@ export async function deleteMember(formData: FormData) {
   });
 
   if (logError) {
-    redirectWithMessage(
-      "error",
-      "Member deleted, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: "member_deleted",
+      error: logError,
+      targetId: member.id,
+    });
   }
 
   revalidatePath("/admin/members");

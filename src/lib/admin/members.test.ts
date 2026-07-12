@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildInternalMemberEmail,
   getMemberRoleLabel,
+  getNextUserColor,
   getSelfMemberEditProblem,
   isMemberRole,
   parseMemberActiveState,
@@ -36,6 +37,10 @@ describe("member admin helpers", () => {
         role: "member",
       },
     });
+  });
+
+  it("picks the first palette color when none are used", () => {
+    expect(getNextUserColor([])).toBe(USER_COLOR_PALETTE[0]);
   });
 
   it("rejects invalid names and roles", () => {
@@ -99,12 +104,52 @@ describe("member admin helpers", () => {
     });
   });
 
+  it("rejects passwords over bcrypt's 72-byte limit", () => {
+    const seventyTwoBytes = "a".repeat(72);
+    expect(
+      validatePasswordResetInput({
+        password: seventyTwoBytes,
+        passwordConfirmation: seventyTwoBytes,
+      })
+    ).toEqual({
+      ok: true,
+      value: {
+        password: seventyTwoBytes,
+      },
+    });
+
+    const seventyThreeBytes = "a".repeat(73);
+    expect(
+      validatePasswordResetInput({
+        password: seventyThreeBytes,
+        passwordConfirmation: seventyThreeBytes,
+      })
+    ).toEqual({
+      error: "Password must be 72 bytes or fewer.",
+      ok: false,
+    });
+
+    const multiBytePassword = "1234567" + "\u{1F642}".repeat(17);
+    expect(
+      validatePasswordResetInput({
+        password: multiBytePassword,
+        passwordConfirmation: multiBytePassword,
+      })
+    ).toEqual({
+      error: "Password must be 72 bytes or fewer.",
+      ok: false,
+    });
+  });
+
   it("builds hidden internal emails with unique suffixes", () => {
     expect(buildInternalMemberEmail("Super Admin", "ABC-123")).toBe(
       "super-admin--abc-123@auth.fleettime.local"
     );
     expect(buildInternalMemberEmail("Super Admin", "XYZ-789")).not.toBe(
       buildInternalMemberEmail("Super Admin", "ABC-123")
+    );
+    expect(buildInternalMemberEmail("!!!", "###")).toBe(
+      "member--member@auth.fleettime.local"
     );
   });
 
@@ -132,6 +177,14 @@ describe("member admin helpers", () => {
         targetUserId: "user-1",
       })
     ).toBe("You cannot demote your own admin account.");
+
+    expect(
+      getSelfMemberEditProblem({
+        currentUserId: "user-1",
+        nextRole: "super_admin",
+        targetUserId: "user-1",
+      })
+    ).toBeNull();
 
     expect(
       getSelfMemberEditProblem({

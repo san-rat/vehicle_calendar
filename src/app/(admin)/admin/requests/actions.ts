@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdminAppUser } from "@/lib/auth/user";
 import {
   getApprovalTimingProblem,
+  getBookingPersistenceErrorMessage,
   getBusinessTimeMinutes,
   getConfirmedBookingConflicts,
   validateOverrideConfirmation,
@@ -13,6 +14,7 @@ import {
   type BookingStatus,
 } from "@/lib/booking/bookings";
 import { getBusinessToday } from "@/lib/booking/dates";
+import { reportAuditLogFailure } from "@/lib/logs/audit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const BOOKING_SELECT =
@@ -228,7 +230,11 @@ export async function approveBookingRequest(formData: FormData) {
     .maybeSingle<BookingRecord>();
 
   if (updateError || !updated) {
-    redirectWithMessage("error", "Booking request could not be approved.");
+    redirectWithMessage(
+      "error",
+      getBookingPersistenceErrorMessage(updateError) ??
+        "Booking request could not be approved."
+    );
   }
 
   const logEntries: AuditLogEntry[] = overriddenBookings.map((booking) => ({
@@ -266,10 +272,13 @@ export async function approveBookingRequest(formData: FormData) {
   const { error: logError } = await supabase.from("log_entries").insert(logEntries);
 
   if (logError) {
-    redirectWithMessage(
-      "error",
-      "Request approved, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: isOverrideApproval
+        ? "booking_confirmed_with_override"
+        : "booking_confirmed",
+      error: logError,
+      targetId: updated.id,
+    });
   }
 
   revalidatePath("/admin/requests");
@@ -338,10 +347,11 @@ export async function rejectBookingRequest(formData: FormData) {
   });
 
   if (logError) {
-    redirectWithMessage(
-      "error",
-      "Request rejected, but the audit log could not be written."
-    );
+    reportAuditLogFailure({
+      action: "booking_rejected",
+      error: logError,
+      targetId: updated.id,
+    });
   }
 
   revalidatePath("/admin/requests");
